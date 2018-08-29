@@ -1,7 +1,12 @@
 from flask import Flask, render_template, request, jsonify
+from planner import Planner
 import json
 
 app = Flask(__name__)
+planner = Planner()
+
+# Create a new planning problem
+planner.definePlanningProblem()
 
 @app.route("/")
 def index(exp=0, gs='Extinguish Big Fire At Byeng'):

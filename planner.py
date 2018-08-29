@@ -45,6 +45,9 @@ class Planner():
         self.landmark_code = '../RADAR/FD/src/fast-downward.py'
         self.output = './output'
 
+        # Files for storing problem state as a json
+        self.problem_state_json = './static/files/state.json'
+
     '''
     Writes a dict of indexed actions into the observation file.
         @Input
@@ -404,4 +407,11 @@ class Planner():
     '''
     def definePlanningProblem(self):
         problem_state = problem_generator.generateState()
+        
+        # Get pddl file from problem state
         problem_generator.compile2pddl(problem_state)
+        
+        # Write json to file for ui
+        f = open(self.problem_state_json, 'w')
+        f.write(problem_state)
+        f.close()
