@@ -95,7 +95,8 @@ $(document).ready(function () {
     // method :: submit iPOS
     $('.addButton').click( function(){
 
-        var ss = $(this).parent().siblings(' .form-control ').find( 'button' ).html();
+        var elem = $(this).parent().siblings(' .form-control ').find( 'button' );
+        var ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim();
         alert(ss);
 
     });
