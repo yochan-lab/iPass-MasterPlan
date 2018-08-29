@@ -9,4 +9,4 @@ def index(exp=0, gs='Extinguish Big Fire At Byeng'):
     return render_template('index.html', canAskForExplanations=exp, plan=p)
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5000, debug=True)

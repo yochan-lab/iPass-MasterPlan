@@ -1,21 +1,22 @@
 <div class="row">
     <div class="col">
         <div class="card bg-light mb-3" style="max-width: 100%;">
-            <div class="card-header">Student Information</div>
-            <div class="card-body">
-                <p class="card-text">
-                    <p>Jack Daniels (1209123456)</p>
-                    <p>International Student</p>
-                    <div class="input-group">
-                      <div class="input-group-prepend">
-                        <div class="input-group-text">
-                        <input type="Checkbox" aria-label="Checkbox for following text input">
-                        </div>
-                      </div>
-                      <input type="text" class="form-control" aria-label="Text input with radio button" value='RA/TA?' disabled>
-                    </div>
-                </p>
+            <div class="card-header">
+                <strong>Student Information</strong>
             </div>
+            <ul class="list-group">
+                <li class="list-group-item" id="international">
+                    <i class="fas"></i> &nbsp;
+                    International Student?
+                </li>
+                <li class="list-group-item" id="rata">
+                    <i class="fas"></i> &nbsp;
+                    RA/TA?
+                </li>
+                <li class="list-group-item" id="specialization">
+                    <h6>Specialization <span class="badge badge-success">Big Data</span></h6>
+                </li>
+           </ul>
         </div>
     </div>
 </div>
@@ -23,12 +24,92 @@
 <div class="row">
     <div class="col">
         <div class="card bg-light mb-3" style="max-width: 100%;">
-            <div class="card-header">Header</div>
-            <div class="card-body">
-                <h5 class="card-title">Light card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <div class="card-header">
+                <strong>Deficiencies Completed</strong>
             </div>
+            <ul class="list-group">
+                <li class="list-group-item" id="CSE230">
+                    <i class="fas fa-check"></i> &nbsp;
+                    CSE 230: Computer Organization and Assembly Language Programming
+                </li>
+                <li class="list-group-item" id="CSE310">
+                    <i class="fas fa-check"></i> &nbsp;
+                    CSE 310: Data Structures and Algorithms
+                </li>
+                <li class="list-group-item" id="CSE330">
+                    <i class="fas fa-check"></i> &nbsp;
+                    CSE 330: Operating Systems
+                </li>
+                <li class="list-group-item" id="CSE340">
+                    <i class="fas fa-check"></i> &nbsp;
+                    CSE 340: Principles of Programming Languages
+                </li>
+                <li class="list-group-item" id="CSE355">
+                    <i class="fas fa-times"></i> &nbsp;
+                    CSE 355: Introduction to Theoretical Computer Science
+                </li>
+                <li class="list-group-item" id="CSE360">
+                    <i class="fas fa-check"></i> &nbsp;
+                    CSE 360: Introduction to Software Engineering
+                </li>
+            </ul>
         </div>
     </div>
 </div>
 
+<div class="row">
+    <div class="col">
+        <div class="card bg-light mb-3" style="max-width: 100%;">
+            <div class="card-header">
+                <strong>Build iPOS</strong>
+            </div>
+
+            <div class="input-group input-group-sm">
+                <div class="dropdown form-control">
+                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="courseList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add Courses
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="courseList"></div>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-success addButton" type="button">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-group input-group-sm">
+                <div class="dropdown form-control">
+                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="chairList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add Committee Chair
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="chairList"></div>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-success addButton" type="button">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-group input-group-sm">
+                <div class="dropdown form-control">
+                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="committeeList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add Committee Members
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="committeeList"></div>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-success addButton" type="button">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-outline-success btn-sm btn-block" type="button" id="submit">
+    Submit
+</button>

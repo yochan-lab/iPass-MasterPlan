@@ -1,0 +1,34 @@
+/*
+Custom styles from Tathagata
+*************/
+
+/* navbar area */
+
+.navbar {
+    justify-content: center;
+}
+
+.nav-item {
+    color:#f9b42e;
+}
+
+.nav-item > strong {
+    color:#941037;
+}
+
+
+/* font-awesome */
+
+.fas.fa-check {
+    color: green;
+}
+
+.fas.fa-times {
+    color: red;
+}
+
+ /* input area */
+
+.form-control > button {
+    border-color: white;
+}
