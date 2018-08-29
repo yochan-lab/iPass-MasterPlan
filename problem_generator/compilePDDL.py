@@ -35,8 +35,8 @@ def generateState():
 
     for course in state_dict['deficiency']:
 
-        if random.randint(0, 1): state_dict['deficiency'] = "yes"
-        else:                    state_dict['deficiency'] = "no"
+        if random.randint(0, 1): state_dict['deficiency'][course] = "yes"
+        else:                    state_dict['deficiency'][course] = "no"
             
     if random.randint(0, 1): state_dict['ra/ta'] = "yes"
     else:                    state_dict['ra/ta'] = "no"
@@ -123,10 +123,10 @@ def main():
     with open(args.file) as state_file:
         stateJSON = state_file.read()
 
-    problem = compile2pddl(stateJSON) 
+    print generateState()
+    print ss
+    problem = compile2pddl(ss) 
 
-    #print problem
-    #print generateState()
-    
+
 if __name__ == '__main__':
     main()
