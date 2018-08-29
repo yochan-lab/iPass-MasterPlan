@@ -1,0 +1,13 @@
+{
+    "specialization" : "big data",
+    "deficiency" : {
+	"CSE340" : "yes",
+	"CSE360" : "yes",
+	"CSE310" : "yes",
+	"CSE230" : "yes",
+	"CSE330" : "yes",
+	"CSE355" : "no"
+    },
+    "ra/ta" : "no",
+    "international" : "no"
+}

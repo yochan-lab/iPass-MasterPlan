@@ -1,0 +1,14 @@
+{
+    "Colbourn" : ["Charlie Colbourn", "foundations"],
+    "Sen"      : ["Arunabha Sen", "foundations"],
+    "Xue"      : ["Guoliang Xue", "foundations"],
+    "Richa"    : ["Andrea Richa", "foundations"],
+    "Doupe"    : ["Adam Doupe", "systems"],
+    "Huang"    : ["Dijiang Huang", "systems"],
+    "Sarwat"   : ["Mohammad Sarwat", "systems"],
+    "Candan"   : ["Selchuk Candan", "systems"],
+    "Rao"      : ["Subbarao Kambhampati", "applications"],
+    "Liu"      : ["Huan Liu", "applications"],
+    "Zhang"    : ["Yu Zhang", "applications"],
+    "Amor"     : ["Heni Ben Amor", "applications"]
+}
