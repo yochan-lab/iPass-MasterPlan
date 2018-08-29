@@ -10,14 +10,16 @@ import argparse
 '''
 global variables
 '''
+CONFIG_FILES_DIR = './problem_generator/config/{}'
+PDDL_FILES_DIR = './problem_generator/output/{}'
 
 # list of committee members and their properties
-with open('config/committee.json', 'r') as committee_file:
+with open(CONFIG_FILES_DIR.format('committee.json'), 'r') as committee_file:
     temp = committee_file.read()
     committee_dict = json.loads(temp)
 
 # list of courses and their properties
-with open('config/courses.json', 'r') as courses_file:
+with open(CONFIG_FILES_DIR.format('courses.json'), 'r') as courses_file:
     temp = courses_file.read()
     courses_dict = json.loads(temp)
 
@@ -28,7 +30,7 @@ method :: generate random state configuration
 def generateState():
 
     # sample state configuration
-    with open('config/state.json') as state_file:
+    with open(CONFIG_FILES_DIR.format('state.json'), 'r') as state_file:
         stateJSON = state_file.read()
         
     state_dict = json.loads(stateJSON)
@@ -57,7 +59,7 @@ method :: compile JSON to random problem instance
 def compile2pddl(stateJSON):
 
     # template file for problem instance
-    with open('output/template.pddl') as template_file:
+    with open(PDDL_FILES_DIR.format('template.pddl'), 'r') as template_file:
         template = template_file.read()
 
     temp_dict = {}
@@ -103,7 +105,7 @@ def compile2pddl(stateJSON):
         template = template.replace('[SPECIALIZATION]', '')
 
     # if not required, comment out i/o for speed 
-    with open('output/problem.pddl', 'w') as problem_file:
+    with open(PDDL_FILES_DIR.format('problem.pddl'), 'w') as problem_file:
         problem_file.write(template)
         
     return template
@@ -116,7 +118,7 @@ method :: main
 def main():
 
     parser = argparse.ArgumentParser(description='Make PDDL files for planner.')
-    parser.add_argument('-f', '--file', default='config/state.json', help='path to json file for state information')
+    parser.add_argument('-f', '--file', default=CONFIG_FILES_DIR.format('state.json'), help='path to json file for state information')
 
     args = parser.parse_args()
 

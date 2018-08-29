@@ -1,10 +1,38 @@
 <div class="row" style="height=100%">
     <div class="col">
         <div class="card bg-light mb-3" style="max-width: 100%;">
-            <div class="card-header">Header</div>
+            <div class="card-header">Interactive Plan Of Study</div>
             <div class="card-body">
-                <h5 class="card-title">Light card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                
+                <div class="row">
+                    <div class='col'>
+                        Validate
+                    </div>
+                    <div class='col'>
+                        Suggest
+                    </div>
+                    <div class='col'>
+                        Undo
+                    </div>
+                </div><!-- row ends -->
+                
+                {% if canAskForExplanations > 0 %}
+                    <div class='row'>
+                        <div class='col'>
+                            Optimal Plan
+                        </div>
+                        <div class='col'>
+                            Explain this Plan?
+                        </div>
+                    <div><!-- row ends -->
+                {% endif %}
+            
+                <div class='row'>
+                    <div class='grid-stack'>
+                        <!-- Plans happens here -->
+                    </div>
+                </div><!-- row ends -->
+                
             </div>
         </div>
     </div>

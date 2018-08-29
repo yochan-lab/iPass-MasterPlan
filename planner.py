@@ -410,8 +410,7 @@ class Planner():
         
         # Get pddl file from problem state
         problem_generator.compile2pddl(problem_state)
-        
+
         # Write json to file for ui
-        f = open(self.problem_state_json, 'w')
-        f.write(problem_state)
-        f.close()
+        with open(self.problem_state_json, 'w') as f:
+            f.write(problem_state)
