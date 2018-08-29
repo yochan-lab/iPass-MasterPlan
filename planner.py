@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import problem_generator.compilePDDL as problem_generator
 from shutil import copy as copyf
 from copy import deepcopy
 
@@ -401,27 +402,6 @@ class Planner():
         @Input - Goal for which planning problem is to be made
         @Output - Creates problem.pddl
     '''
-    '''
-    def definePlanningProblem(self, gs):
-
-        tempProblem = "(define (problem BYENG) (:domain RADAR)\n\n(:objects \n"
-        tempProblem += self.probMaker.addObjects()
-
-        tempProblem += "\n)\n\n(:init\n"
-        tempProblem += self.probMaker.addInitialState(gs)
-
-        tempProblem += self.probMaker.addFireStationResources()
-        tempProblem += self.probMaker.addHospitalResources()
-        tempProblem += self.probMaker.addPoliceStationResources()
-
-        tempProblem += self.probMaker.addDurationsOfActions()
-
-        tempProblem += '\n)\n\n(:goal\n(and\n'
-        tempProblem += self.probMaker.addGoal()
-
-        tempProblem += ')\n)\n'
-        tempProblem += '\n(:metric minimize (total-cost))\n\n)\n'
-
-        f = file('./planner/mock_problem.pddl','w')
-        f.write(tempProblem)
-    '''
+    def definePlanningProblem(self):
+        problem_state = problem_generator.generateState()
+        problem_generator.compile2pddl(problem_state)
