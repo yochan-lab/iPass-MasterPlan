@@ -11,21 +11,26 @@
         
 <!--         <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.css"> 
         <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
- -->        
-
+ -->    
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/sticky-footer.css') }}">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/gridstack.css') }}">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/gridstack-extra.css') }}"> 
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
 
         <link rel="stylesheet" type="text/css" href="static/css/custom-tathagata.css"> 
 
-        <script src="static/js/jquery-3.2.1.min.js"></script>
+        <!-- <script src="static/js/jquery-3.2.1.min.js"></script> -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="static/js/popper.min.js"></script>
 
         <script src="static/bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
-
-        <script src="static/js/custom-tathagata.js"></script>
-
-
-        <!-- <script src="static/js/holder.min.js"></script> -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.0/jquery-ui.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
+        <script type= "text/javascript" src= "{{ url_for('static',filename='new_js/gridstack.js') }}"></script>
+    
+    <script type= "text/javascript" src= "{{ url_for('static',filename='new_js/gridstack.jQueryUI.js') }}"></script>
+   
+<!-- <script src="static/js/holder.min.js"></script> -->
 <!-- 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.0/jquery-ui.js"></script>
         <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.js"></script>

@@ -7,7 +7,6 @@
 $(document).ready(function () {
 
     // method :: initialize student info from state JSON
-
     $.ajax({
         url: "static/files/state.json",
         dataType: "json",
@@ -90,19 +89,6 @@ $(document).ready(function () {
     // method :: set selected option as active dropdown item
     $(document).on( "click", ".dropdown-item", function() {
         $(this).parent().siblings( ".dropdown-toggle" ).html( $(this).html() );
-    });
-
-    // method :: submit iPOS
-    $('.addButton').click( function(){
-
-        var elem = $(this).parent().siblings(' .form-control ').find( 'button' );
-        var ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim();
-        alert(ss);
-
-    });
-
-    // method :: submit iPOS
-    $('#submit').click( function(){
     });
 
 });

@@ -26,13 +26,16 @@ returns a JSON format.
 '''
 def ui_plan_to_pddl_style(request):
     seq = {}
+    print(request)
     plan = json.loads(dict(request.form)['plan'][0])
+    print(plan)
     for act in plan:
         # We assume that only one action occurs at a time
         # TODO: Update code if we want to allow options for
         # two simultaneous actions (choices)
         seq[ act["y"] ] = act["name"]
     #print "\n======\n{}\n======\n".format(seq)
+    print(seq)
     return seq
 
 @app.route("/validate", methods=['GET', 'POST'])
@@ -56,7 +59,7 @@ def suggest():
 @app.route("/undo", methods=['GET', 'POST'])
 def undo():
     planner.loadPlan()
-    return index(s="")
+    return index()
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

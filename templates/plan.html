@@ -6,16 +6,22 @@
                 
                 <div class="row">
                     <div class='col'>
-                        Validate
+                        <button type="button" class="col-md-12 btn btn-secondary validatePlan">
+                            Validate
+                        </button>
                     </div>
                     <div class='col'>
-                        Suggest
+                        <button type="button" class="col-md-12 btn btn-secondary suggestPlan">
+                            Suggest
+                        </button>
                     </div>
                     <div class='col'>
-                        Undo
+                        <button type="button" class="col-md-12 btn btn-secondary undoChange">
+                            Undo
+                        </button>
                     </div>
                 </div><!-- row ends -->
-                
+                <br>
                 {% if canAskForExplanations > 0 %}
                     <div class='row'>
                         <div class='col'>
@@ -25,11 +31,14 @@
                             Explain this Plan?
                         </div>
                     <div><!-- row ends -->
+                <br>
                 {% endif %}
-            
+                
                 <div class='row'>
-                    <div class='grid-stack'>
-                        <!-- Plans happens here -->
+                    <div class='col'>
+                        <div class='grid-stack'>
+                            <!-- Plans happens here -->
+                        </div>
                     </div>
                 </div><!-- row ends -->
                 
@@ -37,3 +46,213 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+$.extend({
+    redirectPost: function(location, args)
+    {
+        var form = $('<form></form>');
+        form.attr("method", "post");
+        form.attr("action", location);
+
+        $.each( args, function( key, value ) {
+            var field = $('<input></input>');
+
+            field.attr("type", "hidden");
+            field.attr("name", key);
+            field.attr("value", value);
+
+            form.append(field);
+        });
+        $(form).appendTo('body').submit();
+    }
+});
+    
+$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+$(function () {
+    /*
+    $('.addAction').click(function() {
+        var action = $('#actionToAdd').val();
+        console.log(action);
+        updateData(action);
+    });
+    */
+    // method :: submit iPOS
+    $('.addButton').click( function(){
+
+        var elem = $(this).parent().siblings(' .form-control ').find( 'button' );
+        var ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim();
+        updateData(ss);
+    });
+    
+    // method :: submit iPOS
+    $('#submit').click( function(){
+        console.log('in submit');
+        $('.validatePlan').trigger('click');
+    });
+    
+    $('[data-toggle="tooltip"]').tooltip();
+
+    getGridStackData = function() {
+        var res = _.map( $('.grid-stack > .grid-stack-item:visible'), function(el) {
+            el = $(el)
+            var node = el.data('_gridstack_node');
+            return {
+                name : node.el[0]['innerText'],
+                x : node.x,
+                y : node.y,
+                width : node.width,
+                height: node.height
+            };
+        });
+        return res;
+    }
+
+    $('.validatePlan').click(function() {
+        console.log('in validate plan');
+        res = getGridStackData();
+        $('.page_content').fadeOut();
+        $('.loader').fadeIn();
+        $.redirectPost('validate', {'plan': JSON.stringify(res)});
+    });
+
+    $('.suggestPlan').click(function() {
+        res = getGridStackData();
+        $('.page_content').fadeOut();
+        $('.loader').fadeIn();
+        $.redirectPost('suggest', {'plan': JSON.stringify(res)});
+    });
+    
+    $('.alternativePlan').click(function() {
+        res = getGridStackData();
+        $('.page_content').fadeOut();
+        $('.loader').fadeIn();
+        $.redirectPost('generateAlternative', {'plan': JSON.stringify(res)});
+    });
+    
+    /* 
+    $(".updateTheGoal").click( function() {
+        console.log( 'The commander ordered the goal to be updated' );
+        var goal = $("#goalToAchieve option:selected");
+        $('.page_content').fadeOut();
+        $('.loader').fadeIn();
+        $.redirectPost('updateGoals', {'option': goal});
+    });
+    */
+
+    $('.fixPlan').click(function() {
+        res = getGridStackData();
+        $('.page_content').fadeOut();
+        $('.loader').fadeIn();
+        $.redirectPost('fix', {'plan': JSON.stringify(res)});
+    });
+
+    $('.explainPlan').click(function() {
+        res = getGridStackData();
+        $.getJSON($SCRIPT_ROOT + '/getPlanExplanation', {
+            'plan' : JSON.stringify(res)
+        }, function(data) {
+            e = '<form>'
+            for (var i in data) {
+                val = data[i];
+                e = e + '<input type="checkbox" name="' + val + '-reject">' + val + '</input><br>';
+                e = e + '<input type="hidden" name="' + val + '"></input>';
+            }
+            e = e + '</form>'
+            $('.exploader').fadeOut();
+            $('#generatedExplanations').html(e);
+        });
+    });
+
+    $('.undoChange').click(function() {
+        res = getGridStackData();
+        $('.page_content').fadeOut();
+        $('.loader').fadeIn();
+        $.redirectPost('undo', {'plan': JSON.stringify(res)});
+    });
+
+
+    // thanks to http://stackoverflow.com/a/22885503
+    var waitForFinalEvent=function(){var b={};return function(c,d,a){a||(a="I am a banana!");b[a]&&clearTimeout(b[a]);b[a]=setTimeout(c,d)}}();
+    var fullDateString = new Date();
+    function isBreakpoint(alias) {
+        return $('.device-' + alias).is(':visible');
+    }
+    var options = {
+        float: false
+    };
+    $('.grid-stack').gridstack(options);
+    function resizeGrid() {
+        var grid = $('.grid-stack').data('gridstack');
+        if (isBreakpoint('xs')) {
+            $('#grid-size').text('One column mode');
+        } else if (isBreakpoint('sm')) {
+            grid.setGridWidth(3);
+            $('#grid-size').text(3);
+        } else if (isBreakpoint('md')) {
+            grid.setGridWidth(6);
+            $('#grid-size').text(6);
+        } else if (isBreakpoint('lg')) {
+            grid.setGridWidth(12);
+            $('#grid-size').text(12);
+        }
+    };
+    $(window).resize(function () {
+        waitForFinalEvent(function() {
+            resizeGrid();
+        }, 300, fullDateString.getTime());
+    });
+    
+    // call backend to get serialized data
+    serializedData = [
+        {% set count = 1 %}
+        {% for key, value in plan.iteritems() %}
+            {y: {{ key }}, x: 0, width: 12, height: 1, name:'{{ value }}'},
+            {% set count = count + 1 %}
+        {% endfor %}
+    ];
+    
+    function updateData(action) {
+        serializedData.push({y:0, x:0, width:12, height: 1, name:action});
+        loadGrid();
+        resizeGrid();
+    };
+    
+    grid = $('.grid-stack').data('gridstack');
+    loadGrid = function () {
+        grid.removeAll();
+        remove_icon = "fa fa-trash-o"
+        var items = GridStackUI.Utils.sort(this.serializedData);
+        
+        _.each(items, function (node, i) {
+            // invalid actions
+            if (node.name.includes(';--')) {
+                action_name = node.name.substr(0, node.name.indexOf(';'));
+                grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#fffde7;border-radius: 6px;border: 1px solid black;border-color:#fbc02d;padding-top:10px;"><i class="far fa-minus-circle"></i><br><span>' + action_name + '</span></div>'),
+                node.x, node.y+i, node.width, node.height);
+            } 
+            // planner added actions
+            else if  (node.name.includes(';')) {
+                action_name = node.name.substr(0, node.name.indexOf(';'));
+                reason = node.name.substr(node.name.indexOf(';'), node.name.length);
+                grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#ffab91;border-radius: 6px;border: 1px solid black;border-color:#d84315;padding-top:10px;"><i class="far fa-minus-circle"></i>&nbsp;<div class="glyphicon glyphicon-exclamation-sign" style="color:#ff4444;" href="#" data-toggle="tooltip" data-placement="right" title="' + reason + '"></div><br><span>' + action_name + '</span></div>'),
+                node.x, node.y+i, node.width, node.height);
+            }
+            // human added actions
+            else {
+                grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#b2dfdb;border-radius: 6px;border: 1px solid black;border-color:#00695c;padding-top:10px;"><i class="far fa-minus-circle"></i><br><span>' + node.name + '</span></div>'),
+                node.x, node.y+i, node.width, node.height);
+            }
+            $('.fa-remove' + node.y).click( remove_w = function(myElement){
+                grid.removeWidget($(this).parent().parent());
+            });
+        });
+        return false;
+    };
+    
+    loadGrid();
+    resizeGrid();
+    
+});
+</script>

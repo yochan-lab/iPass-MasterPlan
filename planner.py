@@ -58,7 +58,7 @@ class Planner():
             Writes the action list to a file in sas style
     '''
 
-    def writeObservations(self, actions, tillEndOfPresentPlan=False):
+    def __writeObservations(self, actions, tillEndOfPresentPlan=False):
 
         if tillEndOfPresentPlan:
             acts = deepcopy(actions)
