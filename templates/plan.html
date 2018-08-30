@@ -230,19 +230,19 @@ $(function () {
             if (node.name.includes(';--')) {
                 action_name = node.name.substr(0, node.name.indexOf(';'));
                 grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#fffde7;border-radius: 6px;border: 1px solid black;border-color:#fbc02d;padding-top:10px;"><i class="far fa-minus-circle"></i><br><span>' + action_name + '</span></div>'),
-                node.x, node.y+i, node.width, node.height);
+                node.x, node.y, node.width, node.height);
             } 
             // planner added actions
             else if  (node.name.includes(';')) {
                 action_name = node.name.substr(0, node.name.indexOf(';'));
                 reason = node.name.substr(node.name.indexOf(';'), node.name.length);
                 grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#ffab91;border-radius: 6px;border: 1px solid black;border-color:#d84315;padding-top:10px;"><i class="far fa-minus-circle"></i>&nbsp;<div class="glyphicon glyphicon-exclamation-sign" style="color:#ff4444;" href="#" data-toggle="tooltip" data-placement="right" title="' + reason + '"></div><br><span>' + action_name + '</span></div>'),
-                node.x, node.y+i, node.width, node.height);
+                node.x, node.y, node.width, node.height);
             }
             // human added actions
             else {
                 grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#b2dfdb;border-radius: 6px;border: 1px solid black;border-color:#00695c;padding-top:10px;"><i class="far fa-minus-circle"></i><br><span>' + node.name + '</span></div>'),
-                node.x, node.y+i, node.width, node.height);
+                node.x, node.y, node.width, node.height);
             }
             $('.fa-remove' + node.y).click( remove_w = function(myElement){
                 grid.removeWidget($(this).parent().parent());
