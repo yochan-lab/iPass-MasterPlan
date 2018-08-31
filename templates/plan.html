@@ -1,50 +1,77 @@
-<div class="row" style="height=100%">
-    <div class="col">
-        <div class="card bg-light mb-3" style="max-width: 100%;">
-            <div class="card-header">Interactive Plan Of Study</div>
-            <div class="card-body">
-                
-                <div class="row">
-                    <div class='col'>
-                        <button type="button" class="col-md-12 btn btn-secondary validatePlan">
-                            Validate
-                        </button>
+<div id="plan"> 
+
+    <div class="row" style="height=100%">
+        <div class="col">
+            <div class="card bg-light mb-3" style="max-width: 100%;">
+     
+                <div class="card-header">
+                    Interactive Plan Of Study
+                </div>
+
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        Time Remaining 
+                        <span class="badge badge-pill badge-secondary text-right" id="countdown"></span>
+                    </li>
+                    <li class="list-group-item">
+                        Total Money Spent 
+                        <span class="badge badge-pill badge-secondary text-right" id="money">$$$</span>
+                    </li>
+                    <li class="list-group-item">
+                        Average Difficulty 
+                        <span class="badge badge-pill badge-secondary text-right" id="difficulty">3</span> courses/semester
+                    </li>
+                </ul>
+     
+                <div class="card-body">
+                    
+                    <div id="plan-utils">
+
+                        <div class="row">
+                            <div class='col'>
+                                <button type="button" class="col-md-12 btn btn-outline-dark validatePlan">
+                                    Validate
+                                </button>
+                            </div>
+                            <div class='col'>
+                                <button type="button" class="col-md-12 btn btn-outline-dark suggestPlan">
+                                    Suggest
+                                </button>
+                            </div>
+                            <div class='col'>
+                                <button type="button" class="col-md-12 btn btn-outline-dark undoChange">
+                                    Undo
+                                </button>
+                            </div>
+                        </div><!-- row ends -->
+                        <br>
+                        {% if canAskForExplanations > 0 %}
+                            <div class='row'>
+                                <div class='col'>
+                                    Optimal Plan
+                                </div>
+                                <div class='col'>
+                                    Explain this Plan?
+                                </div>
+                            </div><!-- row ends -->
+                        <br>
+                        {% endif %}
+
                     </div>
-                    <div class='col'>
-                        <button type="button" class="col-md-12 btn btn-secondary suggestPlan">
-                            Suggest
-                        </button>
-                    </div>
-                    <div class='col'>
-                        <button type="button" class="col-md-12 btn btn-secondary undoChange">
-                            Undo
-                        </button>
-                    </div>
-                </div><!-- row ends -->
-                <br>
-                {% if canAskForExplanations > 0 %}
+                    
                     <div class='row'>
                         <div class='col'>
-                            Optimal Plan
+                            <div class='grid-stack'>
+                                <!-- Plans happens here -->
+                            </div>
                         </div>
-                        <div class='col'>
-                            Explain this Plan?
-                        </div>
-                    <div><!-- row ends -->
-                <br>
-                {% endif %}
-                
-                <div class='row'>
-                    <div class='col'>
-                        <div class='grid-stack'>
-                            <!-- Plans happens here -->
-                        </div>
-                    </div>
-                </div><!-- row ends -->
-                
+                    </div><!-- row ends -->
+                    
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 
 <script type="text/javascript">
@@ -71,25 +98,34 @@ $.extend({
 $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
 $(function () {
-    /*
-    $('.addAction').click(function() {
-        var action = $('#actionToAdd').val();
-        console.log(action);
-        updateData(action);
-    });
-    */
-    // method :: submit iPOS
-    $('.addButton').click( function(){
+
+    $('.addButton').click( function() {
 
         var elem = $(this).parent().siblings(' .form-control ').find( 'button' );
         var ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim();
+
         updateData(ss);
+
     });
     
     // method :: submit iPOS
-    $('#submit').click( function(){
-        console.log('in submit');
-        $('.validatePlan').trigger('click');
+    $('#submit').click( function() {
+
+        // run val and set success
+        // $('.validatePlan').click();
+        var success = true;
+
+        if (success) {
+
+            $("#add2plan").hide();
+            $("#feedback").show();
+
+        } else {
+
+            $("#valAlert").show();
+
+        }
+
     });
     
     $('[data-toggle="tooltip"]').tooltip();
@@ -107,10 +143,9 @@ $(function () {
             };
         });
         return res;
-    }
+    };
 
     $('.validatePlan').click(function() {
-        console.log('in validate plan');
         res = getGridStackData();
         $('.page_content').fadeOut();
         $('.loader').fadeIn();
@@ -131,16 +166,6 @@ $(function () {
         $.redirectPost('generateAlternative', {'plan': JSON.stringify(res)});
     });
     
-    /* 
-    $(".updateTheGoal").click( function() {
-        console.log( 'The commander ordered the goal to be updated' );
-        var goal = $("#goalToAchieve option:selected");
-        $('.page_content').fadeOut();
-        $('.loader').fadeIn();
-        $.redirectPost('updateGoals', {'option': goal});
-    });
-    */
-
     $('.fixPlan').click(function() {
         res = getGridStackData();
         $('.page_content').fadeOut();
@@ -172,16 +197,18 @@ $(function () {
         $.redirectPost('undo', {'plan': JSON.stringify(res)});
     });
 
-
     // thanks to http://stackoverflow.com/a/22885503
     var waitForFinalEvent=function(){var b={};return function(c,d,a){a||(a="I am a banana!");b[a]&&clearTimeout(b[a]);b[a]=setTimeout(c,d)}}();
+
     var fullDateString = new Date();
     function isBreakpoint(alias) {
         return $('.device-' + alias).is(':visible');
     }
+
     var options = {
         float: false
     };
+
     $('.grid-stack').gridstack(options);
     function resizeGrid() {
         var grid = $('.grid-stack').data('gridstack');
@@ -198,7 +225,8 @@ $(function () {
             $('#grid-size').text(12);
         }
     };
-    $(window).resize(function () {
+
+    $(window).resize( function () {
         waitForFinalEvent(function() {
             resizeGrid();
         }, 300, fullDateString.getTime());
@@ -220,37 +248,67 @@ $(function () {
     };
     
     grid = $('.grid-stack').data('gridstack');
+
     loadGrid = function () {
+
         grid.removeAll();
-        remove_icon = "fa fa-trash-o"
+
+        var widgetHTML =    '<div> \
+                                <div class="grid-stack-item-content" data-gs-no-resize="true"> \
+                                    <div class="input-group input-group-sm"> \
+                                        <div class="form-control bg-light align-midmiddle" style="height:100%;"> \
+                                            <span>[DISPLAY][EXPLAIN]</span> \
+                                        </div> \
+                                        <div class="input-group-append"> \
+                                            <button class="btn btn-outline-danger delete-action" type="button"> \
+                                                <i class="fas fa-times"></i> \
+                                            </button> \
+                                        </div> \
+                                    </div> \
+                                </div> \
+                            </div>';
+
+        var explanationHTML = '&nbsp;<div data-toggle="tooltip" data-placement="right" title="[REASON]"><i class="fas fa-exclamation-circle"></i></div>';
+
+        var elem = null;
+
         var items = GridStackUI.Utils.sort(this.serializedData);
-        
+
         _.each(items, function (node, i) {
+
             // invalid actions
             if (node.name.includes(';--')) {
-                action_name = node.name.substr(0, node.name.indexOf(';'));
-                grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#fffde7;border-radius: 6px;border: 1px solid black;border-color:#fbc02d;padding-top:10px;"><i class="far fa-minus-circle"></i><br><span>' + action_name + '</span></div>'),
-                node.x, node.y, node.width, node.height);
+                action_name = '<i class="fas fa-exclamation-triangle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
+                elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', ''));
+                elem.find('.form-control').addClass('text-danger');
             } 
+
             // planner added actions
-            else if  (node.name.includes(';')) {
-                action_name = node.name.substr(0, node.name.indexOf(';'));
+            else if (node.name.includes(';')) {
+                action_name = '<i class="fas fa-plus-circle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
                 reason = node.name.substr(node.name.indexOf(';'), node.name.length);
-                grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#ffab91;border-radius: 6px;border: 1px solid black;border-color:#d84315;padding-top:10px;"><i class="far fa-minus-circle"></i>&nbsp;<div class="glyphicon glyphicon-exclamation-sign" style="color:#ff4444;" href="#" data-toggle="tooltip" data-placement="right" title="' + reason + '"></div><br><span>' + action_name + '</span></div>'),
-                node.x, node.y, node.width, node.height);
+                elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', reason));
+                elem.find('.form-control').addClass('text-success');
             }
+
             // human added actions
             else {
-                grid.addWidget($('<div><div class="grid-stack-item-content" id="myWidget'+ node.y + '" style="background-color:#b2dfdb;border-radius: 6px;border: 1px solid black;border-color:#00695c;padding-top:10px;"><i class="far fa-minus-circle"></i><br><span>' + node.name + '</span></div>'),
-                node.x, node.y, node.width, node.height);
+                elem = $(widgetHTML.replace('[DISPLAY]', node.name).replace('[EXPLAIN]', ''));
             }
-            $('.fa-remove' + node.y).click( remove_w = function(myElement){
-                grid.removeWidget($(this).parent().parent());
-            });
+
+            grid.addWidget(elem, node.x, node.y, node.width, node.height);
+
         });
+
         return false;
+
     };
     
+    // remove action
+    $('body').on('click', '.delete-action', function() {
+        grid.removeWidget($(this).parent().parent().parent().parent());
+    });
+
     loadGrid();
     resizeGrid();
     

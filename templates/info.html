@@ -1,3 +1,5 @@
+<div id="info">
+
 <div class="row">
     <div class="col">
         <div class="card bg-light mb-3" style="max-width: 100%;">
@@ -57,7 +59,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row" id="add2plan">
     <div class="col">
         <div class="card bg-light mb-3" style="max-width: 100%;">
             <div class="card-header">
@@ -106,10 +108,35 @@
                 </div>
             </div>
 
+            <div class="input-group input-group-sm">
+                <div class="dropdown form-control">
+                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="List" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add End of Semester
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="List">
+                        <a class="dropdown-item" href="#" id="select-semester">End of Semester</a>
+                        <a class="dropdown-item" href="#" id="select-defense">Defense</a>
+                    </div>
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-success addButton" type="button">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <div class="container">
+        <div class="alert alert-danger small" role="alert" id="valAlert" style="width: 100%; padding: 5px; padding-left: 10px;">
+            This is not a valid iPOS! Try again.
+        </div>
+        <a class="btn btn-outline-success btn-sm btn-block mb-4 spy-enabled" role="button" id="submit" href="#feedback">
+            Submit
+        </a>
+    </div>
+
 </div>
 
-<button class="btn btn-outline-success btn-sm btn-block" type="button" id="submit">
-    Submit
-</button>
+</div>

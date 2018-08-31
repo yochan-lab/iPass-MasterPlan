@@ -32,3 +32,59 @@ Custom styles from Tathagata
 .form-control > button {
     border-color: white;
 }
+
+
+/* feedback area */
+
+
+.fade-to-back {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.likert > .list-group-item {
+    padding: 0;
+    margin: 0;
+}
+
+
+/* plan elements */
+
+.card-body {
+    background-color: white;
+}
+
+.grid-stack-item-content {
+    background-color: white!important;
+}
+
+.add-action:hover {
+    pointer:move!important;
+}
+
+.add-course {
+}
+
+.add-chair {
+
+}
+
+.add-committee {
+
+}
+
+.add-semester-marker {
+
+}
+
+.ipass-validation-error {
+}
+
+.ipass-suggestion {
+}
+
+.align-midmiddle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

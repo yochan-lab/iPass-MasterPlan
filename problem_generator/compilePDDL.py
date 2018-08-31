@@ -125,9 +125,9 @@ def main():
     with open(args.file) as state_file:
         stateJSON = state_file.read()
 
-    print generateState()
-    print ss
-    problem = compile2pddl(ss) 
+    #print generateState()
+    #print ss
+    #problem = compile2pddl(ss) 
 
 
 if __name__ == '__main__':

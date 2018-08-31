@@ -4,15 +4,6 @@
 
 	    <link rel="stylesheet" href="static/bootstrap-4.0.0-dist/css/bootstrap.min.css">
 
-
-<!--         <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/sticky-footer.css') }}">
-        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/gridstack.css') }}">
-        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/gridstack-extra.css') }}">   -->
-        
-<!--         <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.css"> 
-        <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
- -->    
-        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/sticky-footer.css') }}">
         <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/gridstack.css') }}">
         <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/gridstack-extra.css') }}"> 
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
@@ -27,22 +18,10 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.0/jquery-ui.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
         <script type= "text/javascript" src= "{{ url_for('static',filename='js/gridstack.js') }}"></script>
-    
-    <script type= "text/javascript" src= "{{ url_for('static',filename='js/gridstack.jQueryUI.js') }}"></script>
-   
-<!-- <script src="static/js/holder.min.js"></script> -->
-<!-- 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.0/jquery-ui.js"></script>
-        <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
- -->        <!-- <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script> -->
-
-<!--         <script type= "text/javascript" src= "{{ url_for('static',filename='js/gridstack.js') }}"></script>
         <script type= "text/javascript" src= "{{ url_for('static',filename='js/gridstack.jQueryUI.js') }}"></script>
- -->
-<!--         <script type= "text/javascript" src='https://code.responsivevoice.org/responsivevoice.js'></script>
-        <script type= "text/javascript" src="{{ url_for('static',filename='js/responseVoice.js') }}"></script>
- -->
+   
+        <!-- <script src="static/js/holder.min.js"></script> -->
+
         <style type="text/css">
             .grid-stack-item-content {
                 color: #00050f;
@@ -67,7 +46,7 @@
         </style> 
 
     </head>
-    <body>
+    <body data-spy="scroll" data-target="#body" data-offset="100">
 
     <nav class="navbar navbar-expand-sm bg-light">
         <ul class="navbar-nav">
@@ -78,6 +57,17 @@
     </nav>
     
     <br>
+
+    <div class="container mb-3">
+        <div class="card">
+            <div class="card-body">
+                Welcome to iPass! 
+                Using this software you will be building an interactive Plan of Study (or iPOS) for Alex, a Masters student enrolled in the Computer Science Department at ASU. 
+                Please consult the handbook provided for the rules that Alex must follow. 
+                iPass will try to help you along the way.
+            </div>
+        </div>
+    </div>
 
     <div class="loader" style="display:none;"></div>
     <div class="page_content">
