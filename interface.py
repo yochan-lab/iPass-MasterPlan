@@ -24,8 +24,6 @@ class Interface:
             "Specialize": "SPECIALIZE"
         }
 
-
-
     def getData(self, file_name):
         with open(file_name, 'r') as f:
             data = json.load(f)
@@ -48,7 +46,7 @@ class Interface:
             for i in range(len(action_list)):
                 if i > 0:
                     end_sem_count_booster += 1
-                actions[action_pos+end_sem_count_booster] = action_list[i]
+                actions[action_pos+end_sem_count_booster] = "({})".format(action_list[i])
 
         return actions
 
@@ -56,7 +54,7 @@ class Interface:
         if action_name.find("-"):
             act = action_name.split("-")
             act = [x.strip() for x in act]
-
+        print(act)
         actionType = act[0]
         if act[0] == "Add":
             if act[1].find("Semester") > -1:

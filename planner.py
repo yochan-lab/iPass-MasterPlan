@@ -34,6 +34,7 @@ class Planner():
         # Plan files
         self.plan_output = './generated_plan'
         self.obs = self.PLAN_FILES_DIR.format('obs.dat')
+        self.blank_obs = self.PLAN_FILES_DIR.format('blank_obs.dat')
         self.saveduiPlan = self.PLAN_FILES_DIR.format('saved_obs.dat')
 
         # Explanation files
@@ -87,15 +88,21 @@ class Planner():
         @Outputs
             wrties action list with validation error to observation file
     '''
-
     def getValidatedPlan(self, actions):
         # Save plan from UI to observation file
         self.__writeObservations(actions)
+        
+        # Create pr-problem and pr-domain files with no observation for validate to use
+        cmd = self.CALL_PR2 + ' -d ' + self.domain + \
+                    ' -i ' + self.problem + ' -o ' + self.blank_obs
+        os.system(cmd)
+        copyf(self.pr_domain, self.val_pr_domain)
+        copyf(self.pr_problem, self.val_pr_problem)
 
         # Run validate
         try:
             cmd = self.CALL_VAL + \
-                ' {} {} {}'.format(self.val_pr_domain, self.val_pr_problem, self.obs)
+                  ' {} {} {}'.format(self.val_pr_domain, self.val_pr_problem, self.obs)
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             (out, err) = proc.communicate()
         except BaseException:

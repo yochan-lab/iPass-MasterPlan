@@ -45,6 +45,6 @@
     "CSE577"  : ["Advanced Geometric Modeling", "applications"],
     "CSE578"  : ["Data Visualization", "applications"],
     "CSE592"  : ["Independent Study", "other"],
-    "CSE599a" : ["Thesis Credit A", "other"],
-    "CSE599b" : ["Thesis Credit B", "other"]
+    "CSE599a" : ["Thesis Course A", "other"],
+    "CSE599b" : ["Thesis Course B", "other"]
 }
