@@ -1,14 +1,14 @@
 {
-    "Colbourn" : ["Charlie Colbourn", "foundations"],
-    "Sen"      : ["Arunabha Sen", "foundations"],
-    "Xue"      : ["Guoliang Xue", "foundations"],
-    "Richa"    : ["Andrea Richa", "foundations"],
-    "Doupe"    : ["Adam Doupe", "systems"],
-    "Huang"    : ["Dijiang Huang", "systems"],
-    "Sarwat"   : ["Mohammad Sarwat", "systems"],
-    "Candan"   : ["Selchuk Candan", "systems"],
-    "Rao"      : ["Subbarao Kambhampati", "applications"],
-    "Liu"      : ["Huan Liu", "applications"],
-    "Zhang"    : ["Yu Zhang", "applications"],
-    "Amor"     : ["Heni Ben Amor", "applications"]
+    "Colbourn" : ["Charlie Colbourn", "foundations", "none"],
+    "Sen"      : ["Arunabha Sen", "foundations", "none"],
+    "Xue"      : ["Guoliang Xue", "foundations", "big_data"],
+    "Richa"    : ["Andrea Richa", "foundations", "none"],
+    "Doupe"    : ["Adam Doupe", "systems", "cybersecurity"],
+    "Huang"    : ["Dijiang Huang", "systems", "cybersecurity"],
+    "Sarwat"   : ["Mohammad Sarwat", "systems", "big_data"],
+    "Candan"   : ["Selchuk Candan", "systems", "cybersecurity"],
+    "Rao"      : ["Subbarao Kambhampati", "applications", "ai"],
+    "Liu"      : ["Huan Liu", "applications", "big_data"],
+    "Zhang"    : ["Yu Zhang", "applications", "ai"],
+    "Amor"     : ["Heni Ben Amor", "applications", "ai"]
 }

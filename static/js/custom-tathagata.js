@@ -80,13 +80,13 @@ $(document).ready(function () {
         dataType: "json",
         success: function(data) {
 
-            var entry_string = '<a class="dropdown-item" href="#select-[INDEX]">[NAME] ([TYPE])</a>';
+            var entry_string = '<a class="dropdown-item" href="#select-[INDEX]">[NAME] (Specialization: [TYPE])</a>';
 
             $.each( data , function( index, value ) {
 
                 temp = entry_string.replace('[INDEX]', index);
                 temp = temp.replace('[NAME]', value[0]);
-                temp = temp.replace('[TYPE]', value[1]);
+                temp = temp.replace('[TYPE]', value[2].replace('_', ' '));
 
                 $( "#chairList" ).siblings( ".dropdown-menu" ).append( temp );
                 $( "#committeeList" ).siblings( ".dropdown-menu" ).append( temp );
