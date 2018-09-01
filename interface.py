@@ -11,7 +11,7 @@ class Interface:
         self.mapper = {
             "deficiency": "TAKE_DEFICIENCY_COURSE",
             "normal": "TAKE_NORMAL_COURSE",
-            "Complete Semester": "COMPLETE_SEM",
+            "Complete Semester": "COMPLETE_SEMESTER",
             "Add Chair": "SELECT_COMMITTEE_CHAIR",
             "Add Committee": "SELECT_COMMITTEE_MEMBER",
             "Defend": "DEFEND",
@@ -20,7 +20,8 @@ class Interface:
             "Complete Applications": "COMPLETE_APPLICATIONS",
             "Complete Systems": "COMPLETE_SYSTEMS",
             "Thesis Course A": "TAKE_CSE599A",
-            "Thesis Course B": "TAKE_CSE599B"
+            "Thesis Course B": "TAKE_CSE599B",
+            "Specialize": "SPECIALIZE"
         }
 
 
@@ -48,7 +49,7 @@ class Interface:
                     actionType = "Complete Semester"
                 else:
                     actionType = "Defend"
-            actions.append(str(self.__converter(actionType, act[1])))
+            actions += [str(x) for x in self.__converter(actionType, act[1])]
 
         return actions
 
@@ -59,39 +60,55 @@ class Interface:
             "Add Committee": self.__addChairAndCommittee,
             "Complete Semester": self.__endSemester,
             "Defend": self.__defend,
+            "Speicalize": self.__specialization
         }
 
         func = switch.get(action, self.__default)
         return func(action, name)
 
     def __addChairAndCommittee(self, action, name):
-        prof, _ = self.__find(self.committee, name)
+        prof, specialization = self.__find(self.committee, name)
         if prof is None:
             return None
 
         prof = prof.upper()
-        action = self.mapper[action] + self.connector
+        act = self.mapper[action]
         if action == "Add Committee":
             if self.committee_counter < 3:
                 self.committee_counter += 1
-            action += self.committee_counter + self.connector
+            act += "_" + str(self.committee_counter)
             self.committee_members.append(prof)
         else:
             self.committee_members = [prof] + self.committee_members
 
-        action += prof
-        return action
+        act += self.connector + prof
+
+        if action == "Add Chair":
+            act += self.connector + specialization.upper()
+        return [act]
+
+    '''
+    ' where ever _ is used instead of the connector - it is because whatever the next
+    ' string is, it is a part of the action and not a parameter to the action
+    '''
+    def __specialization(self, action, name):
+        name = name if name.fine(" ") < 0 else name.replace(" ", "_")
+        return [self.mapper[action] + "_" + name.upper()]
 
     def __endSemester(self, action, name):
-        action = self.mapper[action] + self.connector + str(self.sem_counter)
+        actions = []
+        if self.sem_counter < 5:
+            actions.append(self.mapper[action] + "_" + str(self.sem_counter))
+
         self.sem_counter = 0
-        return action
+        actions.append(self.mapper[action])
+        return actions
 
     def __defend(self, action, name):
-        return self.mapper[action] + self.connector + self.connector.join(self.committee_members)
+        return [self.mapper[action]]
 
     def __default(self, action, name):
-        return self.mapper[action] + self.connector + name.upper()
+        return [self.mapper[action] + self.connector + name.upper()]
 
     def __addCourse(self, action, name):
         if name in self.cache:
@@ -107,25 +124,24 @@ class Interface:
                 if course is None:
                     return None
                 self.cache[name] = [course, courseType]
-                if courseType == "deficiency":
-                    action =    self.mapper["deficiency"] + self.connector + course.upper() + self.connector
-                    action +=   self.num[10] + self.connector + self.num[10] + self.connector
-                else:
-                    action =    self.mapper["normal"]
-                    action +=   self.connector + course.upper() + self.connector
+                temp = "deficiency" if courseType == "deficiency" else "normal"
+                action =        self.mapper[temp] + self.connector + course.upper() + self.connector
 
-            if courseType != "deficiency":
-                action +=   self.num[self.course_counter] + self.connector +\
-                            self.num[self.course_counter + 1] + self.connector
-                self.course_counter += 1
+                if temp == "normal":
+                    action +=   courseType.upper() + self.connector
 
-            action +=       self.num[self.sem_counter] + self.connector +\
-                            self.num[self.sem_counter + 1]
+            incremented     = self.course_counter + 1 if self.course_counter < 10 else 10
+            sem_incremented = self.sem_counter + 1 if self.sem_counter < 10 else 10
 
+            action +=           self.num[self.course_counter] + self.connector +\
+                                self.num[incremented] + self.connector +\
+                                self.num[self.sem_counter] + self.connector +\
+                                self.num[sem_incremented]
+
+        if courseType != "deficiency": self.course_counter += 1
         self.sem_counter += 1
 
-        return action
-
+        return [action]
 
     def __find(self, data, name):
         name = self.__removeType(name)
