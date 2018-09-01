@@ -237,11 +237,9 @@ class Planner():
             self.human_domain = fname.split('.pddl')[0] + '_modify.pddl'
 
     def getSuggestedPlan(self, actions, tillEndOfPresentPlan=False):
-        self.writeObservations(actions)
+        self.__writeObservations(actions)
 
-        # If actions are blank, use the present pr_domain and pr_problem files to
-        # plan. If not, generate new files with the known actions to be
-        # explained.
+        # If actions are blank, use the present pr_domain and pr_problem files to plan. If not, generate new files with the known actions to be explained.
         if actions:
             # Save the present domain
             copyf(self.pr_domain, self.val_pr_domain)
@@ -278,7 +276,7 @@ class Planner():
                     plan_actions[i] = l.upper().strip() + ';--'
                     i += 1
         f.close()
-        self.writeObservations(plan_actions, tillEndOfPresentPlan)
+        self.__writeObservations(plan_actions, tillEndOfPresentPlan)
 
     def getExplanations(self):
 
