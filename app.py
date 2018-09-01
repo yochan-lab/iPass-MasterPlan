@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 from planner import Planner
+from interface import Interface
 import json
 
 app = Flask(__name__)
 planner = Planner()
+translator = Interface()
 
 # Create a new planning problem
 planner.definePlanningProblem()
@@ -25,18 +27,9 @@ returns a JSON format.
             ]
 '''
 def ui_plan_to_pddl_style(request):
-    seq = {}
-    print(request)
     plan = json.loads(dict(request.form)['plan'][0])
     print(plan)
-    for act in plan:
-        # We assume that only one action occurs at a time
-        # TODO: Update code if we want to allow options for
-        # two simultaneous actions (choices)
-        seq[ act["y"] ] = act["name"]
-    #print "\n======\n{}\n======\n".format(seq)
-    print(seq)
-    return seq
+    return translator.uiToActions(plan)
 
 @app.route("/validate", methods=['GET', 'POST'])
 def validate():
