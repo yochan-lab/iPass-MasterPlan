@@ -34,11 +34,18 @@ def generateState():
         stateJSON = state_file.read()
         
     state_dict = json.loads(stateJSON)
+    no_count   = 0
 
     for course in state_dict['deficiency']:
 
-        if random.randint(0, 1): state_dict['deficiency'][course] = "yes"
-        else:                    state_dict['deficiency'][course] = "no"
+        if not bool(random.randint(0, 2)) and no_count < 3: 
+
+            no_count += 1
+            state_dict['deficiency'][course] = "no"
+
+        else:
+
+            state_dict['deficiency'][course] = "yes"
             
     if random.randint(0, 1): state_dict['ra/ta'] = "yes"
     else:                    state_dict['ra/ta'] = "no"
@@ -46,9 +53,6 @@ def generateState():
     if random.randint(0, 1): state_dict['international'] = "yes"
     else:                    state_dict['international'] = "no"
 
-    specialization_options       = ["big data", "ai", "cybersecurity"]
-    state_dict['specialization'] = specialization_options[random.randint(0, 2)]
-    
     return json.dumps(state_dict)
 
 
@@ -74,12 +78,23 @@ def compile2pddl(stateJSON):
     course_block = ''
 
     for key in temp_dict:
-        course_block += '{} - {}\n'.format( ' '.join(temp_dict[key]), key)
+        course_block += '{} - {}\n'.format( ' '.join(temp_dict[key]), key + '_course')
 
     template = template.replace('[COURSES]', course_block)
 
+    state_courses_block = ''
+    for course in courses_dict:
+        if courses_dict[course][1] != 'other' and courses_dict[course][1] != 'deficiency':
+            state_courses_block += '(is_concentration {} {})'.format(course, courses_dict[course][1]) + '\n'
+
+    template = template.replace('[COURSE_BLOCK]', state_courses_block)
+
     professor_block       = '{} - {}'.format(' '.join(committee_dict.keys()), 'professor')
-    state_professor_block = '\n'.join( ['(is_{} {})'.format(committee_dict[professor][1], professor) for professor in committee_dict] )
+
+    state_professor_block = ''
+    for professor in committee_dict:
+        if committee_dict[professor][2] != 'none':
+            state_professor_block += '(is_expert {} {})'.format(professor, committee_dict[professor][2].replace(' ', '_')) + '\n'
 
     template = template.replace('[PROFESSORS]', professor_block).replace('[PROFESSOR_BLOCK]', state_professor_block)
 
@@ -99,11 +114,6 @@ def compile2pddl(stateJSON):
     else:
         template = template.replace('[IS_INTERNATIONAL]', '')
         
-    if state_dict['specialization'] != 'yes':
-        template = template.replace('[SPECIALIZATION]', '(specialized_in_{})'.format(state_dict['specialization'].replace(' ', '_')))
-    else:
-        template = template.replace('[SPECIALIZATION]', '')
-
     # if not required, comment out i/o for speed 
     with open(PDDL_FILES_DIR.format('problem.pddl'), 'w') as problem_file:
         problem_file.write(template)
@@ -125,10 +135,9 @@ def main():
     with open(args.file) as state_file:
         stateJSON = state_file.read()
 
-    #print generateState()
-    #print ss
-    #problem = compile2pddl(ss) 
-
+    ss = generateState()
+    problem = compile2pddl(ss)
+    #print problem
 
 if __name__ == '__main__':
     main()

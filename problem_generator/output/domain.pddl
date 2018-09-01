@@ -1,41 +1,44 @@
-﻿(define (domain IPASS)
+(define (domain IPASS)
 
 (:requirements :typing :equality)
 
 (:types
-normal deficiency other - course
-foundations systems applications - normal
+normal deficiency_course other_course - course
+foundations_course systems_course applications_course - normal
+specialization
+concentration
 professor
 num
 )
 
 (:predicates
-(has_committee_chair ?p - professor) ; ?p is committee chair
-(has_committee_chair_done) ; has picked committee chair
-(has_committee ?p1 ?p2 ?p3 - professor) ; ?p1 ?p2 ?p3 are committee members
-(has_committee_done) ; has picked all committee members
-(requires ?c1 ?c2 - course) ; course ?c2 requires course ?c1
-(has_taken ?c - course) ; taken course ?c
-(completed_foundations) ; completed foundations requirement
-(completed_systems) ; completed systems requirement
-(completed_applications) ; completed applications requirement
-(is_international) ; is an international student
-(is_ra_ta) ; is an RA or TA
-(defended) ; completed defense
-(is_foundations ?p - professor) ; professor in foundations area
-(is_systems ?p - professor) ; professor in systems area
-(is_applications ?p - professor) ; professor in applications area
-(specialized_in_big_data) ; optional specialization in big data
-(specialized_in_cybersecurity) ; optional specialization in cybersecurity
-(specialized_in_ai) ; optional specialization in ai
-(courses_completed) ; 10 courses completed
-(current_num ?n - num) ; objectified number line
-(next_num ?n1 ?n2 - num) ; transitions between consecutive numbers
-(sem_quota ?n - num) ; counter for courses within a semester
-(completed_deficiencies) ; completed all deficiency courses
-(selected ?p - professor) ; selected professor for committee
-(has_committee_member2 ?p - professor) ; selected first committee member
-(has_committee_member3 ?p - professor) ; selected second committee member
+
+(selected ?p - professor)                              ; selected professor for committee
+(has_committee_chair ?p - professor)                   ; ?p is committee chair
+(has_committee_chair_done)                             ; has committee chair
+(has_committee_member2)                                ; selected first committee member
+(has_committee_member3)                                ; selected second committee member
+(has_committee_done)                                   ; has committee
+
+(is_concentration ?c - normal ?x - concentration)      ; normal course ?c has concentration ?x
+(has_taken ?c - course)                                ; taken course ?c
+
+(is_international)                                     ; is an international student
+(is_ra_ta)                                             ; is an RA or TA
+
+(is_expert ?p - professor ?x - specialization)         ; professor ?p in ?x area
+(chair_expertise ?x - specialization)                  ; expertise ?x of chair established
+
+(courses_completed)                                    ; 10 courses completed
+(current_num ?n - num)                                 ; objectified number line
+(next_num ?n1 ?n2 - num)                               ; transitions between consecutive numbers
+(sem_quota ?n - num)                                   ; counter for courses within a semester
+
+(ready_to_complete_semester)                           ; for super completer of semesters
+(completed_concentration ?x - concentration)           ; completed each concentration of foundation system and application
+(completed_specialization)                             ; completed specialization in any one of ai, big data or cybersecurity
+(defended)                                             ; completed defense
+
 )
 
 ; taking a nomral course increments global course counter + semester course counter
@@ -43,7 +46,7 @@ num
 ; cannot do more than four in a semester and cannot repeat same course twice
 
 (:action take_normal_course
-:parameters (?c - normal ?n1 ?n2 - num ?s1 ?s2 - num)
+:parameters (?c - normal ?x - concentration ?n1 ?n2 - num ?s1 ?s2 - num)
 :precondition (and
 (not (has_taken ?c))
 (next_num ?n1 ?n2)
@@ -51,7 +54,15 @@ num
 (sem_quota ?s1)
 (next_num ?s1 ?s2)
 (not (sem_quota four))
-(completed_deficiencies)
+(is_concentration ?c ?x)
+(has_taken CSE340)
+(has_taken CSE360)
+(has_taken CSE310)
+(has_taken CSE230)
+(has_taken CSE330)
+(has_taken CSE355)
+(not (sem_quota four))
+(not (current_num ten))
 )
 :effect (and
 (has_taken ?c)
@@ -59,40 +70,27 @@ num
 (not (current_num ?n1))
 (sem_quota ?s2)
 (not (sem_quota ?s1))
+(completed_concentration ?x)
 )
 )
 
 ; taking a deficiency course increments ONLY semester course counter
 
 (:action take_deficiency_course
-:parameters (?c - deficiency ?n1 ?n2 - num ?s1 ?s2 - num)
+:parameters (?c - deficiency_course ?n1 ?n2 - num ?s1 ?s2 - num)
 :precondition (and
 (not (has_taken ?c))
+(next_num ?n1 ?n2)
+(current_num ?n1)
 (sem_quota ?s1)
 (next_num ?s1 ?s2)
 (not (sem_quota four))
+(not (current_num ten))
 )
 :effect (and
 (has_taken ?c)
 (sem_quota ?s2)
 (not (sem_quota ?s1))
-)
-)
-
-; completion of all deficiencies are needed before other courses
-
-(:action complete_deficiency
-:parameters ()
-:precondition (and
-(has_taken CSE340)
-(has_taken CSE360)
-(has_taken CSE310)
-(has_taken CSE230)
-(has_taken CSE330)
-(has_taken CSE355)
-)
-:effect (and
-(completed_deficiencies)
 )
 )
 
@@ -109,7 +107,14 @@ num
 (next_num ?s1 ?s2)
 (not (sem_quota four))
 (has_committee_chair_done)
-(completed_deficiencies)
+(has_taken CSE340)
+(has_taken CSE360)
+(has_taken CSE310)
+(has_taken CSE230)
+(has_taken CSE330)
+(has_taken CSE355)
+(not (sem_quota four))
+(not (current_num ten))
 )
 :effect (and
 (has_taken CSE599a)
@@ -134,7 +139,14 @@ num
 (not (sem_quota four))
 (has_committee_done)
 (current_num nine)
-(completed_deficiencies)
+(has_taken CSE340)
+(has_taken CSE360)
+(has_taken CSE310)
+(has_taken CSE230)
+(has_taken CSE330)
+(has_taken CSE355)
+(not (sem_quota four))
+(not (current_num ten))
 )
 :effect (and
 (has_taken CSE599b)
@@ -149,7 +161,7 @@ num
 ; resets semester course count to zero
 ; cannot do if international or RA/TA
 
-(:action complete_sem_1
+(:action complete_semester_1
 :parameters ()
 :precondition (and
 (sem_quota one)
@@ -157,7 +169,7 @@ num
 (not (is_ra_ta))
 )
 :effect (and
-(sem_quota zero)
+(ready_to_complete_semester)
 (not (sem_quota one))
 )
 )
@@ -166,7 +178,7 @@ num
 ; resets semester course count to zero
 ; cannot do if international or RA/TA
 
-(:action complete_sem_2
+(:action complete_semester_2
 :parameters ()
 :precondition (and
 (sem_quota two)
@@ -174,7 +186,7 @@ num
 (not (is_ra_ta))
 )
 :effect (and
-(sem_quota zero)
+(ready_to_complete_semester)
 (not (sem_quota two))
 )
 )
@@ -182,13 +194,13 @@ num
 ; complete semester with three courses
 ; resets semester course count to zero
 
-(:action complete_sem_3
+(:action complete_semester_3
 :parameters ()
 :precondition (and
 (sem_quota three)
 )
 :effect (and
-(sem_quota zero)
+(ready_to_complete_semester)
 (not (sem_quota three))
 )
 )
@@ -196,66 +208,46 @@ num
 ; complete semester with four courses
 ; can only do if RA/TA
 
-(:action complete_sem_4
+(:action complete_semester_4
 :parameters ()
 :precondition (and
 (sem_quota four)
 (is_ra_ta)
 )
 :effect (and
-(sem_quota zero)
+(ready_to_complete_semester)
 (not (sem_quota four))
 )
 )
 
-; complete one course from foundations
+; complete semester on the interface
 
-(:action complete_foundations
-:parameters (?f - foundations)
+(:action complete_semester
+:parameters ()
 :precondition (and
-(has_taken ?f)
+(not (sem_quota zero))
+(ready_to_complete_semester)
 )
 :effect (and
-(completed_foundations)
-)
-)
-
-; complete one course from systems
-
-(:action complete_systems
-:parameters (?s - systems)
-:precondition (and
-(has_taken ?s)
-)
-:effect (and
-(completed_systems)
-)
-)
-
-; complete one course from applications
-
-(:action complete_applications
-:parameters (?a - applications)
-:precondition (and
-(has_taken ?a)
-)
-:effect (and
-(completed_applications)
+(not (ready_to_complete_semester))
+(sem_quota zero)
 )
 )
 
 ; select committee chair
 
 (:action select_committee_chair
-:parameters (?p - professor)
+:parameters (?p - professor ?x - specialization)
 :precondition (and
 (not (has_committee_chair_done))
 (not (selected ?p))
+(is_expert ?p ?x)
 )
 :effect (and
 (selected ?p)
 (has_committee_chair ?p)
 (has_committee_chair_done)
+(chair_expertise ?x)
 )
 )
 
@@ -265,11 +257,11 @@ num
 :parameters (?p - professor)
 :precondition (and
 (not (selected ?p))
-(not (has_committee_member2 ?p))
+(not (has_committee_member2))
 )
 :effect (and
 (selected ?p)
-(has_committee_member2 ?p)
+(has_committee_member2)
 )
 )
 
@@ -279,26 +271,12 @@ num
 :parameters (?p - professor)
 :precondition (and
 (not (selected ?p))
-(not (has_committee_member3 ?p))
+(has_committee_member2)
+(not (has_committee_member3))
 )
 :effect (and
 (selected ?p)
-(has_committee_member3 ?p)
-)
-)
-
-; finalize committee
-
-(:action select_committee
-:parameters (?p1 ?p2 ?p3 - professor)
-:precondition (and
-(not (has_committee_done))
-(has_committee_chair ?p1)
-(has_committee_member2 ?p2)
-(has_committee_member3 ?p3)
-)
-:effect (and
-(has_committee ?p1 ?p2 ?p3)
+(has_committee_member3)
 (has_committee_done)
 )
 )
@@ -307,16 +285,17 @@ num
 ; must have chair in the same area
 
 (:action specialize_big_data
-:parameters (?p - professor)
+:parameters ()
 :precondition (and
-(has_committee_chair ?p)
-(is_applications ?p)
+(has_committee_chair_done)
+(chair_expertise big_data)
 (has_taken CSE510)
 (has_taken CSE512)
 (has_taken CSE572)
+(not (completed_specialization))
 )
 :effect (and
-(specialized_in_big_data)
+(completed_specialization)
 )
 )
 
@@ -324,16 +303,17 @@ num
 ; must have chair in the same area
 
 (:action specialize_cybersecurity
-:parameters (?p - professor)
+:parameters ()
 :precondition (and
-(has_committee_chair ?p)
-(is_systems ?p)
+(has_committee_chair_done)
+(chair_expertise cybersecurity)
 (has_taken CSE543)
 (has_taken CSE545)
 (has_taken CSE548)
+(not (completed_specialization))
 )
 :effect (and
-(specialized_in_cybersecurity)
+(completed_specialization)
 )
 )
 
@@ -341,16 +321,17 @@ num
 ; must have chair in the same area
 
 (:action specialize_ai
-:parameters (?p - professor)
+:parameters ()
 :precondition (and
-(has_committee_chair ?p)
-(is_applications ?p)
+(has_committee_chair_done)
+(chair_expertise ai)
 (has_taken CSE575)
 (has_taken CSE574)
 (has_taken CSE571)
+(not (completed_specialization))
 )
 :effect (and
-(specialized_in_ai)
+(completed_specialization)
 )
 )
 
@@ -360,12 +341,16 @@ num
 ; must have one course each from foundations systems and applications
 
 (:action defend
-:parameters (?p1 ?p2 ?p3 - professor)
+:parameters ()
 :precondition (and
-(has_committee ?p1 ?p2 ?p3)
-(completed_foundations)
-(completed_systems)
-(completed_applications)
+(has_committee_chair_done)
+(has_committee_done)
+(has_committee_member2)
+(has_committee_member3)
+(completed_specialization)
+;(completed_concentration foundation)
+;(completed_concentration system)
+;(completed_concentration application)
 (has_taken CSE599a)
 (has_taken CSE599b)
 (current_num ten)
@@ -377,4 +362,3 @@ num
 )
 
 )
-

@@ -18,6 +18,9 @@ $(document).ready(function () {
         }
     });
 
+    // disable add buttons to begin with unless something is selected
+    // $( ".addButton" ).prop("disabled", true);
+
     // method :: initialize student info from state JSON
     $.ajax({
         url: "static/files/state.json",
@@ -101,6 +104,7 @@ $(document).ready(function () {
     // method :: set selected option as active dropdown item
     $(document).on( "click", ".dropdown-item", function() {
         $(this).parent().siblings( ".dropdown-toggle" ).html( $(this).html() );
+        $(this).parent().find( ".addButton" ).prop("disabled", false);
     });
 
 

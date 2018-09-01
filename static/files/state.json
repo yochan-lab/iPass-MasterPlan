@@ -1,13 +1,1 @@
-{
-    "specialization" : "big data",
-    "deficiency" : {
-        "CSE340" : "no",
-        "CSE360" : "yes",
-        "CSE310" : "yes",
-        "CSE230" : "yes",
-        "CSE330" : "yes",
-        "CSE355" : "no"
-    },
-    "ra/ta" : "yes",
-    "international" : "no"
-}
+{"deficiency": {"CSE310": "yes", "CSE230": "no", "CSE340": "no", "CSE360": "no", "CSE330": "yes", "CSE355": "yes"}, "ra/ta": "no", "specialization": "cybersecurity", "international": "no"}

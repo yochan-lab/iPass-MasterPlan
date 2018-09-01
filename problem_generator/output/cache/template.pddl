@@ -2,8 +2,6 @@
 
 (:objects
 zero one two three four five six seven eight nine ten - num
-foundations systems applications - concentration
-big_data ai cybersecurity - specialization
 [PROFESSORS]
 [COURSES]
 )
@@ -21,8 +19,6 @@ big_data ai cybersecurity - specialization
 (next_num seven eight)
 (next_num eight nine)
 (next_num nine ten)
-(next_num ten ten)
-[COURSE_BLOCK]
 [PROFESSOR_BLOCK]
 [DEFICIENCY_BLOCK]
 [IS_RA_TA]
@@ -30,6 +26,7 @@ big_data ai cybersecurity - specialization
 )
 
 (:goal (and
+[SPECIALIZATION]
 (defended)
 )
 )
