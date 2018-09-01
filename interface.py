@@ -110,7 +110,7 @@ class Interface:
 
     def __endSemester(self, action, name):
         actions = []
-        if self.sem_counter < 5:
+        if 0 < self.sem_counter < 5:
             actions.append(self.mapper[action] + "_" + str(self.sem_counter))
 
         self.sem_counter = 0
@@ -170,6 +170,7 @@ class Interface:
 
 def test():
     plan =  [
+				{"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
                 {"name":"Add Course - Embedded Operating Systems Internals (systems)",
                         "x": 0, "y": 0, "width": 12, "height": 1},
                 {"name": "Add Course - Software Project, Process and Quality Management (systems)",
