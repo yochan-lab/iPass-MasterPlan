@@ -31,27 +31,40 @@ class Interface:
             data = json.load(f)
 
         return data
-
+        
     def uiToActions(self, ui_actions):
+        # Initializing global variables everytime request comes from the frontend
         self.course_counter = 0
         self.sem_counter = 0
         self.committee_counter = 1
         self.committee_members = []
-        actions = []
+        
+        actions = {}
+        end_sem_count_booster = 0
         for action in ui_actions:
-            if action['name'].find("-"):
-                act = action['name'].split("-")
-                act = [x.strip() for x in act]
-
-            actionType = act[0]
-            if act[0] == "Add":
-                if act[1].find("Semester") > -1:
-                    actionType = "Complete Semester"
-                else:
-                    actionType = "Defend"
-            actions += [str(x) for x in self.__converter(actionType, act[1])]
+            action_pos = int(action['y'])
+            action_list = self.__get_action_name(action['name'])
+            
+            for i in range(len(action_list)):
+                if i > 0:
+                    end_sem_count_booster += 1
+                actions[action_pos+end_sem_count_booster] = action_list[i]
 
         return actions
+
+    def __get_action_name(self, action_name):
+        if action_name.find("-"):
+            act = action_name.split("-")
+            act = [x.strip() for x in act]
+
+        actionType = act[0]
+        if act[0] == "Add":
+            if act[1].find("Semester") > -1:
+                actionType = "Complete Semester"
+            else:
+                actionType = "Defend"
+              
+        return [str(x) for x in self.__converter(actionType, act[1])]
 
     def __converter(self, action, name):
         switch = {
@@ -166,10 +179,10 @@ def test():
                 {"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
                 {"name": "Add Course - Software Verification, Validation and Testing (systems)",
                         "x": 0, "y": 2, "width": 12, "height": 1},
-                {"name": "Add Committee - Guoliang Xue (foundations)",
+                {"name": "Add Committee - Guoliang Xue (Specialization: big data)",
                         "x": 0, "y": 3, "width": 12, "height": 1},
                 {"name": "Add - End of Semester", "x": 0, "y": 4, "width": 12, "height": 1},
-                {"name": "Add Chair - Arunabha Sen (foundations)",
+                {"name": "Add Chair - Arunabha Sen (Specialization: none)",
                         "x": 0, "y": 5, "width": 12, "height": 1},
                 {"name": "Add Course - Thesis Course A (research)", "x": 0, "y": 4, "width": 12, "height": 1},
                 {"name": "Add - Defense", "x": 0, "y": 6, "width": 12, "height": 1}
