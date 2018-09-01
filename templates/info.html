@@ -66,12 +66,12 @@
             <div class="input-group input-group-sm">
                 <div class="dropdown form-control">
                     <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="courseList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add Courses
+                        Click to Add Courses
                     </button>
                     <div class="dropdown-menu" aria-labelledby="courseList"></div>
                 </div>
                 <div class="input-group-append">
-                    <button class="btn btn-success addButton" type="button">
+                    <button class="btn btn-outline-success addButton" type="button">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -80,12 +80,12 @@
             <div class="input-group input-group-sm">
                 <div class="dropdown form-control">
                     <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="chairList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add Committee Chair
+                        Click to Add Committee Chair
                     </button>
                     <div class="dropdown-menu" aria-labelledby="chairList"></div>
                 </div>
                 <div class="input-group-append">
-                    <button class="btn btn-success addButton" type="button">
+                    <button class="btn btn-outline-success addButton" type="button">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -94,12 +94,12 @@
             <div class="input-group input-group-sm">
                 <div class="dropdown form-control">
                     <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="committeeList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add Committee Members
+                        Click to Add Committee Members
                     </button>
                     <div class="dropdown-menu" aria-labelledby="committeeList"></div>
                 </div>
                 <div class="input-group-append">
-                    <button class="btn btn-success addButton" type="button">
+                    <button class="btn btn-outline-success addButton" type="button">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -108,7 +108,7 @@
             <div class="input-group input-group-sm">
                 <div class="dropdown form-control">
                     <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="specializationList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add Specialization
+                        Click to Add Specialization
                     </button>
                     <div class="dropdown-menu" aria-labelledby="SpecializationList">
                         <a class="dropdown-item" href="#" id="select-semester">Big Data</a>
@@ -117,7 +117,7 @@
                     </div>
                 </div>
                 <div class="input-group-append">
-                    <button class="btn btn-success addButton" type="button">
+                    <button class="btn btn-outline-success addButton" type="button">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -126,7 +126,7 @@
             <div class="input-group input-group-sm">
                 <div class="dropdown form-control">
                     <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="List" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add End of Semester
+                        Click to Add End of Semesters
                     </button>
                     <div class="dropdown-menu" aria-labelledby="List">
                         <a class="dropdown-item" href="#" id="select-semester">End of Semester</a>
@@ -134,7 +134,7 @@
                     </div>
                 </div>
                 <div class="input-group-append">
-                    <button class="btn btn-success addButton" type="button">
+                    <button class="btn btn-outline-success addButton" type="button">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -144,12 +144,18 @@
     </div>
 
     <div class="container">
-        <div class="alert alert-danger small" role="alert" id="valAlert" style="width: 100%; padding: 5px; padding-left: 10px;">
+        <div class="alert alert-danger small" role="alert" id="valAlertNegative" style="width: 100%; padding: 5px; padding-left: 10px;">
             This is not a valid iPOS! Try again.
         </div>
-        <a class="btn btn-outline-success btn-sm btn-block mb-4 spy-enabled" role="button" id="submit" href="#feedback">
+        <button class="btn btn-outline-success btn-sm btn-block mb-4" id="check">
+            Check
+        </button>
+        <div class="alert alert-success small" role="alert" id="valAlertPositive" style="width: 100%; padding: 5px; padding-left: 10px;">
+            This is a valid iPOS! Click Submit to submit if you are happy with it or continue working on it.
+        </div>
+        <button class="btn btn-success btn-sm btn-block mb-4 spy-enabled" role="button" id="submit" href="#feedback">
             Submit
-        </a>
+        </button>
     </div>
 
 </div>

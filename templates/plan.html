@@ -108,8 +108,8 @@ $(function () {
 
     });
     
-    // method :: submit iPOS
-    $('#submit').click( function() {
+    // method :: check iPOS
+    $('#check').click( function() {
 
         // run val and set success
         // $('.validatePlan').click();
@@ -117,14 +117,22 @@ $(function () {
 
         if (success) {
 
-            $("#add2plan").hide();
-            $("#feedback").show();
+            $("#valAlertPositive").show();
+            $("#submit").show();
 
         } else {
 
-            $("#valAlert").show();
+            $("#valAlertNegative").show();
 
         }
+
+    });
+    
+    // method :: submit iPOS
+    $('#submit').click( function() {
+
+        $("#add2plan").hide();
+        $("#feedback").show();
 
     });
     

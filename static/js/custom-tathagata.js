@@ -8,7 +8,9 @@ $(document).ready(function () {
 
     // hide feedback panel and alert on submit on load 
     $("#feedback").hide();
-    $("#valAlert").hide();
+    $("#submit").hide();
+    $("#valAlertPositive").hide();
+    $("#valAlertNegative").hide();
 
     // gridstack not resizable
 
@@ -19,7 +21,8 @@ $(document).ready(function () {
     });
 
     // disable add buttons to begin with unless something is selected
-    // $( ".addButton" ).prop("disabled", true);
+    $( ".addButton" ).prop("disabled", true);
+    $( ".addButton" ).addClass( "disabled-button" );
 
     // method :: initialize student info from state JSON
     $.ajax({
@@ -30,21 +33,27 @@ $(document).ready(function () {
             $( '#specialization' ).find('.badge').html(data.specialization);
 
             if ( data["international"] == 'no' ) {
+                $( '#international' ).find('.fas').removeClass('fa-check');
                 $( '#international' ).find('.fas').addClass('fa-times');
             } else {
+                $( '#international' ).find('.fas').removeClass('fa-times');
                 $( '#international' ).find('.fas').addClass('fa-check');
             }
 
             if ( data["ra/ta"] == 'no' ) {
+                $( '#rata' ).find('.fas').removeClass('fa-check');
                 $( '#rata' ).find('.fas').addClass('fa-times');
             } else {
+                $( '#rata' ).find('.fas').removeClass('fa-times');
                 $( '#rata' ).find('.fas').addClass('fa-check');
             }
 
             $.each( data.deficiency , function( index, value ) {
-                if ( value == 'no' ) {
+                if ( value === "no" ) {
+                    $( '#' + index ).find('.fas').removeClass('fa-check');
                     $( '#' + index ).find('.fas').addClass('fa-times');
                 } else {
+                    $( '#' + index ).find('.fas').removeClass('fa-times');
                     $( '#' + index ).find('.fas').addClass('fa-check');
                 }
             });
@@ -104,7 +113,10 @@ $(document).ready(function () {
     // method :: set selected option as active dropdown item
     $(document).on( "click", ".dropdown-item", function() {
         $(this).parent().siblings( ".dropdown-toggle" ).html( $(this).html() );
-        $(this).parent().find( ".addButton" ).prop("disabled", false);
+        $(this).parent().parent().parent().find( ".addButton" ).prop("disabled", false);
+        $(this).parent().parent().parent().find( ".addButton" ).removeClass( "disabled-button" );
+        $(this).parent().parent().parent().find( ".addButton" ).removeClass( "btn-outline-success" );
+        $(this).parent().parent().parent().find( ".addButton" ).addClass( "btn-success" );
     });
 
 

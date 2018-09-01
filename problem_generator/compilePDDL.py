@@ -38,7 +38,7 @@ def generateState():
 
     for course in state_dict['deficiency']:
 
-        if not bool(random.randint(0, 2)) and no_count < 3: 
+        if bool(random.randint(0, 1)) and no_count < 3: 
 
             no_count += 1
             state_dict['deficiency'][course] = "no"
@@ -136,6 +136,7 @@ def main():
         stateJSON = state_file.read()
 
     ss = generateState()
+    #print ss
     problem = compile2pddl(ss)
     #print problem
 

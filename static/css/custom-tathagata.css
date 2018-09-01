@@ -23,7 +23,7 @@ Custom styles from Tathagata
     color: green;
 }
 
-.fas.fa-times {
+#info .fas.fa-times {
     color: red;
 }
 
@@ -49,6 +49,10 @@ Custom styles from Tathagata
 
 
 /* plan elements */
+
+.disabled-button {
+    cursor: not-allowed; 
+}
 
 .card-body {
     background-color: white;
