@@ -93,8 +93,8 @@ def compile2pddl(stateJSON):
 
     state_professor_block = ''
     for professor in committee_dict:
-        if committee_dict[professor][2] != 'none':
-            state_professor_block += '(is_expert {} {})'.format(professor, committee_dict[professor][2].replace(' ', '_')) + '\n'
+        if committee_dict[professor][1] != 'none':
+            state_professor_block += '(is_expert {} {})'.format(professor, committee_dict[professor][1].replace(' ', '_')) + '\n'
 
     template = template.replace('[PROFESSORS]', professor_block).replace('[PROFESSOR_BLOCK]', state_professor_block)
 

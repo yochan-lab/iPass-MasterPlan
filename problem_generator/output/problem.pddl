@@ -76,14 +76,14 @@ CSE569 CSE579 CSE556 CSE551 CSE550 CSE552 CSE555 - foundations_course
 (is_expert Rao ai)
 (is_expert Amor ai)
 
+(has_taken CSE310)
+(has_taken CSE230)
 
 
-
-(has_taken CSE360)
 (has_taken CSE330)
 (has_taken CSE355)
 
-
+(is_international)
 )
 
 (:goal (and

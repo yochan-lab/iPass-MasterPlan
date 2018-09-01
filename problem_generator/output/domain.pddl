@@ -225,8 +225,14 @@ num
 (:action complete_semester
 :parameters ()
 :precondition (and
-(not (sem_quota zero))
 (ready_to_complete_semester)
+(not (sem_quota zero))
+(not (sem_quota five))
+(not (sem_quota six))
+(not (sem_quota seven))
+(not (sem_quota eight))
+(not (sem_quota nine))
+(not (sem_quota ten))
 )
 :effect (and
 (not (ready_to_complete_semester))

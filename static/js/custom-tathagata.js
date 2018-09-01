@@ -86,7 +86,7 @@ $(document).ready(function () {
 
                 temp = entry_string.replace('[INDEX]', index);
                 temp = temp.replace('[NAME]', value[0]);
-                temp = temp.replace('[TYPE]', value[2].replace('_', ' '));
+                temp = temp.replace('[TYPE]', value[1].replace('_', ' '));
 
                 $( "#chairList" ).siblings( ".dropdown-menu" ).append( temp );
                 $( "#committeeList" ).siblings( ".dropdown-menu" ).append( temp );
