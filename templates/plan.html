@@ -25,7 +25,7 @@
      
                 <div class="card-body">
                     
-                    <div id="plan-utils">
+                    <div class="container" id="plan-utils">
 
                         <div class="row mb-2">
                             <div class='col'>
@@ -94,6 +94,10 @@
 </div>
 
 <script type="text/javascript">
+
+$('[data-toggle="tooltip"]').tooltip();
+$('[data-toggle="popover"]').tooltip();
+
 
 $("#valFeedback").hide();
 $("#mrpFeedback").hide();
@@ -178,8 +182,6 @@ $(function () {
 
     });
     
-    $('[data-toggle="tooltip"]').tooltip();
-
     getGridStackData = function() {
         var res = _.map( $('.grid-stack > .grid-stack-item:visible'), function(el) {
             el = $(el)
@@ -257,6 +259,7 @@ $(function () {
     });
     
     $('#explainPlan').click(function() {
+
         res = getGridStackData();
         $.getJSON($SCRIPT_ROOT + '/getPlanExplanation', {
             'plan' : JSON.stringify(res)
@@ -271,6 +274,13 @@ $(function () {
             $('.exploader').fadeOut();
             $('#generatedExplanations').html(e);
         });
+
+        $( ".explain-action" ).each( function( index ) {
+
+            $( this ).show();
+            
+        });
+
     });
 
     $('#undoPlan').click(function() {
@@ -339,13 +349,16 @@ $(function () {
 
         grid.removeAll();
 
-        var widgetHTML =    '<div> \
+        var widgetHTML =   '<div> \
                                 <div class="grid-stack-item-content" data-gs-no-resize="true"> \
                                     <div class="input-group input-group-sm"> \
-                                        <div class="form-control bg-light align-midmiddle" style="height:100%;"> \
-                                            <span>[DISPLAY][EXPLAIN]</span> \
+                                        <div class="form-control bg-light align-midmiddle"> \
+                                            <span>[DISPLAY]</span> \
                                         </div> \
                                         <div class="input-group-append"> \
+                                            <button class="btn btn-success explain-action" data-toggle="popover" title="Details" data-content="[EXPLAIN]"> \
+                                                <i class="fas fa-question"></i> \
+                                            </button> \
                                             <button class="btn btn-outline-danger delete-action" type="button"> \
                                                 <i class="fas fa-times"></i> \
                                             </button> \
@@ -353,8 +366,6 @@ $(function () {
                                     </div> \
                                 </div> \
                             </div>';
-
-        var explanationHTML = '&nbsp;<div data-toggle="tooltip" data-placement="right" title="[REASON]"><i class="fas fa-exclamation-circle"></i></div>';
 
         var elem = null;
 
@@ -369,6 +380,8 @@ $(function () {
                 elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', ''));
                 elem.find('.form-control').addClass('text-danger');
 
+                $( "#valFeedback" ).append( "<br><br>" +  node.name.substr(1, node.name.indexOf(';')) );
+
             } 
 
             // planner added actions
@@ -378,13 +391,20 @@ $(function () {
                 reason = node.name.substr(node.name.indexOf(';'), node.name.length);
                 elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', reason));
                 elem.find('.form-control').addClass('text-success');
-
+                
             }
 
             // human added actions
             else {
+
                 elem = $(widgetHTML.replace('[DISPLAY]', node.name).replace('[EXPLAIN]', ''));
+
             }
+
+            elem.find('.explain-action').hide();
+            elem.find('.explain-action').popover({
+                container: 'body'
+            });
 
             grid.addWidget(elem, node.x, node.y, node.width, node.height);
 

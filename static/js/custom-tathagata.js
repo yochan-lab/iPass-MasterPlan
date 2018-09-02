@@ -223,7 +223,11 @@ $(document).ready(function () {
             $( "#money" ).html( "$" +  cost );
 
             // difficulty 
-            $( "#difficulty" ).html( num_courses / num_semesters );
+            if ( num_semesters == 0) {
+                $( "#difficulty" ).html( num_courses );
+            } else {
+                $( "#difficulty" ).html( num_courses / num_semesters );
+            }
 
             // Display the result in the element with id "countdown"
             $("#countdown").html( minutes + "m " + seconds + "s" )
