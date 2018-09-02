@@ -48,9 +48,9 @@ class Interface:
     '''
     def actionsToUI(self, actions):
         ui_actions = {}
-        skip_action_idx = 0 
+        idx = 0 
         has_property = False
-        for idx, action in enumerate(actions):
+        for action in actions:
             # Check if action is a validated or suggested action
             if action.find(";") >= 0:
                 action, a_property = action.split(";")
@@ -68,11 +68,11 @@ class Interface:
                 # action has a ui_action mapping
                 if has_property:
                     action += ";" + self.__getFeedback(a_property)
-                ui_actions[idx - skip_action_idx] = action
-            else:
-                # action is an end semester action
-                skip_action_idx += 1
-        
+
+                ui_actions[idx] = action
+                #whenever there is an action increment the index
+                idx += 1
+
         return ui_actions
 
     '''
@@ -103,7 +103,6 @@ class Interface:
         if action_name.find("-"):
             act = action_name.split("-")
             act = [x.strip() for x in act]
-        print(act)
         actionType = act[0]
         if act[0] == "Add":
             if act[1].find("Semester") > -1:
@@ -228,7 +227,7 @@ class Interface:
 
     def __invertSemester(self, actionStrings):
         key = "_".join(actionStrings[0:2])
-        if len(actionStrings) == 3:
+        if len(actionStrings) == 2:
             return self.invert_mapper[key]
 
         return None
@@ -242,18 +241,20 @@ class Interface:
         else:
             specialization = "Big Data"
 
-        return self.invert_mapper[self.actionStrings[0]] + specialization
+        return self.invert_mapper[actionStrings[0]] + specialization
 
     def __invertCommittee(self, actionStrings):
         key = "_".join(actionStrings[0:3])
         profName = actionStrings[3].title()
+        if key.find("MEMBER") > 0:
+            profName = actionStrings[4].title()
         prof = self.committee[profName]
-        action = self.invert_mapper[key] + prof[0] + " (specialization:" + prof[1] + ")"
+        prof[1] = prof[1] if prof[1].find("_") < 0 else prof[1].replace("_", " ")
+        action = self.invert_mapper[key] + prof[0] + " (Specialization: " + prof[1] + ")"
         return action
 
     def __invertCourse(self, actionStrings):
         key = "_".join(actionStrings[0:2])
-        print key
         if actionStrings[1].find("CSE") >= 0:
             action = self.invert_mapper[key]
         else:
@@ -267,13 +268,44 @@ class Interface:
         return self.invert_mapper[actions[0]]
 
     def __getFeedback(self, soup):
+        if soup == "--":
+            return soup
         return "TODO: feedback -- actual string " + soup
 
 def test_invertor():
+    """
     plan = [
         "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
         "(TAKE_DEFICIENCY_COURSE_CSE340_ZERO_ONE_ZERO_ONE)",
         "(DEFEND);(defend) has an unsatisfied precondition at time 1 : (Follow each of: :     (Set (current_num_ten) to true) :     and (Set (has_taken_cse599b) to true) :     and (Set (has_taken_cse599a) to true) :     and (Set (completed_specialization) to true) :     and (Set (has_committee_member3) to true) :     and (Set (has_committee_member2) to true) :     and (Set (has_committee_done) to true) :     and (Set (has_committee_chair_done) to true) : )"
+    ]
+    """
+    plan = ["(SELECT_COMMITTEE_MEMBER_2_LIU);--",
+        "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
+        "(TAKE_DEFICIENCY_COURSE_CSE355_ZERO_ONE_ZERO_ONE);--",
+        "(SELECT_COMMITTEE_MEMBER_3_AMOR);--",
+        "(TAKE_DEFICIENCY_COURSE_CSE310_ZERO_ONE_ONE_TWO);--",
+        "(TAKE_DEFICIENCY_COURSE_CSE360_ZERO_ONE_TWO_THREE);--",
+        "(COMPLETE_SEMESTER_3);--",
+        "(COMPLETE_SEMESTER);--",
+        "(TAKE_CSE599A_ZERO_ONE_ZERO_ONE);--",
+        "(TAKE_NORMAL_COURSE_CSE574_APPLICATIONS_ONE_TWO_ONE_TWO);--",
+        "(TAKE_NORMAL_COURSE_CSE571_APPLICATIONS_TWO_THREE_TWO_THREE);--",
+        "(COMPLETE_SEMESTER_3);--",
+        "(COMPLETE_SEMESTER);--",
+        "(TAKE_NORMAL_COURSE_CSE563_SYSTEMS_THREE_FOUR_ZERO_ONE);--",
+        "(TAKE_NORMAL_COURSE_CSE555_FOUNDATIONS_FOUR_FIVE_ONE_TWO);--",
+        "(TAKE_NORMAL_COURSE_CSE552_FOUNDATIONS_FIVE_SIX_TWO_THREE);--",
+        "(COMPLETE_SEMESTER_3);--",
+        "(COMPLETE_SEMESTER);--",
+        "(TAKE_NORMAL_COURSE_CSE565_SYSTEMS_SIX_SEVEN_ZERO_ONE);--",
+        "(TAKE_NORMAL_COURSE_CSE575_APPLICATIONS_SEVEN_EIGHT_ONE_TWO);--",
+        "(SPECIALIZE_AI);--",
+        "(TAKE_NORMAL_COURSE_CSE509_APPLICATIONS_EIGHT_NINE_TWO_THREE);--",
+        "(COMPLETE_SEMESTER_3);--",
+        "(COMPLETE_SEMESTER);--",
+        "(TAKE_CSE599B_NINE_TEN_ZERO_ONE);--",
+        "(DEFEND);--"
     ]
     inter = Interface()
     print(inter.actionsToUI(plan))
