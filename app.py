@@ -34,19 +34,19 @@ def ui_plan_to_pddl_style(request):
 @app.route("/validate", methods=['GET', 'POST'])
 def validate():
     planner.savePlan() 
-    planner.getValidatedPlan(ui_plan_to_pddl_style(request))
+    planner.get_validated_plan(ui_plan_to_pddl_style(request))
     return index()
     
 @app.route("/fix", methods=['GET', 'POST'])
 def fix():
     planner.savePlan()
-    planner.getSuggestedPlan(ui_plan_to_pddl_style(request), True)
+    planner.get_suggested_plan(ui_plan_to_pddl_style(request), True)
     return index()
     
 @app.route("/suggest", methods=['GET', 'POST'])
 def suggest():
     planner.savePlan()
-    planner.getSuggestedPlan(ui_plan_to_pddl_style(request))
+    planner.get_suggested_plan(ui_plan_to_pddl_style(request))
     return index(1)
     
 @app.route("/undo", methods=['GET', 'POST'])

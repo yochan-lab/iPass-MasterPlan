@@ -12,7 +12,7 @@ class Planner():
 
         self.PLAN_FILES_DIR = './plan_utils/{}'
         self.PDDL_FILES_DIR = 'problem_generator/output/{}'
-        
+
         # File paths to planning technologies
         self.CALL_FF = self.PLAN_FILES_DIR.format('ff')
         self.CALL_FAST_DOWNWARD = self.PLAN_FILES_DIR.format(
@@ -28,8 +28,9 @@ class Planner():
         # Grounded pr-domain and pr-problem files
         self.pr_domain = './pr-domain.pddl'
         self.pr_problem = './pr-problem.pddl'
-        self.val_pr_domain = self.PLAN_FILES_DIR.format('pr-domain.pddl')
-        self.val_pr_problem = self.PLAN_FILES_DIR.format('pr-problem.pddl')
+        self.grounded_pr_domain = self.PLAN_FILES_DIR.format('pr-domain.pddl')
+        self.grounded_pr_problem = self.PLAN_FILES_DIR.format(
+            'pr-problem.pddl')
 
         # Plan files
         self.plan_output = './generated_plan'
@@ -50,13 +51,108 @@ class Planner():
         self.problem_state_json = './static/files/state.json'
 
     '''
-    Writes a dict of indexed actions into the observation file.
-        @Input
-            actions - Dict of indexed actions eg. {0:'a1', '1':a2 ... }
-            @Optional tillEndOfPresentPlan - Consider the plan only till the last validated action. Used for
-                                             fixing a validation error or a parital plan.
-        @Output
-            Writes the action list to a file in sas style
+    Given a dict of indexed actions (eg. {0:'a1', '1':a2 ... }), wrties an action list
+    with the first validation error (if any) to observation file that will be rendered
+    in the frontend.
+    '''
+
+    def get_validated_plan(self, actions):
+        self.__writeObservations(actions)
+        self.__create_grounded_files()
+
+        # Run validate
+        out = self.__run_validate(
+            self.grounded_pr_domain,
+            self.grounded_pr_problem,
+            self.obs)
+
+        # Parse VAL's output
+        if out:
+            if 'Plan failed to execute' in out:
+                faults = out.split("Plan Repair Advice:\n")[1].strip()
+                if ')' in faults:
+                    action_name = faults.split(') ')[0].strip().upper() + ")"
+                    reason = faults.split(
+                        '\n\n')[0].strip().replace('\n', " : ")
+
+                f = file(self.obs, 'w')
+                for k in sorted(actions):
+                    print (
+                        actions[k].strip('\n( )').lower(),
+                        action_name.strip('\n( )').lower())
+                    if actions[k].strip('\n( )').lower(
+                    ) in action_name.strip('\n( )').lower():
+                        f.write(actions[k].strip() + ';' + reason + '\n')
+                    else:
+                        f.write(actions[k].strip() + '\n')
+                f.close()
+
+    '''
+    Given a dict of indexed actions (eg. {0:'a1', '1':a2 ... }), tried to come up with
+    the next (and intermediate) actions that achieve this goal. Finally, they write this to
+    the observation file rendered in the frontend.
+    '''
+
+    def get_suggested_plan(self, actions, tillEndOfPresentPlan=False):
+        self.__writeObservations(actions)
+        self.__create_grounded_files()
+        
+        # Run pr2plan and plan
+        self.__run_pr2(
+            self.grounded_pr_domain,
+            self.grounded_pr_problem,
+            self.obs)
+        self.__plan(self.pr_domain, self.pr_problem)
+
+        # Write plan to observation file
+        with open(self.plan_output, 'r') as f:
+            lines = f.read().strip().split('\n')
+
+        i = 0
+        plan_actions = {}
+        for l in lines:
+            if '(general cost)' not in l:
+                if 'EXPLAIN_OBS_' in l.upper():
+                    print('respecting obs: {}'.format(l))
+                    a = l.upper().replace('EXPLAIN_OBS_', '').strip()
+                    a = re.sub('_[0-9]', '', a)
+                    plan_actions[i] = '({})'.format(a)
+                    i += 1
+                else:
+                    plan_actions[i] = '({});--'.format(l.upper().strip())
+                    i += 1
+
+        self.__writeObservations(plan_actions, tillEndOfPresentPlan)
+
+    '''
+    Create pr-problem and pr-domain files with no observations for getting a domain and
+    problem file with grounded action names.
+    '''
+
+    def __create_grounded_files(self):
+        self.__run_pr2(self.domain, self.problem, self.blank_obs)
+        
+        # Remove the proposition EXPLAINED_FULL_OBS_SEQUENCE from
+        # the goal state that makes the problem infeasible.
+        with open(self.pr_problem, 'r') as f:
+            lines = f.read().split('\n')
+        
+        s = ''
+        for line in lines:
+            if 'EXPLAINED_FULL_OBS_SEQUENCE' in line:
+                continue
+            s += "{}\n".format(line.strip())
+        s = s.strip()
+        
+        with open(self.pr_problem, 'w') as f:
+            f.write(s)
+        
+        copyf(self.pr_domain, self.grounded_pr_domain)
+        copyf(self.pr_problem, self.grounded_pr_problem)
+
+    '''
+    Given a dictionary of indexed actions (eg. {0:'a1', '1':a2 ... }), writes the action
+    list to the observation file that will be rendered in the frontend.
     '''
 
     def __writeObservations(self, actions, tillEndOfPresentPlan=False):
@@ -82,80 +178,85 @@ class Planner():
         f.close()
 
     '''
-    Validate - validates a plan
-        @Input
-            Dict of indexed actions eg. {0:'a1', '1':a2 ... }
-        @Outputs
-            wrties action list with validation error to observation file
+    Function to call pr2 plan. Saves pr-problem and pr-domain files in the home directory.
     '''
-    def getValidatedPlan(self, actions):
-        # Save plan from UI to observation file
-        self.__writeObservations(actions)
-        
-        # Create pr-problem and pr-domain files with no observation for validate to use
-        cmd = self.CALL_PR2 + ' -d ' + self.domain + \
-                    ' -i ' + self.problem + ' -o ' + self.blank_obs
-        os.system(cmd)
-        copyf(self.pr_domain, self.val_pr_domain)
-        copyf(self.pr_problem, self.val_pr_problem)
 
-        # Run validate
+    def __run_pr2(self, domain_file, problem_file, obs_file):
+        print(
+            '[INFO] Running pr2plan with the following files:\ndomain:{}\nproblem:{}\nobservation:{}'.format(
+                domain_file,
+                problem_file,
+                obs_file))
+        try:
+            cmd = self.CALL_PR2 + ' -d ' + domain_file + \
+                ' -i ' + problem_file + ' -o ' + obs_file
+            os.system(cmd)
+        except BaseException:
+            print('[ERROR] Call Failed!')
+
+    '''
+    Function to call validate. Returns the output as a string.
+    '''
+
+    def __run_validate(self, domain_file, problem_file, obs_file):
         try:
             cmd = self.CALL_VAL + \
-                  ' {} {} {}'.format(self.val_pr_domain, self.val_pr_problem, self.obs)
+                ' {} {} {}'.format(domain_file, problem_file, obs_file)
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             (out, err) = proc.communicate()
+            return out
         except BaseException:
-            print('[ERROR] Failed to execute VAL on given plan!')
+            print(
+                '[ERROR] Failed to execute VAL with the given files:\ndomain:{}\nproblem:{}\nobservation:{}'.format(
+                    domain_file,
+                    problem_file,
+                    obs_file))
 
-        # Parse VAL's output
-        if out:
-            if 'Plan failed to execute' in out:
-                faults = out.split("Plan Repair Advice:\n")[1].strip()
-                if ')' in faults:
-                    action_name = faults.split(') ')[0].strip().upper() + ")"
-                    reason = faults.split(
-                        '\n\n')[0].strip().replace('\n', " : ")
+    def __remove_costs(self, file_name):
+        with open(file_name, 'r') as f:
+            lines = f.read().split('\n')
 
-                f = file(self.obs, 'w')
-                for k in sorted(actions):
-                    print (
-                        actions[k].strip('\n( )').lower(),
-                        action_name.strip('\n( )').lower())
-                    if actions[k].strip('\n( )').lower(
-                    ) in action_name.strip('\n( )').lower():
-                        f.write(actions[k].strip() + ';' + reason + '\n')
-                    else:
-                        f.write(actions[k].strip() + '\n')
-                f.close()
+        s = ''
+        for line in lines:
+            if 'increase' in line \
+                or 'functions' in line \
+                or 'total-cost' in line:
+                # These keywords indicate that the line relates to
+                # functions with action costs. Skip them.
+                continue
+            s += "{}\n".format(line.strip())
+            
+        s = s.replace(':action-costs', '')
+        
+        with open(file_name, 'w') as f:
+            f.write(s)
 
     '''
-    Generates a plan.
-        @Input
-            @Optional use - whether to use Fast Forward of Fast Downward
-        @Output
-            Writes the output to a observation
+    Given a domain and problem file, generates a plan.
     '''
 
-    def plan(self, use='ff'):
-        try:
-            if use == 'ff':
-                cmd = self.CALL_FF + \
-                    " -o {} -f {} | grep -E '[0-9]: '".format(self.domain, self.problem, self.plan_output)
-                proc = subprocess.Popen(
-                    cmd, stdout=subprocess.PIPE, shell=True)
-                (out, err) = proc.communicate()
-                f = open(self.plan_output, 'w')
-                f.write(out.replace('step', '').strip())
-                f.close()
-                print('Fast FOrward called...')
-            else:
-                cmd = self.CALL_FAST_DOWNWARD + self.pr_domain + ' ' + \
-                    self.pr_problem + ' --search "astar(lmcut())"'
-            os.system(cmd)
-            print('FAST-DOWNWARD called...')
-        except BaseException:
-            raise Exception('[ERROR] While trying to run planner.')
+    def __plan(self, domain_file=None, problem_file=None, use='ff'):
+
+        # Initiate domain and problem files, if not provided by caller.
+        if domain_file is None:
+            domain_file = self.domain
+        if problem_file is None:
+            problem_file = self.problem
+
+        print(
+            '[INFO] Using ff to find plan. Args:\nDomain: {}\nProblem: {}'.format(
+                domain_file,
+                problem_file))
+
+        # Since ff cannot handle action cost, remove them
+        self.__remove_costs(domain_file)
+        self.__remove_costs(problem_file)
+
+        # Run ff
+        cmd = self.CALL_FF + \
+            " -o %s -f %s | grep -E '[0-9]: ' | awk -F': ' '{print $2}' > %s" % (domain_file, problem_file, self.plan_output)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+        (out, err) = proc.communicate()
 
     '''
     def getLandmarks(self):
@@ -243,48 +344,6 @@ class Planner():
         else:
             self.human_domain = fname.split('.pddl')[0] + '_modify.pddl'
 
-    def getSuggestedPlan(self, actions, tillEndOfPresentPlan=False):
-        self.__writeObservations(actions)
-
-        # If actions are blank, use the present pr_domain and pr_problem files to plan. If not, generate new files with the known actions to be explained.
-        if actions:
-            # Save the present domain
-            copyf(self.pr_domain, self.val_pr_domain)
-            copyf(self.pr_problem, self.val_pr_problem)
-            try:
-                os.system('\n=====\ncat {0}\n======\n'.format(self.obs))
-                cmd = self.CALL_PR2 + ' -d ' + self.val_pr_domain + \
-                    ' -i ' + self.val_pr_problem + ' -o ' + self.obs
-                os.system(cmd)
-            except BaseException:
-                raise Exception('[ERROR] In Call to PR2!')
-
-        self.plan()
-
-        # Write plan to observation file
-        plan_actions = {}
-        f = file(self.sas_plan, 'r')
-        i = 0
-        acts = [x.strip('() \n') for x in actions.values()]
-        for l in f:
-            if '(general cost)' not in l:
-                if 'EXPLAIN_OBS_' in l.upper():
-                    a = l.upper().replace('EXPLAIN_OBS_', '').strip()
-                    plan_actions[i] = re.sub('_[0-9]', '', a)
-                    i += 1
-                    '''
-                    for a in acts:
-                        if a.upper() in l.upper():
-                            plan_actions[i] = '(' + a.upper().strip() + ' )'
-                            i += 1
-                            break
-                    '''
-                else:
-                    plan_actions[i] = l.upper().strip() + ';--'
-                    i += 1
-        f.close()
-        self.__writeObservations(plan_actions, tillEndOfPresentPlan)
-
     def getExplanations(self):
 
         cmd = "cd ./planner/mmp_explanations/src && ./Problem.py -m ../../../{0} -n ../../../{1} -d ../domain/radar_domain_template.pddl -f ../../mock_problem.pddl".format(
@@ -345,8 +404,8 @@ class Planner():
     def getActionNames(self):
         self.deletePrFiles()
         try:
-            cmd = self.CALL_PR2 + ' -d ' + self.domain + ' -i ' + \
-                self.problem + ' -o ' + self.PLAN_FILES_DIR.format('blank_obs.dat')
+            cmd = self.CALL_PR2 + ' -d ' + self.domain + ' -i ' + self.problem + \
+                ' -o ' + self.PLAN_FILES_DIR.format('blank_obs.dat')
             os.system(cmd)
         except BaseException:
             raise Exception('[ERROR] Call to PR2 failed!')
@@ -410,9 +469,10 @@ class Planner():
         @Input - Goal for which planning problem is to be made
         @Output - Creates problem.pddl
     '''
+
     def definePlanningProblem(self):
         problem_state = problem_generator.generateState()
-        
+
         # Get pddl file from problem state
         problem_generator.compile2pddl(problem_state)
 
