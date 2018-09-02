@@ -21,7 +21,7 @@ class Interface:
             "Complete Systems": "COMPLETE_SYSTEMS",
             "Thesis Course A": "TAKE_CSE599A",
             "Thesis Course B": "TAKE_CSE599B",
-            "Specialize": "SPECIALIZE"
+            "Add Specialization": "SPECIALIZE"
         }
         self.invert_mapper = {
             "TAKE_DEFICIENCY": "Add Course - ",
@@ -63,7 +63,8 @@ class Interface:
             action = action[1: -1]
             if action.find("_") >= 0:
                 actionArray = action.split("_")
-            else:
+            elif action:
+                # do this only if action is not empty.
                 actionArray = [action]
 
             act = self.__invertor(actionArray)
@@ -132,7 +133,7 @@ class Interface:
             "Add Committee": self.__addChairAndCommittee,
             "Complete Semester": self.__endSemester,
             "Defend": self.__defend,
-            "Speicalize": self.__specialization
+            "Add Specialization": self.__specialization
         }
 
         func = switch.get(action, self.__defaultConvertor)
@@ -164,7 +165,7 @@ class Interface:
     ' string is, it is a part of the action and not a parameter to the action
     '''
     def __specialization(self, action, name):
-        name = name if name.fine(" ") < 0 else name.replace(" ", "_")
+        name = name if name.find(" ") < 0 else name.replace(" ", "_")
         return [self.mapper[action] + "_" + name.upper()]
 
     def __endSemester(self, action, name):
@@ -184,33 +185,36 @@ class Interface:
 
     def __addCourse(self, action, name):
         if name in self.cache:
-            action =    self.mapper[self.cache[name][1]] + self.connector +\
-                        self.cache[name][0] + self.connector
+            course, course_type = self.cache[name]
+            temp = "deficiency" if course_type == "deficiency" else "normal"
+            action =    self.mapper[temp] + self.connector +\
+                        course.upper() + self.connector
+            course_type = course_type.lower()
         else:
             if name.find("Thesis") > -1:
                 name = self.__removeType(name)
                 action =    self.mapper[name] + self.connector
-                courseType = "research"
+                course_type = "research"
             else:
-                course, courseType = self.__find(self.courses, name)
+                course, course_type = self.__find(self.courses, name)
                 if course is None:
                     return None
-                self.cache[name] = [course, courseType]
-                temp = "deficiency" if courseType == "deficiency" else "normal"
+                self.cache[name] = [course, course_type]
+                temp = "deficiency" if course_type == "deficiency" else "normal"
                 action =        self.mapper[temp] + self.connector + course.upper() + self.connector
 
                 if temp == "normal":
-                    action +=   courseType.upper() + self.connector
+                    action +=   course_type.upper() + self.connector
 
-            incremented     = self.course_counter + 1 if self.course_counter < 10 else 10
-            sem_incremented = self.sem_counter + 1 if self.sem_counter < 10 else 10
+        incremented     = self.course_counter + 1 if self.course_counter < 10 else 10
+        sem_incremented = self.sem_counter + 1 if self.sem_counter < 10 else 10
 
-            action +=           self.num[self.course_counter] + self.connector +\
-                                self.num[incremented] + self.connector +\
-                                self.num[self.sem_counter] + self.connector +\
-                                self.num[sem_incremented]
+        action +=           self.num[self.course_counter] + self.connector +\
+                            self.num[incremented] + self.connector +\
+                            self.num[self.sem_counter] + self.connector +\
+                            self.num[sem_incremented]
 
-        if courseType != "deficiency": self.course_counter += 1
+        if course_type != "deficiency": self.course_counter += 1
         self.sem_counter += 1
 
         return [action]
@@ -325,6 +329,7 @@ def test():
                         "x": 0, "y": 2, "width": 12, "height": 1},
                 {"name": "Add Committee - Guoliang Xue (Specialization: big data)",
                         "x": 0, "y": 3, "width": 12, "height": 1},
+                {"name": "Add Specialization - Cybersecurity", "x": 0, "y": 10, "width": 12, "height": 1},
                 {"name": "Add - End of Semester", "x": 0, "y": 4, "width": 12, "height": 1},
                 {"name": "Add Chair - Arunabha Sen (Specialization: none)",
                         "x": 0, "y": 5, "width": 12, "height": 1},
@@ -336,5 +341,5 @@ def test():
     print(inter.uiToActions(plan))
 
 if __name__ == "__main__":
-    #test()
-    test_invertor()
+    test()
+    #test_invertor()
