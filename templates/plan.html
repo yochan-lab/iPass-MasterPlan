@@ -29,19 +29,28 @@
 
                         <div class="row mb-2">
                             <div class='col'>
-                                <button type="button" class="col-md-12 btn btn-outline-dark validatePlan">
+                                <button type="button" class="col-md-12 btn btn-outline-dark" id="validatePlan">
                                     Validate
                                 </button>
                             </div>
                             <div class='col'>
-                                <button type="button" class="col-md-12 btn btn-outline-dark suggestPlan">
-                                    Suggest
-                                </button>
-                            </div>
-                            <div class='col'>
-                                <button type="button" class="col-md-12 btn btn-outline-dark undoChange">
-                                    Undo
-                                </button>
+                                <div class="row mb-2">
+                                    <button type="button" class="col-md-12 btn btn-outline-dark" id="suggestPlan">
+                                        Suggest
+                                    </button>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class='col'>
+                                        <button type="button" class="col-md-12 btn btn-outline-success" id="explainPlan">
+                                            Explain
+                                        </button>
+                                    </div>
+                                    <div class='col'>
+                                        <button type="button" class="col-md-12 btn btn-outline-danger" id="undoPlan">
+                                            Undo
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div><!-- row ends -->
 
@@ -87,6 +96,13 @@
 </div>
 
 <script type="text/javascript">
+
+$("#valFeedback").hide();
+$("#mrpFeedback").hide();
+
+$("#undoPlan").hide();
+$("#explainPlan").hide();
+
 $.extend({
     redirectPost: function(location, args)
     {
@@ -181,25 +197,74 @@ $(function () {
         return res;
     };
 
-    $('.validatePlan').click(function() {
-        res = getGridStackData();
-        $('.page_content').fadeOut();
-        $('.loader').fadeIn();
-        $.redirectPost('validate', {'plan': JSON.stringify(res)});
+    $('#validatePlan').click( function() {
+
+        // res = getGridStackData();
+        // $('.page_content').fadeOut();
+        // $('.loader').fadeIn();
+
+        // $.redirectPost('validate', {'plan': JSON.stringify(res)});
+
+        // need to set this depending on what transpired
+        success = false; 
+
+        $( "#valFeedback" ).show();
+        $( "#valFeedback" ).removeClass( "alert-danger" );
+        $( "#valFeedback" ).removeClass( "alert-success" );
+
+        if ( success ) {
+
+            $( "#valFeedback" ).addClass( "alert-success" );
+            $( "#valFeedback" ).html( "So far so good! :)" );
+
+        } else {
+
+            $( "#valFeedback" ).addClass( "alert-danger" );
+            $( "#valFeedback" ).html( "This is not part of a valid iPOS! :(" );
+
+        }
+
     });
 
-    $('.suggestPlan').click(function() {
+    $('#suggestPlan').click( function() {
+
         res = getGridStackData();
         $('.page_content').fadeOut();
         $('.loader').fadeIn();
+
         $.redirectPost('suggest', {'plan': JSON.stringify(res)});
+
+        // need to set this depending on what transpired
+        plan_found = true; 
+
+        $( "#mrpFeedback" ).show();
+        $( "#mrpFeedback" ).removeClass( "alert-danger" );
+        $( "#mrpFeedback" ).removeClass( "alert-success" );
+
+        if ( plan_found ) {
+
+            $("#undoPlan").show();
+            $("#explainPlan").show();
+
+            $( "#mrpFeedback" ).addClass( "alert-success" );
+            $( "#mrpFeedback" ).html( "Plan found! :)" );
+
+        } else {
+
+            $( "#mrpFeedback" ).addClass( "alert-danger" );
+            $( "#mrpFeedback" ).html( "No plan could be found! :(" );
+
+        }
+
     });
     
     $('.alternativePlan').click(function() {
+
         res = getGridStackData();
         $('.page_content').fadeOut();
         $('.loader').fadeIn();
         $.redirectPost('generateAlternative', {'plan': JSON.stringify(res)});
+
     });
     
     $('.fixPlan').click(function() {
@@ -242,8 +307,7 @@ $(function () {
     }
 
     var options = {
-        float: false,
-        staticGrid: true
+        float: false
     };
 
     $('.grid-stack').gridstack(options);
@@ -316,17 +380,21 @@ $(function () {
 
             // invalid actions
             if (node.name.includes(';--')) {
+
                 action_name = '<i class="fas fa-exclamation-triangle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
                 elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', ''));
                 elem.find('.form-control').addClass('text-danger');
+
             } 
 
             // planner added actions
             else if (node.name.includes(';')) {
+
                 action_name = '<i class="fas fa-plus-circle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
                 reason = node.name.substr(node.name.indexOf(';'), node.name.length);
                 elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', reason));
                 elem.find('.form-control').addClass('text-success');
+
             }
 
             // human added actions

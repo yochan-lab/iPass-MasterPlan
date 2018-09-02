@@ -13,9 +13,6 @@ $(document).ready(function () {
     $("#valAlertPositive").hide();
     $("#valAlertNegative").hide();
 
-    $("#valFeedback").hide();
-    $("#mrpFeedback").hide();
-
     // gridstack not resizable
 
     $('.grid-stack').gridstack({
