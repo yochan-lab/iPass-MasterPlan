@@ -195,6 +195,7 @@ class Interface:
                 name = self.__removeType(name)
                 action =    self.mapper[name] + self.connector
                 course_type = "research"
+                temp = "normal"
             else:
                 course, course_type = self.__find(self.courses, name)
                 if course is None:
@@ -203,8 +204,8 @@ class Interface:
                 temp = "deficiency" if course_type == "deficiency" else "normal"
                 action =        self.mapper[temp] + self.connector + course.upper() + self.connector
 
-                if temp == "normal":
-                    action +=   course_type.upper() + self.connector
+        if temp == "normal":
+            action +=   course_type.upper() + self.connector
 
         incremented     = self.course_counter + 1 if self.course_counter < 10 else 10
         sem_incremented = self.sem_counter + 1 if self.sem_counter < 10 else 10
@@ -334,7 +335,9 @@ def test():
                 {"name": "Add Chair - Arunabha Sen (Specialization: none)",
                         "x": 0, "y": 5, "width": 12, "height": 1},
                 {"name": "Add Course - Thesis Course A (research)", "x": 0, "y": 4, "width": 12, "height": 1},
-                {"name": "Add - Defense", "x": 0, "y": 6, "width": 12, "height": 1}
+                {"name": "Add - Defense", "x": 0, "y": 6, "width": 12, "height": 1},
+                {"name": "Add Course - Software Verification, Validation and Testing (systems)",
+                        "x": 0, "y": 12, "width": 12, "height": 1},
             ]
 
     inter = Interface(" ")
