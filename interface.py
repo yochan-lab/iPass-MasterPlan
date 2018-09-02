@@ -49,8 +49,11 @@ class Interface:
     def actionsToUI(self, actions):
         ui_actions = {}
         idx = 0 
-        has_property = False
         for action in actions:
+            # resetting the parameters for the loop
+            has_property = False
+            act = None
+            a_property = ""
             # Check if action is a validated or suggested action
             if action.find(";") >= 0:
                 action, a_property = action.split(";")
@@ -63,12 +66,12 @@ class Interface:
             else:
                 actionArray = [action]
 
-            action = self.__invertor(actionArray)
-            if action is not None:
+            act = self.__invertor(actionArray)
+            if act is not None:
                 # action has a ui_action mapping
                 if has_property:
-                    action += ";" + self.__getFeedback(a_property)
-                ui_actions[idx] = str(action)
+                    act += ";" + self.__getFeedback(a_property)
+                ui_actions[idx] = str(act)
                 #whenever there is an action increment the index
                 idx += 1
 
