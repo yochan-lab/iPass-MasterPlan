@@ -57,10 +57,8 @@
                         <div class="row">
                             <div class="container">
                                 <div class="alert alert-danger alert-block" role="alert" id="valFeedback">
-                                    A simple danger alert—check it out!
                                 </div>
                                 <div class="alert alert-success alert-block" role="alert" id="mrpFeedback">
-                                    A simple success alert—check it out!
                                 </div>
                             </div>
                         </div><!-- row ends -->
@@ -199,11 +197,11 @@ $(function () {
 
     $('#validatePlan').click( function() {
 
-        // res = getGridStackData();
-        // $('.page_content').fadeOut();
-        // $('.loader').fadeIn();
+        res = getGridStackData();
+        $('.page_content').fadeOut();
+        $('.loader').fadeIn();
 
-        // $.redirectPost('validate', {'plan': JSON.stringify(res)});
+        $.redirectPost('validate', {'plan': JSON.stringify(res)});
 
         // need to set this depending on what transpired
         success = false; 
@@ -258,23 +256,7 @@ $(function () {
 
     });
     
-    $('.alternativePlan').click(function() {
-
-        res = getGridStackData();
-        $('.page_content').fadeOut();
-        $('.loader').fadeIn();
-        $.redirectPost('generateAlternative', {'plan': JSON.stringify(res)});
-
-    });
-    
-    $('.fixPlan').click(function() {
-        res = getGridStackData();
-        $('.page_content').fadeOut();
-        $('.loader').fadeIn();
-        $.redirectPost('fix', {'plan': JSON.stringify(res)});
-    });
-
-    $('.explainPlan').click(function() {
+    $('#explainPlan').click(function() {
         res = getGridStackData();
         $.getJSON($SCRIPT_ROOT + '/getPlanExplanation', {
             'plan' : JSON.stringify(res)
@@ -291,11 +273,13 @@ $(function () {
         });
     });
 
-    $('.undoChange').click(function() {
+    $('#undoPlan').click(function() {
+
         res = getGridStackData();
         $('.page_content').fadeOut();
         $('.loader').fadeIn();
         $.redirectPost('undo', {'plan': JSON.stringify(res)});
+
     });
 
     // thanks to http://stackoverflow.com/a/22885503
@@ -412,7 +396,8 @@ $(function () {
     
     // remove action
     $('body').on('click', '.delete-action', function() {
-        grid.removeWidget($(this).parent().parent().parent().parent());
+        $('.grid-stack').data('gridstack').removeWidget($(this).parent().parent().parent().parent());
+        // remove from serializedData
     });
 
     loadGrid();
