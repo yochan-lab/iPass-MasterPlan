@@ -9,8 +9,12 @@ $(document).ready(function () {
     // hide feedback panel and alert on submit on load 
     $("#feedback").hide();
     $("#submit").hide();
+
     $("#valAlertPositive").hide();
     $("#valAlertNegative").hide();
+
+    $("#valFeedback").hide();
+    $("#mrpFeedback").hide();
 
     // gridstack not resizable
 
@@ -106,8 +110,8 @@ $(document).ready(function () {
 
 
     // method :: re-focus
-    $('.spy-enabled').click( function(){
-        $('html,body').animate({scrollTop: $($(this).attr('href')).offset().top - 60}, 'slow');
+    $( ".spy-enabled" ).click( function() {
+        $( "html,body" ).animate({scrollTop: $($(this).attr('href')).offset().top - 60}, 'slow');
     });
 
     // method :: set selected option as active dropdown item
@@ -120,7 +124,66 @@ $(document).ready(function () {
     });
 
 
-    // method :: manage time 
+    // method :: manage likert options
+
+    // method :: sanity check on final submit 
+    $( "#submitFinal" ).click( function() { 
+
+        var success = true;
+        var feedback = ''
+
+        $( "#feedback .form-control" ).each( function( index ) {
+
+            feedback += $(this).val() + "\n\n===\n\n";
+
+            if ( !$(this).val().trim() && !$(this).hasClass( "optional" ) ) {
+
+                success = false;
+                return false;
+
+            } 
+
+        });
+
+        var count = 0;
+        
+        $( ".likert .list-group-item" ).each( function( index ) {
+
+            if ( $(this).hasClass( "active" ) ) {
+
+                feedback += $(this).html() + "\n\n===\n\n";
+                count++;
+
+            }
+
+        });
+
+        if ( count < 4 ) {
+            success = false;            
+        }
+
+        if (success) {
+
+            console.log('LOG\n\n===\n\n' + feedback);            
+            $( "body" ).html( '<div class="container align-midmiddle end "><i class="fas fa-check-circle fa-10x text-success"></i></div>' );
+
+        } else {
+
+             $( "#completeCheck" ).removeClass( "alert-secondary" );
+             $( "#completeCheck" ).addClass( "alert-danger" );
+
+        }
+
+
+    });
+
+    // method :: manage time, moeny and diffiuclty
+
+    var course_cost = 3000;
+    var semester_cost = 1000;
+
+    var num_courses = 0;
+    var num_semesters = 0;
 
     // start logging time
     var update_flag = true;
@@ -143,6 +206,28 @@ $(document).ready(function () {
 
         if (update_flag) {
 
+            num_courses = 0;
+            num_semesters = 0;
+
+            $( ".grid-stack-item-content .form-control" ).each( function( index ) {
+
+                if ( $(this).html().indexOf("Semester") != -1 || $(this).html().indexOf("Defense") != -1 ) {
+                    num_semesters++;
+                }
+
+                if ( $(this).html().indexOf("Add Course") != -1 ) {
+                    num_courses++;
+                }
+
+            });
+
+            // money 
+            cost = course_cost * num_courses + semester_cost * num_semesters;
+            $( "#money" ).html( "$" +  cost );
+
+            // difficulty 
+            $( "#difficulty" ).html( num_courses / num_semesters );
+
             // Display the result in the element with id "countdown"
             $("#countdown").html( minutes + "m " + seconds + "s" )
 
@@ -153,6 +238,12 @@ $(document).ready(function () {
 
                 $("#countdown").removeClass("badge-secondary");
                 $("#countdown").addClass("badge-danger");
+
+                $( ".grid-stack" ).removeClass( "grid-stack" );
+
+                $( ".delete-action" ).each( function( index ) {
+                    $(this).parent().remove();
+                });
 
                 $("#info").addClass("fade-to-back");
                 $("#info *").attr("disabled", "disabled").off('click');

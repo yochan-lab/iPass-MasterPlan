@@ -27,7 +27,7 @@
                     
                     <div id="plan-utils">
 
-                        <div class="row">
+                        <div class="row mb-2">
                             <div class='col'>
                                 <button type="button" class="col-md-12 btn btn-outline-dark validatePlan">
                                     Validate
@@ -44,6 +44,18 @@
                                 </button>
                             </div>
                         </div><!-- row ends -->
+
+                        <div class="row">
+                            <div class="container">
+                                <div class="alert alert-danger alert-block" role="alert" id="valFeedback">
+                                    A simple danger alert—check it out!
+                                </div>
+                                <div class="alert alert-success alert-block" role="alert" id="mrpFeedback">
+                                    A simple success alert—check it out!
+                                </div>
+                            </div>
+                        </div><!-- row ends -->
+
                         <br>
                         {% if canAskForExplanations > 0 %}
                             <div class='row'>
@@ -131,8 +143,24 @@ $(function () {
     // method :: submit iPOS
     $('#submit').click( function() {
 
+        $( ".grid-stack" ).removeClass( "grid-stack" );
+
+        $( ".delete-action" ).each( function( index ) {
+            $(this).parent().remove();
+        });
+
+        $("#info").addClass("fade-to-back");
+        $("#info *").attr("disabled", "disabled").off('click');
+
+        $("#plan-utils").addClass("fade-to-back");
+        $("#plan-utils *").attr("disabled", "disabled").off('click');
+
         $("#add2plan").hide();
         $("#feedback").show();
+
+        $('html, body').animate({
+            scrollTop: $("#feedback").offset().top
+        }, 2000);
 
     });
     
@@ -214,10 +242,12 @@ $(function () {
     }
 
     var options = {
-        float: false
+        float: false,
+        staticGrid: true
     };
 
     $('.grid-stack').gridstack(options);
+
     function resizeGrid() {
         var grid = $('.grid-stack').data('gridstack');
         if (isBreakpoint('xs')) {

@@ -9,11 +9,13 @@ Custom styles from Tathagata
 }
 
 .nav-item {
-    color:#f9b42e;
+    color: #f9b42e;
+    font: icon;
+    font-weight: bold;
 }
 
 .nav-item > strong {
-    color:#941037;
+    color: #941037;
 }
 
 
@@ -33,20 +35,25 @@ Custom styles from Tathagata
     border-color: white;
 }
 
+#add2plan .card {
+    border: none;
+}
+
 
 /* feedback area */
-
 
 .fade-to-back {
     opacity: 0.3;
     cursor: not-allowed;
 }
 
-.likert > .list-group-item {
-    padding: 0;
-    margin: 0;
+.likert .list-group-item {
+    cursor: pointer;
 }
 
+.col.col-8 > .form-control {
+    height: 360px;
+}
 
 /* plan elements */
 
@@ -66,29 +73,19 @@ Custom styles from Tathagata
     pointer:move!important;
 }
 
-.add-course {
-}
-
-.add-chair {
-
-}
-
-.add-committee {
-
-}
-
-.add-semester-marker {
-
-}
-
-.ipass-validation-error {
-}
-
-.ipass-suggestion {
-}
-
 .align-midmiddle {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.alert-block {
+    width: 100%;
+    padding: 5px;
+    padding-left: 10px;
+}
+
+.end {
+    height: 100%;
+    width: 100%;
 }

@@ -12,16 +12,16 @@
 
     <div class="input-group mb-3">
         <div class="input-group-prepend">
-            <span class="input-group-text text-left">List 2-5 things you liked about<br>the Plan of Study you came up with.</span>
+            <span class="input-group-text text-left">Describe in detail atleast 5 things you liked about<br>the Plan of Study you came up with.</span>
         </div>
-        <textarea class="form-control" aria-label="With textarea"></textarea>
+        <textarea class="form-control" placeholder="This task is mandatory."></textarea>
     </div>
 
     <div class="input-group mb-3">
         <div class="input-group-prepend">
-            <span class="input-group-text text-left">List 2-5 things you did NOT like about<br>the Plan of Study you came up with.</span>
+            <span class="input-group-text text-left">Describe in detail atleast 5 things you did NOT like<br>about the Plan of Study you came up with.</span>
         </div>
-        <textarea class="form-control" aria-label="With textarea"></textarea>
+        <textarea class="form-control" placeholder="This task is mandatory."></textarea>
     </div>
 
 
@@ -35,23 +35,13 @@
                     <h5 class="card-title">Q1</h5>
                     <p class="card-text">The planning task was pretty simple for me.</p>
 
-                    <ul class="list-group likert">
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Strongly Disagree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Disagree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Neutral</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Agree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Strongly Agree</a>  
-                        </li>
-                    </ul>
+                    <div class="list-group likert" role="tablist">
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Disagree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Disagree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Neutral</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Agree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Agree</button>
+                    </div>
 
                 </div>
             </div>
@@ -66,23 +56,13 @@
                     <h5 class="card-title">Q2</h5>
                     <p class="card-text">The interface improved my planning ability.</p>
 
-                    <ul class="list-group likert">
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Strongly Disagree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Disagree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Neutral</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Agree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Strongly Agree</a>  
-                        </li>
-                    </ul>
+                    <div class="list-group likert" role="tablist">
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Disagree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Disagree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Neutral</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Agree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Agree</button>
+                    </div>
 
                 </div>
             </div>
@@ -95,31 +75,54 @@
                 <div class="card-body">
 
                     <h5 class="card-title">Q3</h5>
-                    <p class="card-text">I am happy with the final Plan of Study I came up for Alex.</p>
+                    <p class="card-text">I am happy with the final Plan of Study.</p>
 
-                    <ul class="list-group likert">
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Strongly Disagree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Disagree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Neutral</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Agree</a>  
-                        </li>
-                        <li class="list-group-item">
-                            <a class="dropdown-item" href="#">Strongly Agree</a>  
-                        </li>
-                    </ul>
+                    <div class="list-group likert" role="tablist">
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Disagree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Disagree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Neutral</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Agree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Agree</button>
+                    </div>
 
                 </div>
             </div>
 
         </div>
 
+    </div>
+
+    <div class="row">
+
+        <div class="col col-4">
+
+            <div class="card mb-3">
+                <div class="card-body">
+
+                    <h5 class="card-title">Q4</h5>
+                    <p class="card-text">I am quite familiar with the ASU iPOS.</p>
+
+                    <div class="list-group likert" role="tablist">
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Disagree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Disagree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Neutral</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Agree</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Agree</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col col-8">
+            <textarea class="form-control optional" placeholder="Any other comments (optional)"></textarea>
+        </div>
+
+    </div>
+
+    <div class="alert alert-secondary alert-block" role="alert" id="completeCheck">
+        Please answer all the questions to complete the study.
     </div>
 
     <button class="btn btn-outline-success btn-sm btn-block mb-4" type="button" id="submitFinal">
