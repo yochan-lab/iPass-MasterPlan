@@ -63,13 +63,12 @@ class Interface:
             else:
                 actionArray = [action]
 
-            action = str(self.__invertor(actionArray))            
+            action = self.__invertor(actionArray)
             if action is not None:
                 # action has a ui_action mapping
                 if has_property:
                     action += ";" + self.__getFeedback(a_property)
-
-                ui_actions[idx] = action
+                ui_actions[idx] = str(action)
                 #whenever there is an action increment the index
                 idx += 1
 
@@ -262,7 +261,6 @@ class Interface:
             action = self.invert_mapper[key] + course[0] + " (" + course[1] + ")"
 
         return action
-
 
     def __defaultInvertor(self, actions):
         return self.invert_mapper[actions[0]]
