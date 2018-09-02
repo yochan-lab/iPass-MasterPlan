@@ -123,6 +123,16 @@ class Planner():
                     i += 1
 
         self.__writeObservations(plan_actions, tillEndOfPresentPlan)
+    
+    '''
+    Returns the plan in the observation file as a action list.
+    '''
+    def get_action_sequence_list(self):
+        with open(self.obs, 'r') as f:
+            actions = f.readlines()
+
+        return [a.strip() for a in actions]
+
 
     '''
     Create pr-problem and pr-domain files with no observations for getting a domain and
@@ -455,16 +465,7 @@ class Planner():
                     resources.append(r)
         return resources
 
-    def getOrderedObservations(self):
-        observations = {}
-        f = open(self.obs)
-        count = 1
-        for l in f:
-            observations[count] = l.strip()
-            count += 1
-        return observations
-
-    '''
+        '''
     Creates the problem.pddl file
         @Input - Goal for which planning problem is to be made
         @Output - Creates problem.pddl
