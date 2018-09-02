@@ -42,32 +42,43 @@ class Interface:
 
         return data
 
+    '''
+    Given an output plan (list of actions) with validation or suggesting action markers,
+    generated the corresponding dictionary of actions that can be displayed in the UI.
+    '''
     def actionsToUI(self, actions):
-        ui_actions = []
-        temp = []
-        isFeedbackNeeded = False
-        for action in actions:
+        ui_actions = {}
+        skip_action_idx = 0 
+        has_property = False
+        for idx, action in enumerate(actions):
+            # Check if action is a validated or suggested action
             if action.find(";") >= 0:
-                temp = action.split(";")
-                isFeedbackNeeded = True
-                action = temp[0]
+                action, a_property = action.split(";")
+                has_property = True
 
+            # Map the action name to UI action name
             action = action[1: -1]
             if action.find("_") >= 0:
                 actionArray = action.split("_")
             else:
                 actionArray = [action]
 
-            ui_action = str(self.__invertor(actionArray))
-            if ui_action is not None:
-                if isFeedbackNeeded:
-                    ui_action += ";" + self.__getFeedback(temp[1])
-
-                print ui_action
-                ui_actions.append(ui_action)
-
+            action = str(self.__invertor(actionArray))            
+            if action is not None:
+                # action has a ui_action mapping
+                if has_property:
+                    action += ";" + self.__getFeedback(a_property)
+                ui_actions[idx - skip_action_idx] = action
+            else:
+                # action is an end semester action
+                skip_action_idx += 1
+        
         return ui_actions
 
+    '''
+    Takes as input actions from the ui (gridstack action list)
+    and returns PDDL grounds actions that can be mapped to pr-domain operators.
+    '''
     def uiToActions(self, ui_actions):
         # Initializing global variables everytime request comes from the frontend
         self.course_counter = 0
@@ -265,7 +276,7 @@ def test_invertor():
         "(DEFEND);(defend) has an unsatisfied precondition at time 1 : (Follow each of: :     (Set (current_num_ten) to true) :     and (Set (has_taken_cse599b) to true) :     and (Set (has_taken_cse599a) to true) :     and (Set (completed_specialization) to true) :     and (Set (has_committee_member3) to true) :     and (Set (has_committee_member2) to true) :     and (Set (has_committee_done) to true) :     and (Set (has_committee_chair_done) to true) : )"
     ]
     inter = Interface()
-    print inter.actionsToUI(plan)
+    print(inter.actionsToUI(plan))
 
 def test():
     plan =  [
@@ -289,7 +300,7 @@ def test():
             ]
 
     inter = Interface(" ")
-    print inter.uiToActions(plan)
+    print(inter.uiToActions(plan))
 
 if __name__ == "__main__":
     #test()
