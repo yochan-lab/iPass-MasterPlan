@@ -40,16 +40,9 @@
                                     </button>
                                 </div>
                                 <div class="row mb-2">
-                                    <div class='col'>
-                                        <button type="button" class="col-md-12 btn btn-outline-success" id="explainPlan">
-                                            Explain
-                                        </button>
-                                    </div>
-                                    <div class='col'>
-                                        <button type="button" class="col-md-12 btn btn-outline-danger" id="undoPlan">
-                                            Undo
-                                        </button>
-                                    </div>
+                                    <button type="button" class="col-md-12 btn btn-outline-success" id="explainPlan">
+                                        Explain
+                                    </button>
                                 </div>
                             </div>
                         </div><!-- row ends -->
@@ -280,15 +273,6 @@ $(function () {
             $( this ).show();
             
         });
-
-    });
-
-    $('#undoPlan').click(function() {
-
-        res = getGridStackData();
-        $('.page_content').fadeOut();
-        $('.loader').fadeIn();
-        $.redirectPost('undo', {'plan': JSON.stringify(res)});
 
     });
 
