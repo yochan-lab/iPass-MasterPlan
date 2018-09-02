@@ -61,11 +61,10 @@ class Interface:
 
             # Map the action name to UI action name
             action = action[1: -1]
-            if action.find("_") >= 0:
-                actionArray = action.split("_")
-            else:
-                # TODO: Handle empty action
-                actionArray = [action]
+            # splits the action to convert an array. In case of empty string we go to next action.
+            if action.find("_") >= 0:   actionArray = action.split("_")
+            elif action:                actionArray = [action]
+            else:                       continue
 
             act = self.__invertor(actionArray)
             if act is not None:
@@ -345,4 +344,4 @@ def test():
 
 if __name__ == "__main__":
     test()
-    #test_invertor()
+    test_invertor()
