@@ -23,13 +23,61 @@ class Interface:
             "Thesis Course B": "TAKE_CSE599B",
             "Specialize": "SPECIALIZE"
         }
+        self.invert_mapper = {
+            "TAKE_DEFICIENCY": "Add Course - ",
+            "TAKE_NORMAL": "Add Course - ",
+            "TAKE_CSE599A": "Add Course - Thesis Course A (other)",
+            "TAKE_CSE599B": "Add Course - Thesis Course B (other)",
+            "SELECT_COMMITTEE_CHAIR": "Add Chair - ",
+            "SELECT_COMMITTEE_MEMBER": "Add Committee - ",
+            "SPECIALIZE": "Add Specialization - ",
+            "DEFEND": "Add - Defense",
+            "COMPLETE_SEMESTER": "Add - End of Semester"
+
+        }
 
     def getData(self, file_name):
         with open(file_name, 'r') as f:
             data = json.load(f)
 
         return data
-        
+
+    '''
+    Given an output plan (list of actions) with validation or suggesting action markers,
+    generated the corresponding dictionary of actions that can be displayed in the UI.
+    '''
+    def actionsToUI(self, actions):
+        ui_actions = {}
+        idx = 0 
+        has_property = False
+        for action in actions:
+            # Check if action is a validated or suggested action
+            if action.find(";") >= 0:
+                action, a_property = action.split(";")
+                has_property = True
+
+            # Map the action name to UI action name
+            action = action[1: -1]
+            if action.find("_") >= 0:
+                actionArray = action.split("_")
+            else:
+                actionArray = [action]
+
+            action = self.__invertor(actionArray)
+            if action is not None:
+                # action has a ui_action mapping
+                if has_property:
+                    action += ";" + self.__getFeedback(a_property)
+                ui_actions[idx] = str(action)
+                #whenever there is an action increment the index
+                idx += 1
+
+        return ui_actions
+
+    '''
+    Takes as input actions from the ui (gridstack action list)
+    and returns PDDL grounds actions that can be mapped to pr-domain operators.
+    '''
     def uiToActions(self, ui_actions):
         # Initializing global variables everytime request comes from the frontend
         self.course_counter = 0
@@ -54,7 +102,6 @@ class Interface:
         if action_name.find("-"):
             act = action_name.split("-")
             act = [x.strip() for x in act]
-        print(act)
         actionType = act[0]
         if act[0] == "Add":
             if act[1].find("Semester") > -1:
@@ -63,6 +110,17 @@ class Interface:
                 actionType = "Defend"
               
         return [str(x) for x in self.__converter(actionType, act[1])]
+
+    def __invertor(self, action):
+        switch = {
+            "TAKE": self.__invertCourse,
+            "SELECT": self.__invertCommittee,
+            "COMPLETE": self.__invertSemester,
+            "SPECIALIZE": self.__invertSpecialization,
+        }
+        func = switch.get(action[0], self.__defaultInvertor)
+
+        return func(action)
 
     def __converter(self, action, name):
         switch = {
@@ -74,7 +132,7 @@ class Interface:
             "Speicalize": self.__specialization
         }
 
-        func = switch.get(action, self.__default)
+        func = switch.get(action, self.__defaultConvertor)
         return func(action, name)
 
     def __addChairAndCommittee(self, action, name):
@@ -118,7 +176,7 @@ class Interface:
     def __defend(self, action, name):
         return [self.mapper[action]]
 
-    def __default(self, action, name):
+    def __defaultConvertor(self, action, name):
         return [self.mapper[action] + self.connector + name.upper()]
 
     def __addCourse(self, action, name):
@@ -166,9 +224,93 @@ class Interface:
     def __removeType(self, name):
         return name.split("(")[0].strip()
 
+    def __invertSemester(self, actionStrings):
+        key = "_".join(actionStrings[0:2])
+        if len(actionStrings) == 2:
+            return self.invert_mapper[key]
+
+        return None
+
+    def __invertSpecialization(self, actionStrings):
+        length = len(actionStrings)
+        if length == 2 and len(actionStrings[1]) == 2:
+            specialization = "AI"
+        elif length == 2:
+            specialization = "Cybersecurity"
+        else:
+            specialization = "Big Data"
+
+        return self.invert_mapper[actionStrings[0]] + specialization
+
+    def __invertCommittee(self, actionStrings):
+        key = "_".join(actionStrings[0:3])
+        profName = actionStrings[3].title()
+        if key.find("MEMBER") > 0:
+            profName = actionStrings[4].title()
+        prof = self.committee[profName]
+        prof[1] = prof[1] if prof[1].find("_") < 0 else prof[1].replace("_", " ")
+        action = self.invert_mapper[key] + prof[0] + " (Specialization: " + prof[1] + ")"
+        return action
+
+    def __invertCourse(self, actionStrings):
+        key = "_".join(actionStrings[0:2])
+        if actionStrings[1].find("CSE") >= 0:
+            action = self.invert_mapper[key]
+        else:
+            course = self.courses[actionStrings[3]]
+            action = self.invert_mapper[key] + course[0] + " (" + course[1] + ")"
+
+        return action
+
+    def __defaultInvertor(self, actions):
+        return self.invert_mapper[actions[0]]
+
+    def __getFeedback(self, soup):
+        if soup == "--":
+            return soup
+        return "TODO: feedback -- actual string " + soup
+
+def test_invertor():
+    """
+    plan = [
+        "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
+        "(TAKE_DEFICIENCY_COURSE_CSE340_ZERO_ONE_ZERO_ONE)",
+        "(DEFEND);(defend) has an unsatisfied precondition at time 1 : (Follow each of: :     (Set (current_num_ten) to true) :     and (Set (has_taken_cse599b) to true) :     and (Set (has_taken_cse599a) to true) :     and (Set (completed_specialization) to true) :     and (Set (has_committee_member3) to true) :     and (Set (has_committee_member2) to true) :     and (Set (has_committee_done) to true) :     and (Set (has_committee_chair_done) to true) : )"
+    ]
+    """
+    plan = ["(SELECT_COMMITTEE_MEMBER_2_LIU);--",
+        "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
+        "(TAKE_DEFICIENCY_COURSE_CSE355_ZERO_ONE_ZERO_ONE);--",
+        "(SELECT_COMMITTEE_MEMBER_3_AMOR);--",
+        "(TAKE_DEFICIENCY_COURSE_CSE310_ZERO_ONE_ONE_TWO);--",
+        "(TAKE_DEFICIENCY_COURSE_CSE360_ZERO_ONE_TWO_THREE);--",
+        "(COMPLETE_SEMESTER_3);--",
+        "(COMPLETE_SEMESTER);--",
+        "(TAKE_CSE599A_ZERO_ONE_ZERO_ONE);--",
+        "(TAKE_NORMAL_COURSE_CSE574_APPLICATIONS_ONE_TWO_ONE_TWO);--",
+        "(TAKE_NORMAL_COURSE_CSE571_APPLICATIONS_TWO_THREE_TWO_THREE);--",
+        "(COMPLETE_SEMESTER_3);--",
+        "(COMPLETE_SEMESTER);--",
+        "(TAKE_NORMAL_COURSE_CSE563_SYSTEMS_THREE_FOUR_ZERO_ONE);--",
+        "(TAKE_NORMAL_COURSE_CSE555_FOUNDATIONS_FOUR_FIVE_ONE_TWO);--",
+        "(TAKE_NORMAL_COURSE_CSE552_FOUNDATIONS_FIVE_SIX_TWO_THREE);--",
+        "(COMPLETE_SEMESTER_3);--",
+        "(COMPLETE_SEMESTER);--",
+        "(TAKE_NORMAL_COURSE_CSE565_SYSTEMS_SIX_SEVEN_ZERO_ONE);--",
+        "(TAKE_NORMAL_COURSE_CSE575_APPLICATIONS_SEVEN_EIGHT_ONE_TWO);--",
+        "(SPECIALIZE_AI);--",
+        "(TAKE_NORMAL_COURSE_CSE509_APPLICATIONS_EIGHT_NINE_TWO_THREE);--",
+        "(COMPLETE_SEMESTER_3);--",
+        "(COMPLETE_SEMESTER);--",
+        "(TAKE_CSE599B_NINE_TEN_ZERO_ONE);--",
+        "(DEFEND);--"
+    ]
+    inter = Interface()
+    print(inter.actionsToUI(plan))
+
 def test():
     plan =  [
-				{"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
+                {"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
                 {"name":"Add Course - Embedded Operating Systems Internals (systems)",
                         "x": 0, "y": 0, "width": 12, "height": 1},
                 {"name": "Add Course - Software Project, Process and Quality Management (systems)",
@@ -188,7 +330,8 @@ def test():
             ]
 
     inter = Interface(" ")
-    print inter.uiToActions(plan)
+    print(inter.uiToActions(plan))
 
 if __name__ == "__main__":
-    test()
+    #test()
+    test_invertor()

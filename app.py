@@ -12,7 +12,10 @@ planner.definePlanningProblem()
 
 @app.route("/")
 def index(exp=0):
-    p = planner.getOrderedObservations()
+    action_seq = planner.get_action_sequence_list()
+    print(action_seq)
+    p = translator.actionsToUI(action_seq)
+    print(p)
     return render_template('index.html', canAskForExplanations=exp, plan=p)
 
 '''
