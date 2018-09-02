@@ -43,11 +43,11 @@ def suggest():
     planner.save_plan()
     
     # plan_was_found = 1 if plan is found, 0 otherwise
-    plan_was_found = planner.get_suggested_plan(ui_plan_to_pddl_style(request))
-    if plan_was_found == 0:
+    was_plan_found = planner.get_suggested_plan(ui_plan_to_pddl_style(request))
+    if not was_plan_found:
         planner.load_plan()
     
-    return index(plan_was_found)
+    return index(was_plan_found)
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

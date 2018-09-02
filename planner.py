@@ -19,7 +19,11 @@ class Planner():
             'FAST-DOWNWARD/fast-downward.py ')
         self.CALL_VAL = self.PLAN_FILES_DIR.format('VAL/validate -v ')
         self.CALL_PR2 = self.PLAN_FILES_DIR.format('PR2/pr2plan ')
-
+        
+        # Takes two parameters-- time and command. Eg. timeout 3s ls -l
+        self.TIMEOUT_CALL = 'timeout '
+        self.TIMEOUT_CODE = 124
+        
         # Domain and problem files
         self.domain = self.PDDL_FILES_DIR.format('domain.pddl')
         self.human_domain = self.PDDL_FILES_DIR.format('domain_human.pddl')
@@ -104,7 +108,9 @@ class Planner():
     '''
     Given a dict of indexed actions (eg. {0:'a1', '1':a2 ... }), tried to come up with
     the next (and intermediate) actions that achieve this goal. Finally, they write this to
-    the observation file rendered in the frontend.
+    the observation file rendered in the frontend and returns,
+    False -- if -- pr2plan times out when finding a plan OR plan generated is empty
+    True -- otherwise.
     '''
 
     def get_suggested_plan(self, actions, tillEndOfPresentPlan=False):
@@ -116,27 +122,40 @@ class Planner():
             self.grounded_pr_domain,
             self.grounded_pr_problem,
             self.obs)
-        foundPlan = self.__plan(self.pr_domain, self.pr_problem)
-
+        timeout_status = self.__plan(self.pr_domain, self.pr_problem, '10s')
+        
+        # If timeout occured, pr2 could not find a plan in 10s
+        if timeout_status == self.TIMEOUT_CODE:
+            print('[WARNING] Timeout occured')
+            return False
+        
         # Write plan to observation file
         with open(self.plan_output, 'r') as f:
-            lines = f.read().strip().split('\n')
+            lines = f.read().strip()
 
+        # Check if the generated plan is empty
+        if not lines:
+            print('[WARNING] Empty plan occured')
+            return False
+        
+        lines = lines.split('\n')
         i = 0
         plan_actions = {}
         for l in lines:
             if '(general cost)' not in l:
                 if 'EXPLAIN_OBS_' in l.upper():
+                    # Remove prefix and postfix of PR2 modified action name
+                    # for user added actions
                     a = l.upper().replace('EXPLAIN_OBS_', '').strip()
                     a = re.sub('_[0-9]*$', '', a)
-                    print( '[DEBUG] Respecting Observation: {}'.format(a) )
                     plan_actions[i] = '({})'.format(a)
-                    i += 1
                 else:
+                    # Append ;-- to PR2 generated, i.e. suggested actions
                     plan_actions[i] = '({});--'.format(l.upper().strip())
-                    i += 1
+                i += 1
 
         self.__writeObservations(plan_actions, tillEndOfPresentPlan)
+        return True
     
     '''
     Returns the plan in the observation file as a action list.
@@ -204,6 +223,7 @@ class Planner():
     '''
     Function to call pr2 plan. Saves pr-problem and pr-domain files in the home directory.
     '''
+    
     def __run_pr2(self, domain_file, problem_file, obs_file):
         print(
             '[INFO] Running pr2plan with the following files:\ndomain:{}\nproblem:{}\nobservation:{}'.format(
@@ -258,7 +278,7 @@ class Planner():
     Given a domain and problem file, generates a plan.
     '''
 
-    def __plan(self, domain_file=None, problem_file=None, use='ff'):
+    def __plan(self, domain_file=None, problem_file=None, use='ff', timeout='10s'):
 
         # Initiate domain and problem files, if not provided by caller.
         if domain_file is None:
@@ -278,7 +298,8 @@ class Planner():
         # Run ff
         cmd = self.CALL_FF + \
             " -o %s -f %s | grep -E '[0-9]: ' | awk -F': ' '{print $2}' > %s" % (domain_file, problem_file, self.plan_output)
-        os.system(cmd)
+        status_code = os.system(self.TIMEOUT_CALL + timeout + ' ' + cmd)
+        return status_code
 
     def reconcileModels(self, changes):
         print(changes)
