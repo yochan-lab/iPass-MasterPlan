@@ -155,6 +155,7 @@ class Interface:
 
         act += self.connector + prof
 
+        if specialization.find(" ") >= 0: specialization.replace(" ", "_")
         if action == "Add Chair":
             act += self.connector + specialization.upper()
         return [act]
@@ -327,11 +328,11 @@ def test():
                 {"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
                 {"name": "Add Course - Software Verification, Validation and Testing (systems)",
                         "x": 0, "y": 2, "width": 12, "height": 1},
-                {"name": "Add Committee - Guoliang Xue (Specialization: big data)",
+                {"name": "Add Chair - Guoliang Xue (Specialization: big data)",
                         "x": 0, "y": 3, "width": 12, "height": 1},
                 {"name": "Add Specialization - Cybersecurity", "x": 0, "y": 10, "width": 12, "height": 1},
                 {"name": "Add - End of Semester", "x": 0, "y": 4, "width": 12, "height": 1},
-                {"name": "Add Chair - Arunabha Sen (Specialization: none)",
+                {"name": "Add Committee - Arunabha Sen (Specialization: none)",
                         "x": 0, "y": 5, "width": 12, "height": 1},
                 {"name": "Add Course - Thesis Course A (research)", "x": 0, "y": 4, "width": 12, "height": 1},
                 {"name": "Add - Defense", "x": 0, "y": 6, "width": 12, "height": 1},
