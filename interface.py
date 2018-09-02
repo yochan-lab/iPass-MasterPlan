@@ -23,13 +23,51 @@ class Interface:
             "Thesis Course B": "TAKE_CSE599B",
             "Specialize": "SPECIALIZE"
         }
+        self.invert_mapper = {
+            "TAKE_DEFICIENCY": "Add Course - ",
+            "TAKE_NORMAL": "Add Course - ",
+            "TAKE_CSE599A": "Add Course - Thesis Course A (other)",
+            "TAKE_CSE599B": "Add Course - Thesis Course B (other)",
+            "SELECT_COMMITTEE_CHAIR": "Add Chair - ",
+            "SELECT_COMMITTEE_MEMBER": "Add Committee - ",
+            "SPECIALIZE": "Add Specialization - ",
+            "DEFEND": "Add - Defense",
+            "COMPLETE_SEMESTER": "Add - End of Semester"
+
+        }
 
     def getData(self, file_name):
         with open(file_name, 'r') as f:
             data = json.load(f)
 
         return data
-        
+
+    def actionsToUI(self, actions):
+        ui_actions = []
+        temp = []
+        isFeedbackNeeded = False
+        for action in actions:
+            if action.find(";") >= 0:
+                temp = action.split(";")
+                isFeedbackNeeded = True
+                action = temp[0]
+
+            action = action[1: -1]
+            if action.find("_") >= 0:
+                actionArray = action.split("_")
+            else:
+                actionArray = [action]
+
+            ui_action = str(self.__invertor(actionArray))
+            if ui_action is not None:
+                if isFeedbackNeeded:
+                    ui_action += ";" + self.__getFeedback(temp[1])
+
+                print ui_action
+                ui_actions.append(ui_action)
+
+        return ui_actions
+
     def uiToActions(self, ui_actions):
         # Initializing global variables everytime request comes from the frontend
         self.course_counter = 0
@@ -64,6 +102,17 @@ class Interface:
               
         return [str(x) for x in self.__converter(actionType, act[1])]
 
+    def __invertor(self, action):
+        switch = {
+            "TAKE": self.__invertCourse,
+            "SELECT": self.__invertCommittee,
+            "COMPLETE": self.__invertSemester,
+            "SPECIALIZE": self.__invertSpecialization,
+        }
+        func = switch.get(action[0], self.__defaultInvertor)
+
+        return func(action)
+
     def __converter(self, action, name):
         switch = {
             "Add Course": self.__addCourse,
@@ -74,7 +123,7 @@ class Interface:
             "Speicalize": self.__specialization
         }
 
-        func = switch.get(action, self.__default)
+        func = switch.get(action, self.__defaultConvertor)
         return func(action, name)
 
     def __addChairAndCommittee(self, action, name):
@@ -118,7 +167,7 @@ class Interface:
     def __defend(self, action, name):
         return [self.mapper[action]]
 
-    def __default(self, action, name):
+    def __defaultConvertor(self, action, name):
         return [self.mapper[action] + self.connector + name.upper()]
 
     def __addCourse(self, action, name):
@@ -166,9 +215,61 @@ class Interface:
     def __removeType(self, name):
         return name.split("(")[0].strip()
 
+    def __invertSemester(self, actionStrings):
+        key = "_".join(actionStrings[0:2])
+        if len(actionStrings) == 3:
+            return self.invert_mapper[key]
+
+        return None
+
+    def __invertSpecialization(self, actionStrings):
+        length = len(actionStrings)
+        if length == 2 and len(actionStrings[1]) == 2:
+            specialization = "AI"
+        elif length == 2:
+            specialization = "Cybersecurity"
+        else:
+            specialization = "Big Data"
+
+        return self.invert_mapper[self.actionStrings[0]] + specialization
+
+    def __invertCommittee(self, actionStrings):
+        key = "_".join(actionStrings[0:3])
+        profName = actionStrings[3].title()
+        prof = self.committee[profName]
+        action = self.invert_mapper[key] + prof[0] + " (specialization:" + prof[1] + ")"
+        return action
+
+    def __invertCourse(self, actionStrings):
+        key = "_".join(actionStrings[0:2])
+        print key
+        if actionStrings[1].find("CSE") >= 0:
+            action = self.invert_mapper[key]
+        else:
+            course = self.courses[actionStrings[3]]
+            action = self.invert_mapper[key] + course[0] + " (" + course[1] + ")"
+
+        return action
+
+
+    def __defaultInvertor(self, actions):
+        return self.invert_mapper[actions[0]]
+
+    def __getFeedback(self, soup):
+        return "TODO: feedback -- actual string " + soup
+
+def test_invertor():
+    plan = [
+        "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
+        "(TAKE_DEFICIENCY_COURSE_CSE340_ZERO_ONE_ZERO_ONE)",
+        "(DEFEND);(defend) has an unsatisfied precondition at time 1 : (Follow each of: :     (Set (current_num_ten) to true) :     and (Set (has_taken_cse599b) to true) :     and (Set (has_taken_cse599a) to true) :     and (Set (completed_specialization) to true) :     and (Set (has_committee_member3) to true) :     and (Set (has_committee_member2) to true) :     and (Set (has_committee_done) to true) :     and (Set (has_committee_chair_done) to true) : )"
+    ]
+    inter = Interface()
+    print inter.actionsToUI(plan)
+
 def test():
     plan =  [
-				{"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
+                {"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
                 {"name":"Add Course - Embedded Operating Systems Internals (systems)",
                         "x": 0, "y": 0, "width": 12, "height": 1},
                 {"name": "Add Course - Software Project, Process and Quality Management (systems)",
@@ -191,4 +292,5 @@ def test():
     print inter.uiToActions(plan)
 
 if __name__ == "__main__":
-    test()
+    #test()
+    test_invertor()
