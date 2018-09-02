@@ -11,12 +11,10 @@ translator = Interface()
 planner.definePlanningProblem()
 
 @app.route("/")
-def index(exp=0):
+def index(plan_was_found=0):
     action_seq = planner.get_action_sequence_list()
-    print(action_seq)
     p = translator.actionsToUI(action_seq)
-    print(p)
-    return render_template('index.html', canAskForExplanations=exp, plan=p)
+    return render_template('index.html', canAskForExplanations=plan_was_found, plan=p)
 
 '''
 Function that obtains plan from the UI request and
@@ -36,26 +34,20 @@ def ui_plan_to_pddl_style(request):
 
 @app.route("/validate", methods=['GET', 'POST'])
 def validate():
-    planner.savePlan() 
+    planner.save_plan() 
     planner.get_validated_plan(ui_plan_to_pddl_style(request))
-    return index()
-    
-@app.route("/fix", methods=['GET', 'POST'])
-def fix():
-    planner.savePlan()
-    planner.get_suggested_plan(ui_plan_to_pddl_style(request), True)
     return index()
     
 @app.route("/suggest", methods=['GET', 'POST'])
 def suggest():
-    planner.savePlan()
-    planner.get_suggested_plan(ui_plan_to_pddl_style(request))
-    return index(1)
+    planner.save_plan()
     
-@app.route("/undo", methods=['GET', 'POST'])
-def undo():
-    planner.loadPlan()
-    return index()
+    # plan_was_found = 1 if plan is found, 0 otherwise
+    plan_was_found = planner.get_suggested_plan(ui_plan_to_pddl_style(request))
+    if plan_was_found == 0:
+        planner.load_plan()
+    
+    return index(plan_was_found)
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

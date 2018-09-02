@@ -63,8 +63,8 @@ class Interface:
             action = action[1: -1]
             if action.find("_") >= 0:
                 actionArray = action.split("_")
-            elif action:
-                # do this only if action is not empty.
+            else:
+                # TODO: Handle empty action
                 actionArray = [action]
 
             act = self.__invertor(actionArray)
@@ -193,8 +193,8 @@ class Interface:
         else:
             if name.find("Thesis") > -1:
                 name = self.__removeType(name)
-                action =    self.mapper[name] + self.connector
-                course_type = "research"
+                action =    self.mapper[name]
+                course_type = ""
                 temp = "normal"
             else:
                 course, course_type = self.__find(self.courses, name)

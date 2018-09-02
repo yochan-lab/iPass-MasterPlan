@@ -51,6 +51,20 @@ class Planner():
         self.problem_state_json = './static/files/state.json'
 
     '''
+    Saves the plan from the frontend to a file that can restore it.
+    '''
+    def save_plan(self):
+        print("[DEBUG] Saving observations in {0} to {1}".format(self.obs, self.saveduiPlan))
+        copyf(self.obs, self.saveduiPlan)
+
+    '''
+    Loads a saved plan for sending it to the frontend. 
+    '''
+    def load_plan(self):
+        print("[DEBUG] Loading observations from {0} to {1}".format(self.saveduiPlan, self.obs))
+        copyf(self.saveduiPlan, self.obs)
+
+    '''
     Given a dict of indexed actions (eg. {0:'a1', '1':a2 ... }), wrties an action list
     with the first validation error (if any) to observation file that will be rendered
     in the frontend.
@@ -102,7 +116,7 @@ class Planner():
             self.grounded_pr_domain,
             self.grounded_pr_problem,
             self.obs)
-        self.__plan(self.pr_domain, self.pr_problem)
+        foundPlan = self.__plan(self.pr_domain, self.pr_problem)
 
         # Write plan to observation file
         with open(self.plan_output, 'r') as f:
@@ -113,9 +127,9 @@ class Planner():
         for l in lines:
             if '(general cost)' not in l:
                 if 'EXPLAIN_OBS_' in l.upper():
-                    print('respecting obs: {}'.format(l))
                     a = l.upper().replace('EXPLAIN_OBS_', '').strip()
-                    a = re.sub('_[0-9]', '', a)
+                    a = re.sub('_[0-9]*$', '', a)
+                    print( '[DEBUG] Respecting Observation: {}'.format(a) )
                     plan_actions[i] = '({})'.format(a)
                     i += 1
                 else:
@@ -190,7 +204,6 @@ class Planner():
     '''
     Function to call pr2 plan. Saves pr-problem and pr-domain files in the home directory.
     '''
-
     def __run_pr2(self, domain_file, problem_file, obs_file):
         print(
             '[INFO] Running pr2plan with the following files:\ndomain:{}\nproblem:{}\nobservation:{}'.format(
@@ -265,24 +278,7 @@ class Planner():
         # Run ff
         cmd = self.CALL_FF + \
             " -o %s -f %s | grep -E '[0-9]: ' | awk -F': ' '{print $2}' > %s" % (domain_file, problem_file, self.plan_output)
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-        (out, err) = proc.communicate()
-
-    '''
-    def getLandmarks(self):
-        try:
-            cmd = '{0} {1} --landmarks name=lm_zg'.format(self.landmark_code, self.output)
-            os.system(cmd)
-        except:
-            raise Exception('[ERROR] In generating landmarks')
-
-        f = open('landmark.txt', 'r')
-        lm = []
-        for l in f:
-            if 'explained' not in l.lower():
-                lm.append( l.split('Atom ')[1] )
-        return lm
-    '''
+        os.system(cmd)
 
     def reconcileModels(self, changes):
         print(changes)
@@ -441,13 +437,6 @@ class Planner():
             if '(:action ' in l:
                 actionNames.append('(' + l.split('(:action ')[1].strip() + ')')
         return actionNames
-
-    def savePlan(self):
-        copyf(self.obs, self.saveduiPlan)
-
-    def loadPlan(self):
-        print("[LOG] Copying {0} to {1}".format(self.saveduiPlan, self.obs))
-        copyf(self.saveduiPlan, self.obs)
 
     def getImpResources(self):
         try:
