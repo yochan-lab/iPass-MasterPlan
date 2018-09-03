@@ -47,8 +47,8 @@ class Interface:
             "completed_specialization": "Completing specialization specific courses for AI, Big Data or Cybersecurity",
             "completed_concentration": "Completing foundation, systems and application concentraitions",
             "defended": "Defending thesis work",
-            "not-is_international": "Alex is not an international student and so can not take less than three courses in a semester",
-            "is_ra_ta": "Alex is not an RA/TA and so can not take four courses in a semester"
+            "not-is_international": "Alex is not an international student and so three courses in a semester",
+            "not-is_ra_ta": "Alex is not an RA/TA and so he can not take four courses in a semester"
         }
 
     def getData(self, file_name):
@@ -62,6 +62,7 @@ class Interface:
     generated the corresponding dictionary of actions that can be displayed in the UI.
     '''
     def actionsToUI(self, actions):
+        print "[DEBUG] actions coming to interface for UI conversion ", actions
         ui_actions = {}
         idx = 0 
         for action in actions:
@@ -89,7 +90,7 @@ class Interface:
                 ui_actions[idx] = str(act)
                 #whenever there is an action increment the index
                 idx += 1
-
+            print "[DEBUG] ui_actions from interface ", ui_actions
         return ui_actions
 
     '''
@@ -98,6 +99,8 @@ class Interface:
     '''
     def uiToActions(self, ui_actions):
         # Initializing global variables everytime request comes from the frontend
+        print "[DEBUG] ui_actions coming to interface for planner conversion ", ui_actions
+        ui_actions.sort(key = lambda action: action['y'])
         self.course_counter = 0
         self.sem_counter = 0
         self.committee_counter = 1
@@ -108,12 +111,13 @@ class Interface:
         for action in ui_actions:
             action_pos = int(action['y'])
             action_list = self.__get_action_name(action['name'])
-            
+
             for i in range(len(action_list)):
                 if i > 0:
                     end_sem_count_booster += 1
                 actions[action_pos+end_sem_count_booster] = "({})".format(action_list[i])
 
+        print "[DEBUG] actions converted from UI in interface ", actions
         return actions
 
     def __get_action_name(self, action_name):
@@ -297,9 +301,9 @@ class Interface:
     def __getFeedback(self, soup):
         if soup == "--":
             return soup
-        print soup
+        print "[DEBUG] feedback string from interface ", soup
 
-        string_for_true = "{} is required"
+        string_for_true = "{} is(are) required"
         string_for_false = "{}, can not be done"
         ui_feedback = []
 
