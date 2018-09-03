@@ -1,2 +1,5 @@
 (SELECT_COMMITTEE_MEMBER_2_LIU)
-(SELECT_COMMITTEE_CHAIR_RAO_AI)
+(TAKE_DEFICIENCY_COURSE_CSE360_ZERO_ONE_ZERO_ONE)
+(TAKE_NORMAL_COURSE_CSE555_FOUNDATIONS_ZERO_ONE_ONE_TWO);(take_normal_course_cse555_foundations_zero_one_one_two) has an unsatisfied precondition at time 3 : (Set (has_taken_cse310) to true)
+(COMPLETE_SEMESTER_2)
+(COMPLETE_SEMESTER)

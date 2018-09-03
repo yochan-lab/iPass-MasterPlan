@@ -467,8 +467,14 @@ $(function () {
     
     // remove action
     $('body').on('click', '.delete-action', function() {
+        // Remove the gridstack div
         $('.grid-stack').data('gridstack').removeWidget($(this).parent().parent().parent().parent());
-        // remove from serializedData
+        
+        // Make sure element is removed from the gridstack object
+        res = getGridStackData();
+        serializedData = res
+        loadGrid();
+        resizeGrid();
     });
 
     loadGrid();
