@@ -98,7 +98,6 @@ $('[data-toggle="popover"]').tooltip();
 
 $("#valFeedback").hide();
 $("#mrpFeedback").hide();
-
 $("#undoPlan").hide();
 $("#explainPlan").hide();
 
@@ -196,18 +195,14 @@ $(function () {
 
     $('#validatePlan').click( function() {
         res = getGridStackData();
-        
-        // Old code for validate that redirects to a new page.
-        // $('.page_content').fadeOut();
-        // $('.loader').fadeIn();
-        // $.redirectPost('validate', {'plan': JSON.stringify(res)});
+        hide_all_feedback();       
 
         // New ajax call to validate plan
         $.getJSON($SCRIPT_ROOT + '/validate', {
             'plan' : JSON.stringify( res )
         }, function(data) {
             // On success, update planning panel and show feedback divs.
-            is_valid = show_validated_plan(data);
+            is_valid = render_updated_plan( data );
             enable_val_feedback( is_valid )
         })
         .error( function() {
@@ -216,7 +211,7 @@ $(function () {
         });
     })
 
-    // Shows green (or red) bar below planning buttons to indicate validity of plan (or failure)
+    // Show status bar to indicate the validity of a plan
     function enable_val_feedback( success ) {
 
         $( "#valFeedback" ).show();
@@ -240,16 +235,26 @@ $(function () {
     $('#suggestPlan').click( function() {
 
         res = getGridStackData();
-        $('.page_content').fadeOut();
-        $('.loader').fadeIn();
+        hide_all_feedback();
 
-        $.redirectPost('suggest', {'plan': JSON.stringify(res)});
+        // New ajax call to suggest plan completion
+        $.getJSON($SCRIPT_ROOT + '/suggest', {
+                'plan' : JSON.stringify( res )
+            }, function(data) {
+                plan_found = data['status']
+                suggested_plan = data['plan']
+                
+                render_updated_plan( suggested_plan )
+                enable_suggest_feedback( plan_found )
+            })
+            .error( function() {
+                // On failure, alert front-end user of server side error.
+                alert('Server side error when finding a plan!')
+            });
+        })
 
-        plan_found = false
-        // need to set this depending on what transpired
-        {% if canAskForExplanations > 0 %}
-            plan_found = true;
-        {% endif %}
+    // Show status message and explanation button if plan completion occurs.
+    function enable_suggest_feedback( plan_found ) {
 
         $( "#mrpFeedback" ).show();
         $( "#mrpFeedback" ).removeClass( "alert-danger" );
@@ -270,8 +275,16 @@ $(function () {
 
         }
 
-    });
-    
+    };
+
+    // Remove any status bar (and explanation/undo buttons) at the start of some call.
+    function hide_all_feedback() {
+        $("#valFeedback").hide();
+        $("#mrpFeedback").hide();
+        $("#undoPlan").hide();
+        $("#explainPlan").hide();
+    }
+
     $('#explainPlan').click(function() {
 
         res = getGridStackData();
@@ -342,23 +355,22 @@ $(function () {
         {% endfor %}
     ];
 
-    // Called if ajax call successfully returns a validated plan. Renders the gridstack
-    // with new information and returns information about the validity of the plan.
-    function show_validated_plan(updated_plan) {
-        // console.log(updated_plan);
+    // Called if ajax call successfully returns a validated/suggested plan. Renders the gridstack
+    // with new information and returns information stating whether the plan was modified at all.
+    function render_updated_plan( updated_plan ) {
         serializedData = [];
-        is_valid = true;
+        same_old_plan = true;
         for (var i in updated_plan) {
             serializedData.push( {y:i, x:0, width:12, height:1, name:updated_plan[i]} );
-            if ( is_valid ) {
+            if ( same_old_plan ) {
                 if ( updated_plan[i].indexOf(';') > 0 ) {
-                    is_valid = false;
+                    same_old_plan = false;
                 }
             }
         }
         loadGrid();
         resizeGrid();
-        return is_valid;
+        return same_old_plan;
     };
     
     function updateData(action) {

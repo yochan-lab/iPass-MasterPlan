@@ -26,7 +26,6 @@ def ui_to_pddl_actions(request, is_get_request=False):
 
 @app.route("/")
 def index(was_plan_found=False):
-
     p = pddl_to_ui_actions()
     # Should we show the explanation button
     can_ask_for_explanations = 0
@@ -48,11 +47,14 @@ def suggest():
     planner.save_plan()
     
     # plan_was_found = 1 if plan is found, 0 otherwise
-    was_plan_found = planner.get_suggested_plan(ui_to_pddl_actions(request))
+    was_plan_found = planner.get_suggested_plan(ui_to_pddl_actions(request, is_get_request=True))
     if not was_plan_found:
         planner.load_plan()
-    
-    return index(was_plan_found)
+
+    return jsonify({
+    'plan'   : pddl_to_ui_actions(),
+    'status' : was_plan_found
+    })
 
 def main(host='127.0.0.1'):
     app.run(host=host,
