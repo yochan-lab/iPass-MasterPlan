@@ -12,11 +12,13 @@ planner.definePlanningProblem()
 
 @app.route("/")
 def index(was_plan_found=False):
+
     # Get the plan to be showed in the planning panel
     action_seq = planner.get_action_sequence_list()
     p = translator.actionsToUI(action_seq)
     
     # Should we show the explanation button
+    can_ask_for_explanations = 0
     if was_plan_found:
         can_ask_for_explanations = 1
     

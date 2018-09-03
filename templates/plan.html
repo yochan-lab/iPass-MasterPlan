@@ -227,8 +227,11 @@ $(function () {
 
         $.redirectPost('suggest', {'plan': JSON.stringify(res)});
 
+        plan_found = false
         // need to set this depending on what transpired
-        plan_found = true; 
+        {% if canAskForExplanations > 0 %}
+            plan_found = true;
+        {% endif %}
 
         $( "#mrpFeedback" ).show();
         $( "#mrpFeedback" ).removeClass( "alert-danger" );
