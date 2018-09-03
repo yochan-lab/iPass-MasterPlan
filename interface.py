@@ -35,6 +35,17 @@ class Interface:
             "COMPLETE_SEMESTER": "Add - End of Semester"
 
         }
+        self.feedback = {
+            "current_num_ten": "Completing 10 courses",
+            "has_committee": "Chosing committee members and chairs",
+            "has_taken": "Completing {} course",
+            "has_taken_cse599b": "Completing thesis credits",
+            "has_taken_cse599a": "Completing thesis credits",
+            "completed_deficiency": "Completing deficiency courses",
+            "completed_specialization": "Completing specialization specific courses for AI, Big Data or Cybersecurity",
+            "completed_concentration": "Completing foundation, systems and application concentraitions",
+            "defended": "Defending thesis work"
+        }
 
     def getData(self, file_name):
         with open(file_name, 'r') as f:
@@ -276,13 +287,68 @@ class Interface:
     def __defaultInvertor(self, actions):
         return self.invert_mapper[actions[0]]
 
+    '''
+    ' converts val un-met predicates to readable feedback
+    '''
     def __getFeedback(self, soup):
         if soup == "--":
             return soup
-        return "TODO: feedback -- actual string " + soup
+
+        string_for_true = "{} is required"
+        string_for_false = "{}, can not be done"
+        ui_feedback = []
+
+        if ":" in soup:
+            # check if the sentence has predicates or talks about
+            # the predicates missing in any of the actions.
+            ingredients = soup.split(":")
+            for spices in ingredients:
+                # each sub sentence has the predicates that are
+                # have to be set as true or false
+                # these are the preconditions that are not met
+                if "Set" in spices:
+                    # this has a predicate which needs to be checked
+                    important_spice     = spices.split("(")[-1]
+                    condition_of_spice  = important_spice.split(")")
+                    # exact predicate which has to be checked
+                    important_spice     = condition_of_spice[0]
+                    # is it to be set to true or set to false
+                    is_it_spicy         = condition_of_spice[1]
+                    spice               = self.__formatFeedback(important_spice)
+                    # convert the predicate to human readable feedbak
+                    if "false" in is_it_spicy:
+                        fb = string_for_false.format(spice)
+                    else:
+                        fb = string_for_true.format(spice)
+                    # ensuring similar UI feedbacks are not given to the user
+                    if fb not in ui_feedback:
+                        ui_feedback.append(fb)
+
+        return "\n".join(ui_feedback)
+
+    def __formatFeedback(self, spice):
+        if "has_taken" in spice:
+            #condition for course related feedback
+            if "cse599" in spice:
+                return self.feedback[spice]
+            else:
+                # all other kind of courses
+                key         = spice[0:9]
+                f           = self.feedback[key]
+                course      = spice[10:16]
+                course_type = self.courses[course][1]
+                return f.format(course_type)
+        elif "has_committee" in spice:
+            # all committee related feedbacks have same comment
+            key = spice[0:13]
+            return self.feedback[key]
+        else:
+            # everything else like current_num_ten
+            # or defended go from here
+            return self.feedback[spice]
+
 
 def test_invertor():
-    """
     plan = [
         "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
         "(TAKE_DEFICIENCY_COURSE_CSE340_ZERO_ONE_ZERO_ONE)",
@@ -315,7 +381,7 @@ def test_invertor():
         "(COMPLETE_SEMESTER);--",
         "(TAKE_CSE599B_NINE_TEN_ZERO_ONE);--",
         "(DEFEND);--"
-    ]
+    ]"""
     inter = Interface()
     print(inter.actionsToUI(plan))
 
@@ -349,5 +415,5 @@ def test():
     print(inter.uiToActions(plan))
 
 if __name__ == "__main__":
-    test()
+    #test()
     test_invertor()
