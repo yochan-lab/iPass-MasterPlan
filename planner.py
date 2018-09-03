@@ -104,6 +104,25 @@ class Planner():
                     else:
                         f.write(actions[k].strip() + '\n')
                 f.close()
+    
+    '''
+    Checks if a given plan achieves the goal.
+    '''
+
+    def is_plan_complete(self, actions):
+        self.__writeObservations(actions)
+        self.__create_grounded_files()
+
+        # Run validate
+        out = self.__run_validate(
+            self.grounded_pr_domain,
+            self.grounded_pr_problem,
+            self.obs)
+
+        if out:
+            if 'The goal is not satisfied' in out:
+                return False
+        return True
 
     '''
     Given a dict of indexed actions (eg. {0:'a1', '1':a2 ... }), tried to come up with

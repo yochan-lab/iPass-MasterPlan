@@ -46,14 +46,23 @@ def suggest():
     print('[DEBUG] Starting Suggestion Process ...')
     planner.save_plan()
     
-    # plan_was_found = 1 if plan is found, 0 otherwise
+    # plan_was_found = True if plan is found, False otherwise
     was_plan_found = planner.get_suggested_plan(ui_to_pddl_actions(request, is_get_request=True))
     if not was_plan_found:
         planner.load_plan()
 
     return jsonify({
-    'plan'   : pddl_to_ui_actions(),
-    'status' : was_plan_found
+        'plan'   : pddl_to_ui_actions(),
+        'status' : was_plan_found
+    })
+
+@app.route("/check", methods=['GET', 'POST'])
+def check():
+    print('[DEBUG] Starting the Checking Process ...')
+    planner.save_plan()
+    plan_complete_status = planner.is_plan_complete(ui_to_pddl_actions(request, is_get_request=True))
+    return jsonify({
+        'status' : plan_complete_status
     })
 
 def main(host='127.0.0.1'):

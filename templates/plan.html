@@ -55,24 +55,6 @@
                                 </div>
                             </div>
                         </div><!-- row ends -->
-                        
-                        <!--
-                        Radar's way of giving the use options to choose an optimal plan or ask for explanations
-                        once a successful suggestion is shown to the user
-                        ->
-                        <br>
-                        {% if canAskForExplanations > 0 %}
-                            <div class='row'>
-                                <div class='col'>
-                                    Optimal Plan
-                                </div>
-                                <div class='col'>
-                                    Explain this Plan?
-                                </div>
-                            </div>
-                        <br>
-                        {% endif %}
-                        -->
                     </div>
                     
                     <div class='row'>
@@ -136,12 +118,33 @@ $(function () {
     
     // method :: check iPOS
     $('#check').click( function() {
+        
+        res = getGridStackData();
+        hide_all_feedback()
+        
+        // New ajax call to validate plan
+        $.getJSON($SCRIPT_ROOT + '/check', {
 
-        // run val and set success
-        // $('.validatePlan').click();    
-        var success = true;
+            'plan' : JSON.stringify( res )
 
-        if (success) {
+        }, function(data) {
+            
+            is_plan_complete = data[ 'status' ]
+            console.log(is_plan_complete)
+            enable_check_feedback( is_plan_complete )
+
+        })
+        .error( function() {
+
+            // On failure, alert front-end user of server side error.
+            alert('Server side error when checking plan!')
+
+        });
+
+    });
+
+    function enable_check_feedback( is_plan_complete ){
+        if ( is_plan_complete ) {
 
             $("#valAlertPositive").show();
             $("#submit").show();
@@ -152,7 +155,7 @@ $(function () {
 
         }
 
-    });
+    }
     
     // method :: submit iPOS
     $('#submit').click( function() {
@@ -199,15 +202,21 @@ $(function () {
 
         // New ajax call to validate plan
         $.getJSON($SCRIPT_ROOT + '/validate', {
+
             'plan' : JSON.stringify( res )
+
         }, function(data) {
+
             // On success, update planning panel and show feedback divs.
             is_valid = render_updated_plan( data );
             enable_val_feedback( is_valid )
+
         })
         .error( function() {
+
             // On failure, alert front-end user of server side error.
-            alert('Server side error when validating plan')
+            alert('Server side error when validating plan!')
+
         });
     })
 
@@ -239,17 +248,23 @@ $(function () {
 
         // New ajax call to suggest plan completion
         $.getJSON($SCRIPT_ROOT + '/suggest', {
+
                 'plan' : JSON.stringify( res )
+
             }, function(data) {
+
                 plan_found = data['status']
-                suggested_plan = data['plan']
+                suggested_plan = data['plan']                
                 
                 render_updated_plan( suggested_plan )
                 enable_suggest_feedback( plan_found )
+
             })
             .error( function() {
+
                 // On failure, alert front-end user of server side error.
                 alert('Server side error when finding a plan!')
+
             });
         })
 
