@@ -336,7 +336,7 @@ class Interface:
                 key         = spice[0:9]
                 f           = self.feedback[key]
                 course      = spice[10:16]
-                course_type = self.courses[course][1]
+                course_type = self.courses[course.upper()][1]
                 return f.format(course_type)
         elif "has_committee" in spice:
             # all committee related feedbacks have same comment
