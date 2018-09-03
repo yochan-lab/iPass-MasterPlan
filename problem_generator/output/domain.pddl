@@ -380,4 +380,19 @@ num
 )
 )
 
+; dummy action make sure the domain generates
+; complete semester 4 for non ra students as well
+; although it can not be done but this ensures we dont need
+; to explicitly remove the action of four courses which
+; are allowed.
+(:action enable_all_complete_sem_2
+:parameters ()
+:precondition (and
+(sem_quota ten)
+)
+:effect (and
+(is_international)
+(is_ra_ta)
+)
+)
 )
