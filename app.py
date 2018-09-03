@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from planner import Planner
 from interface import Interface
 import json
+import sys
 
 app = Flask(__name__)
 planner = Planner()
@@ -25,15 +26,8 @@ def index(was_plan_found=False):
     return render_template('index.html', canAskForExplanations=can_ask_for_explanations, plan=p)
 
 '''
-Function that obtains plan from the UI request and
-returns a JSON format.
-    @Input
-        Example 'plan' : [
-                {"name":"Add Course - Embedded Operating Systems Internal (systems)",
-                        "x":0,"y":0,"width":12,"height":1},
-                {"name":"Add Chair - Subbarao Kambhampati (applications)",
-                        "x":0,"y":3,"width":12,"height":1}
-            ]
+Given as input a request from the frontend, returns the list of actions
+that the planner would recognize.
 '''
 def ui_plan_to_pddl_style(request):
     plan = json.loads(dict(request.form)['plan'][0])
@@ -57,5 +51,13 @@ def suggest():
     
     return index(was_plan_found)
 
+def main(host='127.0.0.1'):
+    app.run(host=host,
+            port=5000,
+            debug=True)
+
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    if len(sys.argv) == 2:
+        main(host=sys.argv[1])
+    else:
+        main()
