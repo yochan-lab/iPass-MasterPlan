@@ -235,7 +235,9 @@ class Interface:
 
     def __invertSemester(self, actionStrings):
         key = "_".join(actionStrings[0:2])
-        if len(actionStrings) == 2:
+        # Look at COMPLETE_SEMEMSTER_x actions for sending the
+        # COMPLETE_SEMSTER action back.
+        if len(actionStrings) == 3:
             return self.invert_mapper[key]
 
         return None

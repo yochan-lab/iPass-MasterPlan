@@ -367,4 +367,17 @@ num
 )
 )
 
+; dummy action make sure the domain generates
+; complete semester 1 and 2 for non-international students 
+(:action enable_all_complete_sem
+:parameters ()
+:precondition (and
+(sem_quota ten)
+)
+:effect (and
+(not (is_international))
+(not (is_ra_ta))
+)
+)
+
 )
