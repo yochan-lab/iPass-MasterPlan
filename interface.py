@@ -36,15 +36,19 @@ class Interface:
 
         }
         self.feedback = {
-            "current_num_ten": "Completing 10 courses",
+            "current_num": "Completing 10 courses",
+            "sem_quota": "Completing preferred number of course(s) in the Semester",
             "has_committee": "Chosing committee members and chairs",
             "has_taken": "Completing {} course",
             "has_taken_cse599b": "Completing thesis credits",
             "has_taken_cse599a": "Completing thesis credits",
             "completed_deficiency": "Completing deficiency courses",
+            "chair_expertise": "Chosing an advisor for your thesis work from {} specialization",
             "completed_specialization": "Completing specialization specific courses for AI, Big Data or Cybersecurity",
             "completed_concentration": "Completing foundation, systems and application concentraitions",
-            "defended": "Defending thesis work"
+            "defended": "Defending thesis work",
+            "not-is_international": "Alex is not an international student and so can not take less than three courses in a semester",
+            "is_ra_ta": "Alex is not an RA/TA and so can not take four courses in a semester"
         }
 
     def getData(self, file_name):
@@ -293,6 +297,7 @@ class Interface:
     def __getFeedback(self, soup):
         if soup == "--":
             return soup
+        print soup
 
         string_for_true = "{} is required"
         string_for_false = "{}, can not be done"
@@ -324,29 +329,46 @@ class Interface:
                     if fb not in ui_feedback:
                         ui_feedback.append(fb)
 
-        return "\n".join(ui_feedback)
+        return ";".join(ui_feedback)
 
     def __formatFeedback(self, spice):
-        if "has_taken" in spice:
+        # default case like defended, cse599a or cse599b is
+        # handled from this key
+        key = spice
+        if "has_taken" in spice and "cse599" not in spice:
             #condition for course related feedback
-            if "cse599" in spice:
-                return self.feedback[spice]
-            else:
-                # all other kind of courses
-                key         = spice[0:9]
-                f           = self.feedback[key]
-                course      = spice[10:16]
-                course_type = self.courses[course.upper()][1]
-                return f.format(course_type)
+            # all other kind of courses
+            key         = spice[0:9]
+            f           = self.feedback[key]
+            course      = spice[10:16].upper()
+            course      = self.courses[course][0] + " (" + course + ")"
+            return f.format(course)
+        elif "chair_expertise" in spice:
+            # chair for the expertise has to be selected
+            key         = spice[0:15]
+            f           = self.feedback[key]
+            expertise   = spice[16:]
+            if "_" in expertise: expertise = expertise.replace("_", " ")
+            return f.format(expertise)
         elif "has_committee" in spice:
             # all committee related feedbacks have same comment
             key = spice[0:13]
-            return self.feedback[key]
-        else:
-            # everything else like current_num_ten
-            # or defended go from here
-            return self.feedback[spice]
+        elif "completed_concentration" in spice:
+            # all concentration have one message, to ensure there
+            # are no biases against a specific concentration
+            key = spice[0:23]
+        elif "current_num" in spice:
+            # any number of courses can be asked for completion
+            # for different actions. I end up showing message for
+            # 10 courses only. because it does not make sense that
+            # I show complete one course in the case validate says
+            # current_num_one to true
+            key = spice[0:11]
+        elif "sem_quota" in spice:
+            # preferred courses are what I say in the message
+            key = spice[0:9]
 
+        return self.feedback[key]
 
 def test_invertor():
     plan = [
