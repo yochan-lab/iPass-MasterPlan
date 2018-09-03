@@ -11,13 +11,23 @@ translator = Interface()
 # Create a new planning problem
 planner.definePlanningProblem()
 
+''' Helper actions '''
+def pddl_to_ui_actions():
+    # Get the plan to be showed in the planning panel
+    action_seq = planner.get_action_sequence_list()
+    return translator.actionsToUI(action_seq)
+
+def ui_to_pddl_actions(request, is_get_request=False):
+    if is_get_request:
+        plan = json.loads( request.args.get('plan') )
+    else:
+        plan = json.loads( dict(request.form)['plan'][0] )
+    return translator.uiToActions(plan)
+
 @app.route("/")
 def index(was_plan_found=False):
 
-    # Get the plan to be showed in the planning panel
-    action_seq = planner.get_action_sequence_list()
-    p = translator.actionsToUI(action_seq)
-    
+    p = pddl_to_ui_actions()
     # Should we show the explanation button
     can_ask_for_explanations = 0
     if was_plan_found:
@@ -25,27 +35,20 @@ def index(was_plan_found=False):
     
     return render_template('index.html', canAskForExplanations=can_ask_for_explanations, plan=p)
 
-'''
-Given as input a request from the frontend, returns the list of actions
-that the planner would recognize.
-'''
-def ui_plan_to_pddl_style(request):
-    plan = json.loads(dict(request.form)['plan'][0])
-    print(plan)
-    return translator.uiToActions(plan)
-
 @app.route("/validate", methods=['GET', 'POST'])
 def validate():
-    planner.save_plan() 
-    planner.get_validated_plan(ui_plan_to_pddl_style(request))
-    return index()
+    print('[DEBUG] Starting Validation Process ...')
+    planner.save_plan()
+    planner.get_validated_plan(ui_to_pddl_actions(request, is_get_request=True))
+    return jsonify(pddl_to_ui_actions())
     
 @app.route("/suggest", methods=['GET', 'POST'])
 def suggest():
+    print('[DEBUG] Starting Suggestion Process ...')
     planner.save_plan()
     
     # plan_was_found = 1 if plan is found, 0 otherwise
-    was_plan_found = planner.get_suggested_plan(ui_plan_to_pddl_style(request))
+    was_plan_found = planner.get_suggested_plan(ui_to_pddl_actions(request))
     if not was_plan_found:
         planner.load_plan()
     
