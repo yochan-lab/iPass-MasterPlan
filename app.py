@@ -11,10 +11,16 @@ translator = Interface()
 planner.definePlanningProblem()
 
 @app.route("/")
-def index(plan_was_found=0):
+def index(was_plan_found=False):
+    # Get the plan to be showed in the planning panel
     action_seq = planner.get_action_sequence_list()
     p = translator.actionsToUI(action_seq)
-    return render_template('index.html', canAskForExplanations=plan_was_found, plan=p)
+    
+    # Should we show the explanation button
+    if was_plan_found:
+        can_ask_for_explanations = 1
+    
+    return render_template('index.html', canAskForExplanations=can_ask_for_explanations, plan=p)
 
 '''
 Function that obtains plan from the UI request and
