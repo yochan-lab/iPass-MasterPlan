@@ -270,22 +270,58 @@ $(document).ready(function () {
 
     // methods for loggings
 
-        // -- number of rearranges  (plan refinements)
-        // -- number of deletes (plan refinements)
-        // ---- number of times these are planner suggested things (plan refinements over planner; ghora dingie ghash category)
-        // -- number of times val asked (pleas for help)
-        // -- number of times suggest asked (pleas for help)
-        // -- number of adds (planning overhead with and without planning support)
-        // -- number of times explanation sought (pleas for help)
-        // -- number of times checked (failed attempts to submit)        
+    num_rearranges = 0; 
+    num_deletes = 0; 
+
+    num_rearranges_of_suggestions = 0; 
+    num_deletes_of_suggestions = 0; 
+
+    num_add = 0; 
+
+    num_val = 0; 
+    num_suggest = 0; 
+    num_explain = 0; 
+    num_checked = 0; 
 
     $(document).on('click', '.addButton', function(event) {
+        num_add++; 
     });
 
     $(document).on('click', '.delete-action', function(event) {
+
+        num_deletes++; 
+
+        if ( $(this).find('.form-control').hasClass('text-success') ) {
+            num_deletes_of_suggestions++; 
+        }
+
     });
 
     $(document).on('drag', '.grid-stack-item', function(event) {
+
+        num_rearranges++; 
+
+        if ( $(this).find('.form-control').hasClass('text-success') ) {
+            num_rearranges_of_suggestions++; 
+        }
+
     });
+
+    $('#validatePlan').click( function() {
+        num_val++; 
+    });
+
+    $('#suggestPlan').click( function() {
+        num_suggest++; 
+    });
+
+    $('#explainPlan').click( function() {
+        num_explain++; 
+    });
+
+    $('#check').click( function() {
+        num_checked++; 
+    });
+
 
 });
