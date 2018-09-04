@@ -432,24 +432,24 @@ $(function () {
 
         _.each(items, function (node, i) {
 
-            // invalid actions
+            // planner added actions
             if (node.name.includes(';--')) {
 
+                action_name = '<i class="fas fa-plus-circle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
+                reason = node.name.substr(node.name.indexOf(';'), node.name.length);
+                elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', reason));
+                elem.find('.form-control').addClass('text-success');                
+
+            } 
+
+            // invalid actions
+            else if (node.name.includes(';')) {
+                
                 action_name = '<i class="fas fa-exclamation-triangle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
                 elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', ''));
                 elem.find('.form-control').addClass('text-danger');
 
                 $( "#valFeedback" ).append( "<br><br>" + node.name.split(";")[1] );
-
-            } 
-
-            // planner added actions
-            else if (node.name.includes(';')) {
-
-                action_name = '<i class="fas fa-plus-circle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
-                reason = node.name.substr(node.name.indexOf(';'), node.name.length);
-                elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', reason));
-                elem.find('.form-control').addClass('text-success');
                 
             }
 
