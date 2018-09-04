@@ -66,6 +66,9 @@ class Planner():
         with open(self.problem_state_json, 'w') as f:
             f.write(problem_state)
 
+        # Removing observation during problem initialization
+        copyf(self.blank_obs, self.obs)
+
     '''
     Saves the plan from the frontend to a file that can restore it.
     '''
