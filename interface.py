@@ -317,6 +317,8 @@ class Interface:
     def __getFeedback(self, soup):
         if soup == "--":
             return soup
+        elif soup == "Invalid Action":
+            return soup
         #print "[DEBUG] feedback string from interface ", soup
 
         string_for_true = "{} <b>before</b> the action is(are) required"

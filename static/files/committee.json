@@ -1,8 +1,8 @@
 {
-    "Colbourn" : ["Charlie Colbourn", "none"],
-    "Sen"      : ["Arunabha Sen", "none"],
+    "Colbourn" : ["Charlie Colbourn", "cybersecurity"],
+    "Sen"      : ["Arunabha Sen", "cybersecurity"],
     "Xue"      : ["Guoliang Xue", "big_data"],
-    "Richa"    : ["Andrea Richa", "none"],
+    "Richa"    : ["Andrea Richa", "big_data"],
     "Doupe"    : ["Adam Doupe", "cybersecurity"],
     "Huang"    : ["Dijiang Huang", "cybersecurity"],
     "Sarwat"   : ["Mohammad Sarwat", "big_data"],

@@ -103,7 +103,17 @@ class Planner():
         # Parse VAL's output
         if out:
             if 'No matching action defined for' in out:
-                print('[DEBUG] Bad Operator: {}'.format(out))
+                bad_action = out.split("No matching action defined for")[1].split("Errors:")[0].strip()
+                print('[WARNING] Bad Operator: {}'.format(bad_action))
+                f = file(self.obs, 'w')
+                for k in sorted(actions):
+                    if actions[k].strip('\n( )').lower(
+                        ) in bad_action.strip('\n( )').lower():
+                        f.write(actions[k].strip() + ";" + "Invalid Action" + "\n")
+                    else:
+                        f.write(actions[k].strip()+'\n')
+                f.close()
+
                 return False           
             
             if 'Plan failed to execute' in out:
