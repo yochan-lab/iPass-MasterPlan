@@ -116,6 +116,17 @@ $(function () {
 
     });
     
+    // Remove any status bar (and explanation/undo buttons) at the start of some call.
+    function hide_all_feedback() {
+        $("#valFeedback").hide();
+        $("#mrpFeedback").hide();
+        $("#undoPlan").hide();
+        $("#explainPlan").hide();
+        $("#valAlertNegative").hide();
+        $("#valAlertPositive").hide();
+        $("#submit").hide();
+    }
+    
     // method :: check iPOS
     $('#check').click( function() {
         
@@ -290,42 +301,26 @@ $(function () {
         }
 
     };
-
-    // Remove any status bar (and explanation/undo buttons) at the start of some call.
-    function hide_all_feedback() {
-        $("#valFeedback").hide();
-        $("#mrpFeedback").hide();
-        $("#undoPlan").hide();
-        $("#explainPlan").hide();
-        $("#valAlertNegative").hide();
-        $("#valAlertPositive").hide();
-        $("#submit").hide();
-    }
-
+    
     $('#explainPlan').click(function() {
 
         res = getGridStackData();
+        hide_all_feedback()
+        
         $.getJSON($SCRIPT_ROOT + '/getPlanExplanation', {
+        
             'plan' : JSON.stringify(res)
+        
         }, function(data) {
-            e = '<form>'
-            for (var i in data) {
-                val = data[i];
-                e = e + '<input type="checkbox" name="' + val + '-reject">' + val + '</input><br>';
-                e = e + '<input type="hidden" name="' + val + '"></input>';
-            }
-            e = e + '</form>'
-            $('.exploader').fadeOut();
-            $('#generatedExplanations').html(e);
-        });
-
-        $( ".explain-action" ).each( function( index ) {
-
-            $( this ).show();
+            
+            console.log( data )
+            $( ".explain-action" ).each( function( index ) {
+                $( this ).show();
+            });
             
         });
-
-    });
+        
+    });    
 
     // thanks to http://stackoverflow.com/a/22885503
     var waitForFinalEvent=function(){var b={};return function(c,d,a){a||(a="I am a banana!");b[a]&&clearTimeout(b[a]);b[a]=setTimeout(c,d)}}();

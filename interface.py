@@ -67,7 +67,7 @@ class Interface:
     generated the corresponding dictionary of actions that can be displayed in the UI.
     '''
     def actionsToUI(self, actions):
-        print "[DEBUG] actions coming to interface for UI conversion ", actions
+        #print ("[DEBUG] PDDL to UI : ", actions)
         ui_actions = {}
         idx = 0 
         for action in actions:
@@ -95,7 +95,6 @@ class Interface:
                 ui_actions[idx] = str(act)
                 #whenever there is an action increment the index
                 idx += 1
-            print "[DEBUG] ui_actions from interface ", ui_actions
         return ui_actions
 
     '''
@@ -104,7 +103,7 @@ class Interface:
     '''
     def uiToActions(self, ui_actions):
         # Initializing global variables everytime request comes from the frontend
-        print "[DEBUG] ui_actions coming to interface for planner conversion ", ui_actions
+        # print ("[DEBUG] UI to PDDL: ", ui_actions)
         ui_actions.sort(key = lambda action: action['y'])
         self.course_counter = 0
         self.sem_counter = 0
@@ -122,7 +121,6 @@ class Interface:
                     end_sem_count_booster += 1
                 actions[action_pos+end_sem_count_booster] = "({})".format(action_list[i])
 
-        print "[DEBUG] actions converted from UI in interface ", actions
         return actions
 
     def __get_action_name(self, action_name):

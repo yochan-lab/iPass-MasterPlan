@@ -45,7 +45,7 @@ class Planner():
         # Explanation files
         self.domain_template = self.PDDL_FILES_DIR.format('ipass_domain_template.pddl')
         self.exp_file = self.PLAN_FILES_DIR.format(
-            'mmp_explanations/src/exp.dat')
+            'explanations.dat')
 
         # Files for storing problem state as a json
         self.problem_state_json = './static/files/state.json'
@@ -193,41 +193,48 @@ class Planner():
     '''
     
     def get_explanations(self, actions):
-        print(actions)
+        
+        # Generate plan patch explanations
         to_root_dict = '../../..'
-        cmd = "cd {0} && ./Problem.py -m {1}/{2} -n {1}/{3} -d {1}/{4} -f {1}/{5} -p {1}/{6} > ".format(
+        cmd = "cd {0} && ./Problem.py -m {1}/{2} -n {1}/{3} -d {1}/{4} -f {1}/{5} -p {1}/{6} | grep '>>' > {1}/{7}".format(
             self.PLAN_FILES_DIR.format('/mmp_explanations/src'),
             to_root_dict,
             self.domain,
             self.human_domain,
             self.domain_template,
             self.problem,
-            self.obs)
-        print(cmd)
-        return
+            self.obs,
+            self.exp_file)
+        os.system(cmd)
         
-        try:
-            os.system(cmd)
-        except BaseException:
-            print("[ERROR] while generating explanations for the present plan")
-
-        try:
-            f = open(self.exp_file, 'r')
-        except BaseException:
-            print(
-                "[WARNING] No explanations were generated.  Probably there is no model difference")
-            return {1: "None"}
-        reason = {}
-        i = 1
-        for l in f:
-            s = l.strip()
-            if not s:
-                continue
-            s = l.split('Explanation >> ')[1].strip()
-            reason[i] = s
-            i += 1
-        return reason
-    
+        # Read the explanations
+        with open(self.exp_file, 'r') as f:
+            explanations = f.readlines()
+            
+        if not explanations:
+            # no explanations were generated
+            return actions
+        
+        # Map explanations to actions:
+        # 1. Store the explanations for each lifted action
+        lifted_action_explanation = {}
+        for exp in explanations:
+            act_name = exp.split(">>', '")[1].split("-has")[0]
+            try:
+                lifted_action_explanation[act_name] += exp
+            except:
+                lifted_action_explanation[act_name] = exp
+        
+        # 2. Map lifted action explanations to grounded actions
+        explained_actions = {}
+        for act in actions:
+            for lifted_action_name in lifted_action_explanation.keys():
+                if lifted_action_name.lower() in actions[act].lower():
+                    explained_actions[act] = actions[act] + ';' + lifted_action_explanation[ lifted_action_name ]
+                    break
+        
+        return explained_actions
+        
     '''
     Returns the plan in the observation file as a action list.
     '''
