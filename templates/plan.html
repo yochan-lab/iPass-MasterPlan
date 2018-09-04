@@ -433,7 +433,7 @@ $(function () {
                 elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', ''));
                 elem.find('.form-control').addClass('text-danger');
 
-                $( "#valFeedback" ).append( "<br><br>" + node.name.split(";")[1] );
+                $( "#valFeedback" ).html( "<br><br>" + node.name.split(";")[1] );
 
             } 
 
