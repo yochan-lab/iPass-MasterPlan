@@ -222,8 +222,8 @@ $(function () {
             // On success, update planning panel and show feedback divs.
             is_valid = data[ 'status' ]
             validated_plan = data[ 'plan' ]
-            render_updated_plan( validated_plan );
             enable_val_feedback( is_valid )
+            render_updated_plan( validated_plan );
 
         })
         .error( function() {
