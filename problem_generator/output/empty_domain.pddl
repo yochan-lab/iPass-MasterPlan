@@ -1,4 +1,4 @@
-(define (domain empty-IPASS)
+(define (domain IPASS)
 
 (:requirements :typing :equality)
 

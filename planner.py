@@ -26,7 +26,7 @@ class Planner():
         
         # Domain and problem files
         self.domain = self.PDDL_FILES_DIR.format('domain.pddl')
-        self.human_domain = self.PDDL_FILES_DIR.format('domain_human.pddl')
+        self.human_domain = self.PDDL_FILES_DIR.format('empty_domain.pddl')
         self.problem = self.PDDL_FILES_DIR.format('problem.pddl')
 
         # Grounded pr-domain and pr-problem files
@@ -43,16 +43,28 @@ class Planner():
         self.saveduiPlan = self.PLAN_FILES_DIR.format('saved_obs.dat')
 
         # Explanation files
-        self.exc_file = self.PLAN_FILES_DIR.format('mmp/src/exp.dat')
+        self.domain_template = self.PDDL_FILES_DIR.format('ipass_domain_template.pddl')
         self.exp_file = self.PLAN_FILES_DIR.format(
             'mmp_explanations/src/exp.dat')
 
-        # Generating Landmarks
-        self.landmark_code = '../RADAR/FD/src/fast-downward.py'
-        self.output = './output'
-
         # Files for storing problem state as a json
         self.problem_state_json = './static/files/state.json'
+
+    '''
+    Creates the problem.pddl file
+        @Input - Goal for which planning problem is to be made
+        @Output - Creates problem.pddl
+    '''
+
+    def definePlanningProblem(self):
+        problem_state = problem_generator.generateState()
+
+        # Get pddl file from problem state
+        problem_generator.compile2pddl(problem_state)
+
+        # Write json to file for ui
+        with open(self.problem_state_json, 'w') as f:
+            f.write(problem_state)
 
     '''
     Saves the plan from the frontend to a file that can restore it.
@@ -120,9 +132,9 @@ class Planner():
             self.obs)
 
         if out:
-            if 'The goal is not satisfied' in out:
-                return False
-        return True
+            if 'Plan valid' in out:
+                return True
+        return False
 
     '''
     Given a dict of indexed actions (eg. {0:'a1', '1':a2 ... }), tried to come up with
@@ -175,6 +187,46 @@ class Planner():
 
         self.__writeObservations(plan_actions, tillEndOfPresentPlan)
         return True
+    
+    '''
+    Get explanations based on model difference for a given plan.
+    '''
+    
+    def get_explanations(self, actions):
+        print(actions)
+        to_root_dict = '../../..'
+        cmd = "cd {0} && ./Problem.py -m {1}/{2} -n {1}/{3} -d {1}/{4} -f {1}/{5} -p {1}/{6} > ".format(
+            self.PLAN_FILES_DIR.format('/mmp_explanations/src'),
+            to_root_dict,
+            self.domain,
+            self.human_domain,
+            self.domain_template,
+            self.problem,
+            self.obs)
+        print(cmd)
+        return
+        
+        try:
+            os.system(cmd)
+        except BaseException:
+            print("[ERROR] while generating explanations for the present plan")
+
+        try:
+            f = open(self.exp_file, 'r')
+        except BaseException:
+            print(
+                "[WARNING] No explanations were generated.  Probably there is no model difference")
+            return {1: "None"}
+        reason = {}
+        i = 1
+        for l in f:
+            s = l.strip()
+            if not s:
+                continue
+            s = l.split('Explanation >> ')[1].strip()
+            reason[i] = s
+            i += 1
+        return reason
     
     '''
     Returns the plan in the observation file as a action list.
@@ -389,123 +441,3 @@ class Planner():
             self.domain = fname.split('.pddl')[0] + '_modify.pddl'
         else:
             self.human_domain = fname.split('.pddl')[0] + '_modify.pddl'
-
-    def getExplanations(self):
-
-        cmd = "cd ./planner/mmp_explanations/src && ./Problem.py -m ../../../{0} -n ../../../{1} -d ../domain/radar_domain_template.pddl -f ../../mock_problem.pddl".format(
-            self.domain, self.human_domain)
-        try:
-            os.system(cmd)
-        except BaseException:
-            print("[ERROR] while generating explanations for the present plan")
-
-        try:
-            f = open(self.exp_file, 'r')
-        except BaseException:
-            print(
-                "[WARNING] No explanations were generated.  Probably there is no model difference")
-            return {1: "None"}
-        reason = {}
-        i = 1
-        for l in f:
-            s = l.strip()
-            if not s:
-                continue
-            s = l.split('Explanation >> ')[1].strip()
-            reason[i] = s
-            i += 1
-        return reason
-
-    def getExcuses(self):
-        cmd = "cd ./planner/mmp/src && ./Problem.py -m ../domain/radar_domain.pddl -n ../domain/radar_domain.pddl -d ../domain/radar_domain_template.pddl -q ../domain/complete_initial_state_problem_template.pddl -f ../domain/complete_initial_state_problem.pddl -t ../../mock_problem.pddl"
-        try:
-            os.system(cmd)
-        except BaseException:
-            print(
-                "[ERROR] Error while generation explanations for changing initial state to make it feisable")
-
-        f = open(self.exc_file, "r")
-        reason = ''
-        for l in f:
-            s = l.strip()
-            if not s:
-                continue
-            s = l.split('Explanation >> has-initial-state-')[
-                1].replace("has_", "Get ").replace("_number@", " ")
-            reason = reason + s + ' '
-        plan_actions = {
-            '1': 'INVALID_INITIAL_STATE ;{0}'.format(
-                reason.replace(
-                    '\n', ' '))}
-        return plan_actions
-
-    def deletePrFiles(self):
-        try:
-            os.remove(self.pr_domain)
-            os.remove(self.pr_problem)
-        except BaseException:
-            print(
-                "[WARNING] Problem deleting pr-domain and pr-problem files.  Probably they already don't exist!")
-
-    def getActionNames(self):
-        self.deletePrFiles()
-        try:
-            cmd = self.CALL_PR2 + ' -d ' + self.domain + ' -i ' + self.problem + \
-                ' -o ' + self.PLAN_FILES_DIR.format('blank_obs.dat')
-            os.system(cmd)
-        except BaseException:
-            raise Exception('[ERROR] Call to PR2 failed!')
-
-        if not os.path.isfile(
-                self.pr_domain) or not os.path.isfile(
-                self.pr_problem):
-            print("[ERROR] Goal cannot be reached from initial state")
-            return []
-
-        try:
-            cmd = 'cat pr-problem.pddl | grep -v "EXPLAIN" > pr-problem.pddl.tmp && mv pr-problem.pddl.tmp pr-problem.pddl'
-            os.system(cmd)
-            cmd = 'cat pr-domain.pddl | grep -v "EXPLAIN" > pr-domain.pddl.tmp && mv pr-domain.pddl.tmp pr-domain.pddl'
-            os.system(cmd)
-        except BaseException:
-            raise Exception(
-                '[ERROR] Removing "EXPLAIN" from pr-domain and pr-problem files.')
-
-        actionNames = []
-        f = open('./pr-domain.pddl')
-        for l in f:
-            if '(:action ' in l:
-                actionNames.append('(' + l.split('(:action ')[1].strip() + ')')
-        return actionNames
-
-    def getImpResources(self):
-        try:
-            f = file(selt.sas_plan, 'r')
-        except BaseException:
-            # If no plan exists for the present state
-            self.plan()
-            f = file(self.sas_plan, 'r')
-
-        # Write plan to observation file
-        resources = []
-        for l in f:
-            for r in self.resource_list:
-                if (r in l.lower()) and (r not in resources):
-                    resources.append(r)
-        return resources
-
-        '''
-    Creates the problem.pddl file
-        @Input - Goal for which planning problem is to be made
-        @Output - Creates problem.pddl
-    '''
-
-    def definePlanningProblem(self):
-        problem_state = problem_generator.generateState()
-
-        # Get pddl file from problem state
-        problem_generator.compile2pddl(problem_state)
-
-        # Write json to file for ui
-        with open(self.problem_state_json, 'w') as f:
-            f.write(problem_state)

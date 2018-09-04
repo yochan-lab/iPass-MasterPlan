@@ -65,6 +65,13 @@ def check():
         'status' : plan_complete_status
     })
 
+@app.route("/getPlanExplanation", methods=['GET', 'POST'])
+def get_explanations():
+    print('[DEBUG] Generating Plan Explanation(s) ...')
+    planner.save_plan()
+    explanations = planner.get_explanations(ui_to_pddl_actions(request, is_get_request=True))
+    return jsonify(explanations)
+
 def main(host='127.0.0.1'):
     app.run(host=host,
             port=5000,

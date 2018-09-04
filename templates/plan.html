@@ -130,7 +130,6 @@ $(function () {
         }, function(data) {
             
             is_plan_complete = data[ 'status' ]
-            console.log(is_plan_complete)
             enable_check_feedback( is_plan_complete )
 
         })
@@ -298,6 +297,9 @@ $(function () {
         $("#mrpFeedback").hide();
         $("#undoPlan").hide();
         $("#explainPlan").hide();
+        $("#valAlertNegative").hide();
+        $("#valAlertPositive").hide();
+        $("#submit").hide();
     }
 
     $('#explainPlan').click(function() {
