@@ -90,6 +90,7 @@ class Planner():
     '''
 
     def get_validated_plan(self, actions):
+        print('[DEBUG] Actions: {}'.format(actions))
         self.__writeObservations(actions)
         self.__create_grounded_files()
 
@@ -101,7 +102,12 @@ class Planner():
 
         # Parse VAL's output
         if out:
+            if 'No matching action defined for' in out:
+                print('[DEBUG] Bad Operator: {}'.format(out))
+                return False           
+            
             if 'Plan failed to execute' in out:
+                print('[DEBUG] Validation Error: {}'.format(out))
                 faults = out.split("Plan Repair Advice:\n")[1].strip()
                 if ')' in faults:
                     action_name = faults.split(') ')[0].strip().upper() + ")"
@@ -119,6 +125,9 @@ class Planner():
                     else:
                         f.write(actions[k].strip() + '\n')
                 f.close()
+                return False
+       
+        return True
     
     '''
     Checks if a given plan achieves the goal.
@@ -328,6 +337,8 @@ class Planner():
                 ' {} {} {}'.format(domain_file, problem_file, obs_file)
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             (out, err) = proc.communicate()
+            print('[DEBUG] Running command: {}'.format(cmd))
+            print('[DEBUG] Output of Validate: {}'.format(out))
             return out
         except BaseException:
             print(

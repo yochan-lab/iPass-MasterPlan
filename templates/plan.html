@@ -220,10 +220,10 @@ $(function () {
         }, function(data) {
 
             // On success, update planning panel and show feedback divs.
-            $( "#valFeedback" ).html( "" );
-
-            is_valid = render_updated_plan( data );
-            enable_val_feedback( is_valid );
+            is_valid = data[ 'status' ]
+            validated_plan = data[ 'plan' ]
+            render_updated_plan( validated_plan );
+            enable_val_feedback( is_valid )
 
         })
         .error( function() {
@@ -244,12 +244,12 @@ $(function () {
         if ( success ) {
 
             $( "#valFeedback" ).addClass( "alert-success" );
-            $( "#valFeedback" ).prepend( "So far so good! :)" );
+            $( "#valFeedback" ).html( "So far so good! :)" );
 
         } else {
 
             $( "#valFeedback" ).addClass( "alert-danger" );
-            $( "#valFeedback" ).prepend( "This is not part of a valid iPOS! :(" );
+            $( "#valFeedback" ).html( "This is not part of a valid iPOS! :(" );
 
         }
 
@@ -262,7 +262,7 @@ $(function () {
 
         // New ajax call to suggest plan completion
         $.getJSON($SCRIPT_ROOT + '/suggest', {
-
+        
                 'plan' : JSON.stringify( res )
 
             }, function(data) {
@@ -371,22 +371,15 @@ $(function () {
         {% endfor %}
     ];
 
-    // Called if ajax call successfully returns a validated/suggested plan. Renders the gridstack
-    // with new information and returns information stating whether the plan was modified at all.
+    // Called if ajax call successfully returns a validated/suggested plan.
+    // Renders the gridstack with new information.
     function render_updated_plan( updated_plan ) {
         serializedData = [];
-        same_old_plan = true;
         for (var i in updated_plan) {
             serializedData.push( {y:i, x:0, width:12, height:1, name:updated_plan[i]} );
-            if ( same_old_plan ) {
-                if ( updated_plan[i].indexOf(';') > 0 ) {
-                    same_old_plan = false;
-                }
-            }
         }
         loadGrid();
         resizeGrid();
-        return same_old_plan;
     };
     
     function updateData(action) {

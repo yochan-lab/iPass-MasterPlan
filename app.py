@@ -38,8 +38,11 @@ def index(was_plan_found=False):
 def validate():
     print('[DEBUG] Starting Validation Process ...')
     planner.save_plan()
-    planner.get_validated_plan(ui_to_pddl_actions(request, is_get_request=True))
-    return jsonify(pddl_to_ui_actions())
+    is_plan_valid = planner.get_validated_plan(ui_to_pddl_actions(request, is_get_request=True))
+    return jsonify({
+        'plan'   : pddl_to_ui_actions(),
+        'status' : is_plan_valid
+    })
     
 @app.route("/suggest", methods=['GET', 'POST'])
 def suggest():
