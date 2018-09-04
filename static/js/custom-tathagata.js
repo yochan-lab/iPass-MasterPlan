@@ -226,7 +226,7 @@ $(document).ready(function () {
             if ( num_semesters == 0) {
                 $( "#difficulty" ).html( num_courses );
             } else {
-                $( "#difficulty" ).html( num_courses / num_semesters );
+                $( "#difficulty" ).html( ( num_courses / num_semesters ).toFixed(2) );
             }
 
             // Display the result in the element with id "countdown"
@@ -267,5 +267,25 @@ $(document).ready(function () {
 
     }, 1000);
 
+
+    // methods for loggings
+
+        // -- number of rearranges  (plan refinements)
+        // -- number of deletes (plan refinements)
+        // ---- number of times these are planner suggested things (plan refinements over planner; ghora dingie ghash category)
+        // -- number of times val asked (pleas for help)
+        // -- number of times suggest asked (pleas for help)
+        // -- number of adds (planning overhead with and without planning support)
+        // -- number of times explanation sought (pleas for help)
+        // -- number of times checked (failed attempts to submit)        
+
+    $(document).on('click', '.addButton', function(event) {
+    });
+
+    $(document).on('click', '.delete-action', function(event) {
+    });
+
+    $(document).on('drag', '.grid-stack-item', function(event) {
+    });
 
 });
