@@ -220,8 +220,10 @@ $(function () {
         }, function(data) {
 
             // On success, update planning panel and show feedback divs.
+            $( "#valFeedback" ).html( "" );
+
             is_valid = render_updated_plan( data );
-            enable_val_feedback( is_valid )
+            enable_val_feedback( is_valid );
 
         })
         .error( function() {
@@ -444,7 +446,7 @@ $(function () {
                 elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', ''));
                 elem.find('.form-control').addClass('text-danger');
 
-                $( "#valFeedback" ).html( "<br><br>" + node.name.split(";")[1] );
+                $( "#valFeedback" ).append( "<br><br>" + node.name.split(";")[1] );
 
             } 
 
