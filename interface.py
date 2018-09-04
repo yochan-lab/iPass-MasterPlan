@@ -52,8 +52,17 @@ class Interface:
             "completed_specialization": "Completing specialization specific courses for AI, Big Data or Cybersecurity",
             "completed_concentration": "Completing foundation, systems and application concentraitions",
             "defended": "Defending thesis work",
-            "not-is_international": "Alex is not an international student and so three courses in a semester",
-            "not-is_ra_ta": "Alex is not an RA/TA and so he can not take four courses in a semester"
+            "not-is_international": "As an international student, taking less than 3 courses in a semester",
+            "not-is_ra_ta": "Taking 4 courses in a semester, without being an RA/TA",
+            "is_ra_ta": "Only an RA/TA can take 4 courses in a semester",
+            "is_international": "An international student needs to take atleast 3 courses in a semester",
+            "not-has_taken": "Taking the same course {}, twice",
+            "not-sem_quota": "Taking less than 1 course and more than 4 courses,",
+            "not-current_num": "Adding more than 10 courses in the iPOS",
+            "not-selected": "Adding the same professor {}, twice in your committee",
+            "not-completed_specialization": "Adding the same specialization twice,",
+            "not-has_committee_chair": "Adding more than 1 chair to the committee",
+            "not-has_committee_member": "Adding more than 2 members (other than the chair)"
         }
 
     def getData(self, file_name):
@@ -69,7 +78,8 @@ class Interface:
     def actionsToUI(self, actions):
         #print ("[DEBUG] PDDL to UI : ", actions)
         ui_actions = {}
-        idx = 0 
+        idx = 0
+        self.global_feedback = []
         for action in actions:
             # resetting the parameters for the loop
             has_property = False
@@ -328,13 +338,14 @@ class Interface:
                     is_it_spicy         = condition_of_spice[1]
                     spice               = self.__formatFeedback(important_spice)
                     # convert the predicate to human readable feedbak
-                    if "false" in is_it_spicy:
+                    if "false" in is_it_spicy or "not" in important_spice :
                         fb = string_for_false.format(spice)
                     else:
                         fb = string_for_true.format(spice)
                     # ensuring similar UI feedbacks are not given to the user
-                    if fb not in ui_feedback:
+                    if fb not in ui_feedback and fb not in self.global_feedback:
                         ui_feedback.append(fb)
+                        self.global_feedback.append(fb)
 
         return ";".join(ui_feedback)
 
@@ -342,7 +353,27 @@ class Interface:
         # default case like defended, cse599a or cse599b is
         # handled from this key
         key = spice
-        if "has_taken" in spice and "cse599" not in spice:
+        if "not-has_taken" in spice:
+            key         = spice[0:13]
+            f           = self.feedback[key]
+            course      = spice[15:21].upper()
+            return f.format(self.courses[course][0] + " (" + course +  ")")
+        elif "not-sem_quota" in spice:
+            key         = spice[0:13]
+        elif "not-current_num" in spice:
+            key         = spice[0:15]
+        elif "not-selected" in spice:
+            key         = spice[0:12]
+            f           = self.feedback[key]
+            prof        = spice[13:]
+            return f.format(self.committee[prof.title()][0])
+        elif "not-completed_specialization" in spice:
+            key         = spice[0:28]
+        elif "not-has_committee_chair" in spice:
+            key         = spice[0:23]
+        elif "not-has_committee_member" in spice:
+            key         = spice[0:24]
+        elif "has_taken" in spice and "cse599" not in spice:
             #condition for course related feedback
             # all other kind of courses
             key         = spice[0:9]
@@ -359,21 +390,21 @@ class Interface:
             return f.format(expertise)
         elif "has_committee" in spice:
             # all committee related feedbacks have same comment
-            key = spice[0:13]
+            key         = spice[0:13]
         elif "completed_concentration" in spice:
             # all concentration have one message, to ensure there
             # are no biases against a specific concentration
-            key = spice[0:23]
+            key         = spice[0:23]
         elif "current_num" in spice:
             # any number of courses can be asked for completion
             # for different actions. I end up showing message for
             # 10 courses only. because it does not make sense that
             # I show complete one course in the case validate says
             # current_num_one to true
-            key = spice[0:11]
+            key         = spice[0:11]
         elif "sem_quota" in spice:
             # preferred courses are what I say in the message
-            key = spice[0:9]
+            key         = spice[0:9]
 
         return self.feedback[key]
 
