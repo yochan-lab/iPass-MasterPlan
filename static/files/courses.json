@@ -14,7 +14,7 @@
     "CSE550"  : ["Combinatorial Algorithms and Intractability", "foundations"],
     "CSE569"  : ["Fundamentals of Statistical Learning and Pattern Recognition", "foundations"],
     "CSE520"  : ["Computer Architecture", "systems"],
-    "CSE522"  : ["Real-Time Embedded Systems", "systems"],
+    "CSE522"  : ["Realtime Embedded Systems", "systems"],
     "CSE530"  : ["Embedded Operating Systems Internals", "systems"],
     "CSE531"  : ["Distributed and Multiprocessor Operating Systems", "systems"],
     "CSE534"  : ["Advanced Computer Networks", "systems"],
@@ -32,7 +32,7 @@
     "CSE566"  : ["Software Project, Process and Quality Management", "systems"],
     "CSE509"  : ["Digital Video Processing", "applications"],
     "CSE510"  : ["Database Management System Implementation", "applications"],
-    "CSE511"  : ["Semi-Structured Data Management", "applications"],
+    "CSE511"  : ["Semistructured Data Management", "applications"],
     "CSE512"  : ["Distributed Database Systems", "applications"],
     "CSE515"  : ["Multimedia and Web Databases", "applications"],
     "CSE570"  : ["Advanced Computer Graphics", "applications"],
@@ -44,7 +44,6 @@
     "CSE576"  : ["Topics in Natural Language Processing", "applications"],
     "CSE577"  : ["Advanced Geometric Modeling", "applications"],
     "CSE578"  : ["Data Visualization", "applications"],
-    "CSE592"  : ["Independent Study", "other"],
     "CSE599a" : ["Thesis Course A", "other"],
     "CSE599b" : ["Thesis Course B", "other"]
 }

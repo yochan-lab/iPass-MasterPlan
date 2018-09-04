@@ -8,11 +8,11 @@ class Interface:
         self.cache = dict()
         self.connector = connector
         self.num = [
-			"ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN",
-			"ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN",
-			"EIGHTEEN", "NINETEEN", "TWENTY", "TWENTYONE", "TWENTYTWO", "TWENTYTHREE", "TWENTYFOUR",
-			"TWENTYFIVE", "TWENTYSIX", "TWENTYSEVEN", "TWENTYEIGHT", "TWENTYNINE", "THIRTY"
-		]
+            "ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN",
+            "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN",
+            "EIGHTEEN", "NINETEEN", "TWENTY", "TWENTYONE", "TWENTYTWO", "TWENTYTHREE", "TWENTYFOUR",
+            "TWENTYFIVE", "TWENTYSIX", "TWENTYSEVEN", "TWENTYEIGHT", "TWENTYNINE", "THIRTY"
+        ]
         self.mapper = {
             "deficiency": "TAKE_DEFICIENCY_COURSE",
             "normal": "TAKE_NORMAL_COURSE",
@@ -50,10 +50,10 @@ class Interface:
             "completed_deficiency": "Completing deficiency courses",
             "chair_expertise": "Chosing an advisor for your thesis work from {} specialization",
             "completed_specialization": "Completing specialization specific courses for AI, Big Data or Cybersecurity",
-            "completed_concentration": "Completing foundation, systems and application concentraitions",
+            "completed_concentration": "Completing foundation, systems and application concentrations",
             "defended": "Defending thesis work",
             "not-is_international": "As an international student, taking less than 3 courses in a semester",
-            "not-is_ra_ta": "Taking 4 courses in a semester, without being an RA/TA",
+            "not-is_ra_ta": "Taking less than 3 courses if you are an RA/TA",
             "is_ra_ta": "Only an RA/TA can take 4 courses in a semester",
             "is_international": "An international student needs to take atleast 3 courses in a semester",
             "not-has_taken": "Taking the same course {}, twice",
@@ -105,6 +105,8 @@ class Interface:
                 ui_actions[idx] = str(act)
                 #whenever there is an action increment the index
                 idx += 1
+
+        #print ("[DEBUG] final actions from interface: ", ui_actions)
         return ui_actions
 
     '''
@@ -113,13 +115,13 @@ class Interface:
     '''
     def uiToActions(self, ui_actions):
         # Initializing global variables everytime request comes from the frontend
-        # print ("[DEBUG] UI to PDDL: ", ui_actions)
+        #print ("[DEBUG] UI to PDDL: ", ui_actions)
         ui_actions.sort(key = lambda action: action['y'])
         self.course_counter = 0
         self.sem_counter = 0
         self.committee_counter = 1
         self.committee_members = []
-        
+
         actions = {}
         end_sem_count_booster = 0
         for action in ui_actions:
@@ -131,6 +133,7 @@ class Interface:
                     end_sem_count_booster += 1
                 actions[action_pos+end_sem_count_booster] = "({})".format(action_list[i])
 
+        #print ("[DEBUG] ui_actions converted in interface : ", ui_actions)
         return actions
 
     def __get_action_name(self, action_name):
@@ -143,7 +146,7 @@ class Interface:
                 actionType = "Complete Semester"
             else:
                 actionType = "Defend"
-              
+        #print "[DEBUG] __get_action_name parameters: ", actionType, act      
         return [str(x) for x in self.__converter(actionType, act[1])]
 
     def __invertor(self, action):
@@ -314,9 +317,9 @@ class Interface:
     def __getFeedback(self, soup):
         if soup == "--":
             return soup
-        print "[DEBUG] feedback string from interface ", soup
+        #print "[DEBUG] feedback string from interface ", soup
 
-        string_for_true = "{} is(are) required"
+        string_for_true = "{} <b>before</b> the action is(are) required"
         string_for_false = "{}, can not be done"
         ui_feedback = []
 
@@ -356,7 +359,7 @@ class Interface:
         if "not-has_taken" in spice:
             key         = spice[0:13]
             f           = self.feedback[key]
-            course      = spice[15:21].upper()
+            course      = spice[14:21].upper()
             return f.format(self.courses[course][0] + " (" + course +  ")")
         elif "not-sem_quota" in spice:
             key         = spice[0:13]
