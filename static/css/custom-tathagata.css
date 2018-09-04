@@ -51,7 +51,7 @@ Custom styles from Tathagata
     cursor: pointer;
 }
 
-.col.col-8 > .form-control {
+#feedback .form-control {
     height: 360px;
 }
 

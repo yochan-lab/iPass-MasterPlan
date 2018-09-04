@@ -121,8 +121,6 @@ $(document).ready(function () {
     });
 
 
-    // method :: manage likert options
-
     // method :: sanity check on final submit 
     $( "#submitFinal" ).click( function() { 
 
@@ -161,8 +159,21 @@ $(document).ready(function () {
 
         if (success) {
 
-            console.log('LOG\n\n===\n\n' + feedback);            
-            $( "body" ).html( '<div class="container align-midmiddle end "><i class="fas fa-check-circle fa-10x text-success"></i></div>' );
+            feedback = 'LOG\n\n===\n\n' + feedback + '\n\n===\n\n' + num_rearranges + ';' + num_deletes + ';' + num_rearranges_of_suggestions + ';' + num_deletes_of_suggestions + ';'  + num_add + ';' + num_val + ';' + num_suggest + ';' + num_explain + ';' + num_checked; 
+
+            console.log(feedback);
+
+            // enable cors or add to app.py
+
+            $.ajax({
+                type: 'POST',
+                url: 'logs/',
+                data: feedback,
+                dataType: 'text',
+                success: function(data) {
+                    $( "body" ).html( '<div class="container align-midmiddle end "><i class="fas fa-check-circle fa-10x text-success"></i></div>' );
+                }
+            });
 
         } else {
 
@@ -322,6 +333,5 @@ $(document).ready(function () {
     $('#check').click( function() {
         num_checked++; 
     });
-
 
 });
