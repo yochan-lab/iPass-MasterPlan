@@ -116,6 +116,8 @@ $(function () {
 
     });
     
+    
+    
     // Remove any status bar (and explanation/undo buttons) at the start of some call.
     function hide_all_feedback() {
         $("#valFeedback").hide();
@@ -386,9 +388,23 @@ $(function () {
     };
     
     function updateData(action) {
-        serializedData.push({y:0, x:0, width:12, height: 1, name:action});
+    
+        res = getGridStackData();
+        hide_all_feedback();
+        
+        max_action = -1;
+        for (var i in res) {
+            action_val = res[i]['y']
+            if(action_val > max_action) {
+                max_action = action_val;
+            }
+        }
+        
+        serializedData = res
+        serializedData.push({y:max_action+1, x:0, width:12, height: 1, name:action});
         loadGrid();
         resizeGrid();
+        
     };
     
     grid = $('.grid-stack').data('gridstack');
