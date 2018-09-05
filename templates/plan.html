@@ -81,6 +81,22 @@ $('[data-toggle="tooltip"]').tooltip();
 $('[data-toggle="popover"]').tooltip();
 
 
+// 0 : no support 
+// 1 : only VAL
+// 2 : onky Suggest
+// 3 : both VAL and Suggest
+
+var condition = 3;
+
+if ( condition == 0 || condition == 2 ) {
+    $( "#validatePlan" ).parent().hide();
+}
+
+if ( condition == 0 || condition == 1 ) {
+    $( "#suggestPlan" ).parent().parent().hide();
+}
+
+
 $("#valFeedback").hide();
 $("#mrpFeedback").hide();
 $("#undoPlan").hide();
