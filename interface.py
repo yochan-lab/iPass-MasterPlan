@@ -66,7 +66,7 @@ class Interface:
         }
 
         self.actions = {
-            "take_normal_course": "Adding deficiency course",
+            "take_normal_course": "Adding normal course",
             "take_deficiency_course": "Adding deficiency course",
             "take_cse599a": "Adding thesis credit a",
             "take_cse599b": "Adding thesis credit b",
@@ -83,7 +83,7 @@ class Interface:
             "has_committee_chair_done": "chair to the committee",
             "has_committee_chair": "chair to the committee",
             "selected": "member is selected",
-            "has_taken": "has taken the course",
+            "has_taken": "has taken the deficiency courses",
             "has_committee_member2": "second member is part of the committee",
             "has_committee_member3": "third member is part of the committee",
             "completed_concentration": "completed the concentration of foundation, algorithm and systems",
@@ -103,7 +103,7 @@ class Interface:
     generated the corresponding dictionary of actions that can be displayed in the UI.
     '''
     def actionsToUI(self, actions, is_explanations=False):
-        #print ("[DEBUG] PDDL to UI : ", actions)
+        print ("[DEBUG] PDDL to UI : ", actions)
         
         # New action dict since some actions in the old list may
         # be omitted.
@@ -508,23 +508,33 @@ class Interface:
             #    continue
             pred = self.__convert_predicate(predicate)
 
-            if pred is not None:
+            print predicate, pred
+            if pred is not None and pred not in ui_explanations:
                 ui_explanations.append(pred)
         
-        return "<br/>".join(ui_explanations)
+        return "\n".join(ui_explanations)
 
     def __convert_predicate(self, model_difference):
+        pred = ""
+        act = ""
+        s = ""
         # ppe can be about action precondition, add or delete effects
-        if "precondition" in model_difference:
-            act, pred = model_difference.split("-has-precondition-")
+        if "has-preconditon" in model_difference:
+            s = "-has-preconditon-"
             kind = "requires"
+        elif "has-neg-preconditon" in model_difference:
+            # negative preconditions are for book keeping so killing it right here
+            return None
         elif "add" in model_difference:
-            act, pred = model_difference.split("-has-add-effect-")
+            s = "-has-add-effect-"
             kind = "adds"
         elif "delete" in model_difference:
-            act, pred = model_difference.split("-has-delete-effect-")
+            s = "-has-delete-effect-"
             kind = "deletes"
 
+        act, pred = model_difference.split(s)
+        pred = pred.strip()
+        act = act.strip()
         # removing the predicate parameters
         if " " in pred:
             pred = pred.split(" ")[0]
