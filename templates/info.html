@@ -1,7 +1,9 @@
 <div id="info">
 
 <div class="row">
-    <div class="col">
+
+    <div class="col col-7">
+
         <div class="card bg-light mb-3" style="max-width: 100%;">
             <div class="card-header">
                 <strong>Student Information</strong>
@@ -17,14 +19,10 @@
                 </li>
            </ul>
         </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col">
         <div class="card bg-light mb-3" style="max-width: 100%;">
             <div class="card-header">
-                <strong>Deficiencies Completed</strong>
+                <strong>Deficiencies Already Completed</strong>
             </div>
             <ul class="list-group">
                 <li class="list-group-item" id="CSE230">
@@ -54,108 +52,109 @@
             </ul>
         </div>
     </div>
-</div>
 
-<div class="row" id="add2plan">
-    <div class="col">
-        <div class="card mb-3">
-            <div class="card-header mb-2">
-                <strong>Build iPOS</strong>
-            </div>
+    <div class="col col-5">
+        <div class="" id="add2plan">
+            <div class="card mb-3">
+                <div class="card-header mb-2">
+                    <strong>Build iPOS</strong>
+                </div>
 
-            <div class="input-group input-group-sm mb-2">
-                <div class="dropdown form-control">
-                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="courseList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Click to Add Courses
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="courseList"></div>
-                </div>
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success addButton" type="button">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="input-group input-group-sm mb-2">
-                <div class="dropdown form-control">
-                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="chairList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Click to Add Committee Chair
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="chairList"></div>
-                </div>
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success addButton" type="button">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="input-group input-group-sm mb-2">
-                <div class="dropdown form-control">
-                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="committeeList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Click to Add Committee Members
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="committeeList"></div>
-                </div>
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success addButton" type="button">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="input-group input-group-sm mb-2">
-                <div class="dropdown form-control">
-                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="specializationList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Click to Add Specialization
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="SpecializationList">
-                        <a class="dropdown-item" href="#" id="select-semester">Big Data</a>
-                        <a class="dropdown-item" href="#" id="select-defense">AI</a>
-                        <a class="dropdown-item" href="#" id="select-semester">Cybersecurity</a>
+                <div class="input-group input-group-sm mb-2">
+                    <div class="dropdown form-control">
+                        <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="courseList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Click to Add Courses
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="courseList"></div>
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success addButton" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success addButton" type="button">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
 
-            <div class="input-group input-group-sm">
-                <div class="dropdown form-control">
-                    <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="List" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Click to Add End of Semesters
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="List">
-                        <a class="dropdown-item" href="#" id="select-semester">End of Semester</a>
-                        <a class="dropdown-item" href="#" id="select-defense">Defense</a>
+                <div class="input-group input-group-sm mb-2">
+                    <div class="dropdown form-control">
+                        <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="chairList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Click to Add Committee Chair
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="chairList"></div>
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success addButton" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success addButton" type="button">
-                        <i class="fas fa-plus"></i>
-                    </button>
+
+                <div class="input-group input-group-sm mb-2">
+                    <div class="dropdown form-control">
+                        <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="committeeList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Click to Add Committee Members
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="committeeList"></div>
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success addButton" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
+
+                <div class="input-group input-group-sm mb-2">
+                    <div class="dropdown form-control">
+                        <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="specializationList" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Click to Add Specialization
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="SpecializationList">
+                            <a class="dropdown-item" href="#" id="select-semester">Big Data</a>
+                            <a class="dropdown-item" href="#" id="select-defense">AI</a>
+                            <a class="dropdown-item" href="#" id="select-semester">Cybersecurity</a>
+                        </div>
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success addButton" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group input-group-sm">
+                    <div class="dropdown form-control">
+                        <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" id="List" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Click to Add End of Semesters
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="List">
+                            <a class="dropdown-item" href="#" id="select-semester">End of Semester</a>
+                            <a class="dropdown-item" href="#" id="select-defense">Defense</a>
+                        </div>
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success addButton" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
             </div>
+        </div>
 
+        <div class="container">
+            <div class="alert alert-danger small alert-block" role="alert" id="valAlertNegative">
+                This is not a valid iPOS! Try again.
+            </div>
+            <button class="btn btn-outline-success btn-sm btn-block mb-4" id="check">
+                Check
+            </button>
+            <div class="alert alert-success small alert-block" role="alert" id="valAlertPositive">
+                This is a valid iPOS! Click Submit to submit if you are happy with it or continue working on it.
+            </div>
+            <button class="btn btn-success btn-sm btn-block mb-4 spy-enabled" role="button" id="submit" href="#feedback">
+                Submit
+            </button>
         </div>
-    </div>
 
-    <div class="container">
-        <div class="alert alert-danger small alert-block" role="alert" id="valAlertNegative">
-            This is not a valid iPOS! Try again.
-        </div>
-        <button class="btn btn-outline-success btn-sm btn-block mb-4" id="check">
-            Check
-        </button>
-        <div class="alert alert-success small alert-block" role="alert" id="valAlertPositive">
-            This is a valid iPOS! Click Submit to submit if you are happy with it or continue working on it.
-        </div>
-        <button class="btn btn-success btn-sm btn-block mb-4 spy-enabled" role="button" id="submit" href="#feedback">
-            Submit
-        </button>
     </div>
 
 </div>
