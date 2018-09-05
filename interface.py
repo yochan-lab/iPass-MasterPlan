@@ -73,7 +73,8 @@ class Interface:
             "complete_semester": "End of Semester",
             "select_committee_chair": "Selecting committee chair",
             "select_committee_member_2": "Selecting second committee member",
-            "select_committee_member_3": "Selecting third committee member" 
+            "select_committee_member_3": "Selecting third committee member",
+            "defend": "Scheduling defense action"
         }
 
         self.predicates = {

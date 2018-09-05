@@ -364,7 +364,7 @@ $(function () {
                         if ( val.indexOf( '~~~' ) < 0 ) {
                             console.log(val)
                             explainObj = $(this).parent().parent().find( ".explain-action" );
-                            explainObj.attr( "data-content", val.split(':')[1] );
+                            explainObj.attr( "data-content", val.split(';')[1] );
                             explainObj.show();
                         }
 
