@@ -79,6 +79,12 @@ def get_explanations():
     explanations = planner.get_explanations(ui_to_pddl_actions(request, is_get_request=True))
     return jsonify( pddl_to_ui_actions(explanations) )
 
+@app.route("/logs/", methods=['POST'])
+def log_activity():
+    data = request.get_data()
+    planner.write_user_activity(data)
+    return 'OK'
+
 def main(host='127.0.0.1'):
     app.run(host=host,
             port=5000,

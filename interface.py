@@ -86,7 +86,10 @@ class Interface:
             "has_taken": "has taken the course",
             "has_committee_member2": "second member is part of the committee",
             "has_committee_member3": "third member is part of the committee",
-            "completed_concentration": "completed the concentration of foundation, algorithm and systems"
+            "completed_concentration": "completed the concentration of foundation, algorithm and systems",
+            "sem_quota": "user has not taken 4 courses in the semester",
+            "current_num": "user has not taken 10 courses",
+            "is_concentration": "course has appropriate concentration for user to complete"
         }
 
     def getData(self, file_name):
@@ -499,29 +502,28 @@ class Interface:
                 continue
 
             difference, predicate = [x.strip().strip("'") for x in exp[1:-1].split(",")]
-            if "ADD" not in difference:
-                continue
-                # model deletion string
+            # removed the condition as we need to put the add and delete
+            # model differences back in the model.
+            #if "ADD" in difference:
+            #    continue
             pred = self.__convert_predicate(predicate)
 
             if pred is not None:
                 ui_explanations.append(pred)
         
-        return "<br>".join(ui_explanations)
+        return "<br/>".join(ui_explanations)
 
     def __convert_predicate(self, model_difference):
         # ppe can be about action precondition, add or delete effects
         if "precondition" in model_difference:
             act, pred = model_difference.split("-has-precondition-")
             kind = "requires"
-        else:
-            return None
-        #elif "add" in model_difference:
-            # act, pred = model_difference.split("-has-add-effect-")
-            # kind = "adds"
-        #elif "delete" in model_difference:
-            # act, pred = model_difference.split("-has-delete-effect-")
-            # kind = "deletes"
+        elif "add" in model_difference:
+            act, pred = model_difference.split("-has-add-effect-")
+            kind = "adds"
+        elif "delete" in model_difference:
+            act, pred = model_difference.split("-has-delete-effect-")
+            kind = "deletes"
 
         # removing the predicate parameters
         if " " in pred:

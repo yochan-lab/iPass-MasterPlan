@@ -170,7 +170,8 @@ $(function () {
         .error( function() {
 
             // On failure, alert front-end user of server side error.
-            alert('Server side error when checking plan!')
+            //alert('Server side error when checking plan!')
+            enable_check_feedack(false);
 
         });
 
@@ -253,7 +254,8 @@ $(function () {
         .error( function() {
 
             // On failure, alert front-end user of server side error.
-            alert('Server side error when validating plan!')
+            // alert('Server side error when validating plan!')
+            enable_val_feebdack(false);
 
         });
     })
@@ -304,7 +306,8 @@ $(function () {
             .error( function() {
 
                 // On failure, alert front-end user of server side error.
-                alert('Server side error when finding a plan!')
+                // alert('Server side error when finding a plan!')
+                enable_suggest_feebdack(false);
 
             });
         })
@@ -365,6 +368,9 @@ $(function () {
                 });
 
             });
+        }).error(function(){
+            $("#mrpFeedback").addClass("alert-danger");
+            $("#mrpFeedback").html("Explanations could not be loaded! Please try later");
         });
         
     });    

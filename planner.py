@@ -4,6 +4,7 @@ import subprocess
 import problem_generator.compilePDDL as problem_generator
 from shutil import copy as copyf
 from copy import deepcopy
+import time
 
 
 class Planner():
@@ -12,6 +13,7 @@ class Planner():
 
         self.PLAN_FILES_DIR = './plan_utils/{}'
         self.PDDL_FILES_DIR = 'problem_generator/output/{}'
+        self.USER_ACTIVITY_DIR = 'logs/{}'
 
         # File paths to planning technologies
         self.CALL_FF = self.PLAN_FILES_DIR.format('ff')
@@ -50,6 +52,9 @@ class Planner():
         # Files for storing problem state as a json
         self.problem_state_json = './static/files/state.json'
 
+        # Files for writing logs for user activity
+        self.log_file = self.USER_ACTIVITY_DIR.format('logs_{}.txt')
+
     '''
     Creates the problem.pddl file
         @Input - Goal for which planning problem is to be made
@@ -68,6 +73,9 @@ class Planner():
 
         # Removing observation during problem initialization
         copyf(self.blank_obs, self.obs)
+
+        # create a log file for the new user, when server starts
+        self.log_file = self.log_file.format(time.time())
 
     '''
     Saves the plan from the frontend to a file that can restore it.
@@ -472,3 +480,10 @@ class Planner():
             self.domain = fname.split('.pddl')[0] + '_modify.pddl'
         else:
             self.human_domain = fname.split('.pddl')[0] + '_modify.pddl'
+
+    '''
+    ' writes user activity received from the browser to the log_file
+    '''
+    def write_user_activity(self, data):
+        with open(self.log_file, 'w') as f:
+            f.write(data)
