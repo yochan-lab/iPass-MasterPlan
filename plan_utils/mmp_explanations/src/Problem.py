@@ -39,20 +39,30 @@ class Problem:
                 # Since we do not have costs in the domain, set makespan as the cost
                 self.cost = len(self.plan)
             
-        ground(robotModelFile, problemFile)
+        ground1(robotModelFile, problemFile)
         self.groundedRobotPlanFile   = '../domain/cache_grounded_plan.dat'
         with open(self.groundedRobotPlanFile, 'w') as plan_file:
             plan_file.write('\n'.join(['{}'.format(item) for item in self.plan]) + '\n; cost = {} (unit cost)'.format(self.cost))
-        self.ground_state = set(read_state_from_domain_file('tr-domain.pddl'))
+        self.ground_state = set(read_state_from_domain_file('tr-domain.pddl', 'tr-problem.pddl'))
         ground(humanModelFile, problemFile)
 
-        try:    self.initialState = set(read_state_from_domain_file('tr-domain.pddl'))
+        try:    self.initialState = set(read_state_from_domain_file('tr-domain.pddl', 'tr-problem.pddl'))
         except: self.initialState = set()
 
         # Do plan patch explanations for the domain
         add_set          = self.ground_state.difference(self.initialState)
         del_set          = self.initialState.difference(self.ground_state)
-        
+       
+        #print (add_set)
+        #print (del_set)
+        #with open('/tmp/log1','w') as l_fd:
+        #     l_fd.write("\n".join(list(add_set)))
+        #with open('/tmp/log2','w') as l_fd:
+        #          l_fd.write("\n".join(list(del_set)))
+
+        #exit(0)
+
+
         myap = {}
         for cond in add_set:
             act = cond.split('-has-')[0]
@@ -124,6 +134,10 @@ class Problem:
 
         add_set          = ground_state.difference(state)
         del_set          = state.difference(ground_state)
+
+        #print (add_set)
+        #print (del_set)
+        #exit(0)
 
         for item in add_set:
             new_state    = copy.deepcopy(state)

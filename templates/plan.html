@@ -331,15 +331,14 @@ $(function () {
             
             console.log( data )
 
-            var explanations = JSON.parse(data);
-
-            jQuery.each(obj, function(i, val) {
+            jQuery.each(data, function(i, val) {
 
                 $( ".display-action-name" ).each( function( index ) {
 
                     if ( $( this ).html().indexOf(val.split(';')[0].trim()) > -1  ) {
 
-                        if ( val.indexOf( '~~~' ) == -1 ) {
+                        if ( val.indexOf( '~~~' ) < 0 ) {
+                            console.log(val)
                             explainObj = $(this).parent().parent().find( ".explain-action" );
                             explainObj.attr( "data-content", val );
                             explainObj.show();
@@ -350,11 +349,6 @@ $(function () {
                 });
 
             });
-
-            $( ".explain-action" ).each( function( index ) {
-                $( this ).show();
-            });
-            
         });
         
     });    
