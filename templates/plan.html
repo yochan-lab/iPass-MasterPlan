@@ -215,10 +215,10 @@ $(function () {
 
     $('#validatePlan').click( function() {
 
-        $( "#refresh" ).show();
-
         res = getGridStackData();
         hide_all_feedback();       
+
+        $( "#refresh" ).show();
 
         // New ajax call to validate plan
         $.getJSON($SCRIPT_ROOT + '/validate', {
@@ -266,10 +266,10 @@ $(function () {
 
     $('#suggestPlan').click( function() {
 
-        $( "#refresh" ).show();
-
         res = getGridStackData();
         hide_all_feedback();
+
+        $( "#refresh" ).show();
 
         // New ajax call to suggest plan completion
         $.getJSON($SCRIPT_ROOT + '/suggest', {
@@ -330,6 +330,27 @@ $(function () {
         }, function(data) {
             
             console.log( data )
+
+            var explanations = JSON.parse(data);
+
+            jQuery.each(obj, function(i, val) {
+
+                $( ".display-action-name" ).each( function( index ) {
+
+                    if ( $( this ).html().indexOf(val.split(';')[0].trim()) > -1  ) {
+
+                        if ( val.indexOf( '~~~' ) == -1 ) {
+                            explainObj = $(this).parent().parent().find( ".explain-action" );
+                            explainObj.attr( "data-content", val );
+                            explainObj.show();
+                        }
+
+                    }
+
+                });
+
+            });
+
             $( ".explain-action" ).each( function( index ) {
                 $( this ).show();
             });
@@ -425,7 +446,7 @@ $(function () {
                                 <div class="grid-stack-item-content" data-gs-no-resize="true"> \
                                     <div class="input-group input-group-sm"> \
                                         <div class="form-control bg-light align-midmiddle"> \
-                                            <span>[DISPLAY]</span> \
+                                            <span class="display-action-name">[DISPLAY]</span> \
                                         </div> \
                                         <div class="input-group-append"> \
                                             <button class="btn btn-success explain-action" data-toggle="popover" title="Details" data-content="[EXPLAIN]"> \
@@ -449,13 +470,10 @@ $(function () {
             if (node.name.includes(';--')) {
 
                 action_name = '<i class="fas fa-plus-circle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
-                reason = node.name.substr(node.name.indexOf(';--'), node.name.length);
-                elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', reason));
 
-                if ( reason.indexOf('~~~') > -1 ) {
-                    elem.find( '.explain-action' ).remove();
-                }
+                // reason = node.name.substr(node.name.indexOf(';--'), node.name.length);
 
+                elem = $(widgetHTML.replace('[DISPLAY]', action_name));
                 elem.find('.form-control').addClass('text-success');
 
             } 
@@ -464,7 +482,7 @@ $(function () {
             else if (node.name.includes(';')) {
                 
                 action_name = '<i class="fas fa-exclamation-triangle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
-                elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', ''));
+                elem = $(widgetHTML.replace('[DISPLAY]', action_name));
                 elem.find('.form-control').addClass('text-danger');
 
                 $( "#valFeedback" ).append( "<br><br>" + node.name.split(";")[1] );
@@ -474,7 +492,7 @@ $(function () {
             // human added actions
             else {
 
-                elem = $(widgetHTML.replace('[DISPLAY]', node.name).replace('[EXPLAIN]', ''));
+                elem = $(widgetHTML.replace('[DISPLAY]', node.name));
 
             }
 
