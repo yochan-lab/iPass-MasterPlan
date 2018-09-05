@@ -309,12 +309,26 @@ $(document).ready(function () {
 
     });
 
-    $(document).on('drag', '.grid-stack-item', function(event) {
+    var drag_flag = false;
 
-        num_rearranges++; 
+    $(document).on('mousedown', '.grid-stack-item', function(event) {
+        drag_flag = false;
+    });
 
-        if ( $(this).find('.form-control').hasClass('text-success') ) {
-            num_rearranges_of_suggestions++; 
+    $(document).on('mousemove', '.grid-stack-item', function(event) {
+        drag_flag = true;
+    });
+
+    $(document).on('mouseup', '.grid-stack-item', function(event) {
+
+        if( drag_flag ) {
+
+            num_rearranges++; 
+
+            if ( $(this).find('.form-control').hasClass('text-success') ) {
+                num_rearranges_of_suggestions++; 
+            }
+
         }
 
     });

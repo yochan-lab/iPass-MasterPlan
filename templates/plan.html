@@ -156,6 +156,8 @@ $(function () {
         res = getGridStackData();
         hide_all_feedback()
         
+        $( "#refresh" ).show();
+
         // New ajax call to validate plan
         $.getJSON($SCRIPT_ROOT + '/check', {
 
@@ -178,6 +180,9 @@ $(function () {
     });
 
     function enable_check_feedback( is_plan_complete ){
+
+        $( "#refresh" ).hide();
+
         if ( is_plan_complete ) {
 
             $("#valAlertPositive").show();
@@ -359,7 +364,7 @@ $(function () {
                         if ( val.indexOf( '~~~' ) < 0 ) {
                             console.log(val)
                             explainObj = $(this).parent().parent().find( ".explain-action" );
-                            explainObj.attr( "data-content", val );
+                            explainObj.attr( "data-content", val.split(':')[1] );
                             explainObj.show();
                         }
 
