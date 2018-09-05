@@ -65,6 +65,30 @@ class Interface:
             "not-has_committee_member": "Adding more than 2 members (other than the chair)"
         }
 
+        self.actions = {
+            "take_normal_course": "Adding deficiency course",
+            "take_deficiency_course": "Adding deficiency course",
+            "take_cse599a": "Adding thesis credit a",
+            "take_cse599b": "Adding thesis credit b",
+            "complete_semester": "End of Semester",
+            "select_committee_chair": "Selecting committee chair",
+            "select_committee_member_2": "Selecting second committee member",
+            "select_committee_member_3": "Selecting third committee member" 
+        }
+
+        self.predicates = {
+            "chair_expertise": "chair has expertiese in the area of specialization",
+            "is_expert": "is an expert in the specialization",
+            "is_concentration": "a course should have correct concentration",
+            "has_committee_chair_done": "chair to the committee",
+            "has_committee_chair": "chair to the committee",
+            "selected": "member is selected",
+            "has_taken": "has taken the course",
+            "has_committee_member2": "second member is part of the committee",
+            "has_committee_member3": "third member is part of the committee",
+            "completed_concentration": "completed the concentration of foundation, algorithm and systems"
+        }
+
     def getData(self, file_name):
         with open(file_name, 'r') as f:
             data = json.load(f)
@@ -75,9 +99,32 @@ class Interface:
     Given an output plan (list of actions) with validation or suggesting action markers,
     generated the corresponding dictionary of actions that can be displayed in the UI.
     '''
-    def actionsToUI(self, actions):
+    def actionsToUI(self, actions, is_explanations=False):
         #print ("[DEBUG] PDDL to UI : ", actions)
+        
+        # New action dict since some actions in the old list may
+        # be omitted.
         ui_actions = {}
+
+        if is_explanations:
+            for k in actions.keys():
+                action, explanation = actions[k].split(";")
+                actionArray = self.__action_to_array(action)
+                if not actionArray:
+                    continue    
+                act = self.__invertor(actionArray)
+                explanation = self.__get_explanation(explanation)
+                if not act:
+                    continue
+                act += ";"
+                if explanation:
+                    ui_actions[k] = act + explanation
+                else:
+                    ui_actions[k] = act + "~~~"
+
+            return ui_actions
+        
+        # code for feedback on validate and 
         idx = 0
         self.global_feedback = []
         for action in actions:
@@ -90,12 +137,10 @@ class Interface:
                 action, a_property = action.split(";")
                 has_property = True
 
-            # Map the action name to UI action name
-            action = action[1: -1]
-            # splits the action to convert an array. In case of empty string we go to next action.
-            if action.find("_") >= 0:   actionArray = action.split("_")
-            elif action:                actionArray = [action]
-            else:                       continue
+            actionArray = self.__action_to_array(action)
+
+            if not actionArray:
+                continue
 
             act = self.__invertor(actionArray)
             if act is not None:
@@ -135,6 +180,22 @@ class Interface:
 
         #print ("[DEBUG] ui_actions converted in interface : ", ui_actions)
         return actions
+
+    '''
+    Returns action name split by _
+    '''
+    def __action_to_array(self, action):
+        # Map the action name to UI action name
+        action = action[1: -1]
+        # splits the action to convert an array. In case of empty string we go to next action.
+        if action.find("_") >= 0:
+            actionArray = action.split("_")
+        elif action:
+            actionArray = [action]
+        else:
+            actionArray = None
+
+        return actionArray
 
     def __get_action_name(self, action_name):
         if action_name.find("-"):
@@ -321,7 +382,7 @@ class Interface:
             return soup
         #print "[DEBUG] feedback string from interface ", soup
 
-        string_for_true = "{} <b>before</b> the action is(are) required"
+        string_for_true = "{} <b>before</b> the action required"
         string_for_false = "{}, can not be done"
         ui_feedback = []
 
@@ -413,6 +474,66 @@ class Interface:
 
         return self.feedback[key]
 
+    def __get_explanation(self, explanation):
+        explanations = []
+        ui_explanations = []
+        if "\n" not in explanation:
+            # only one explanation
+            if ">>" not in explanation:
+                # not even one explanation 
+                return None
+            else:
+                explanations = [explanation]
+        else:
+            explanations = explanation.split("\n")
+
+        # error handling completed
+        if not explanations:
+            return None
+
+        for exp in explanations:
+            # there is only one, there are two values after splitting
+            # difference tells the kind of model difference
+            # predicate is the predicate which is different
+            if not exp:
+                continue
+
+            difference, predicate = [x.strip().strip("'") for x in exp[1:-1].split(",")]
+            if "ADD" not in difference:
+                continue
+                # model deletion string
+            pred = self.__convert_predicate(predicate)
+
+            if pred is not None:
+                ui_explanations.append(pred)
+        
+        return "<br>".join(ui_explanations)
+
+    def __convert_predicate(self, model_difference):
+        # ppe can be about action precondition, add or delete effects
+        if "precondition" in model_difference:
+            act, pred = model_difference.split("-has-precondition-")
+            kind = "requires"
+        else:
+            return None
+        #elif "add" in model_difference:
+            # act, pred = model_difference.split("-has-add-effect-")
+            # kind = "adds"
+        #elif "delete" in model_difference:
+            # act, pred = model_difference.split("-has-delete-effect-")
+            # kind = "deletes"
+
+        # removing the predicate parameters
+        if " " in pred:
+            pred = pred.split(" ")[0]
+
+        if "semester" in act:
+            act = "complete_semester"
+
+        if pred not in self.predicates or act not in self.actions:
+            return None
+        return self.actions[act] + " " + kind + " " + self.predicates[pred]
+
 def test_invertor():
     plan = [
         "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
@@ -479,6 +600,37 @@ def test():
     inter = Interface(" ")
     print(inter.uiToActions(plan))
 
+def test_explanations():
+    plan = {
+		"0": "(SELECT_COMMITTEE_CHAIR_LIU_BIG_DATA);('ADD>>', 'select_committee_chair-has-precondition-is_expert ?p ?x')\n('ADD>>', 'select_committee_chair-has-add-effect-chair_expertise ?x')\n('ADD>>', 'select_committee_chair-has-add-effect-has_committee_chair_done')\n('ADD>>', 'select_committee_chair-has-precondition-selected ?p')\n('ADD>>', 'select_committee_chair-has-precondition-has_committee_chair_done')\n('ADD>>', 'select_committee_chair-has-add-effect-has_committee_chair ?p')\n('ADD>>', 'select_committee_chair-has-add-effect-selected ?p')\n",
+		"2": "(TAKE_DEFICIENCY_COURSE_CSE330_ZERO_ONE_ZERO_ONE);('DEL>>', 'take_deficiency_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_deficiency_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_deficiency_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-current_num ?n1')\n",
+		"3": "(SELECT_COMMITTEE_MEMBER_3_AMOR);('DEL>>', 'select_committee_member_3-has-add-effect-selected ?p')\n('DEL>>', 'select_committee_member_3-has-precondition-selected ?p')\n('DEL>>', 'select_committee_member_3-has-precondition-has_committee_member2')\n('DEL>>', 'select_committee_member_3-has-add-effect-has_committee_member3')\n('DEL>>', 'select_committee_member_3-has-add-effect-has_committee_done')\n",
+		"4": "(TAKE_DEFICIENCY_COURSE_CSE230_ZERO_ONE_ONE_TWO);('DEL>>', 'take_deficiency_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_deficiency_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_deficiency_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-current_num ?n1')\n",
+		"5": "(TAKE_DEFICIENCY_COURSE_CSE340_ZERO_ONE_TWO_THREE);('DEL>>', 'take_deficiency_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_deficiency_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_deficiency_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-current_num ?n1')\n",
+		"6": "(TAKE_NORMAL_COURSE_CSE510_APPLICATIONS_ZERO_ONE_THREE_FOUR);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
+		"7": "(COMPLETE_SEMESTER_4);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
+		"8": "(COMPLETE_SEMESTER);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
+		"9": "(TAKE_CSE599A_ONE_TWO_ZERO_ONE);('DEL>>', 'take_CSE599a-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_CSE599a-has-precondition-current_num ?n1')\n('DEL>>', 'take_CSE599a-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_CSE599a-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_CSE599a-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_CSE599a-has-add-effect-has_taken CSE599a')\n('DEL>>', 'take_CSE599a-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_CSE599a-has-add-effect-current_num ?n2')\n('DEL>>', 'take_CSE599a-has-delete-effect-current_num ?n1')\n",
+		"10": "(TAKE_NORMAL_COURSE_CSE563_SYSTEMS_TWO_THREE_ONE_TWO);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
+		"11": "(TAKE_NORMAL_COURSE_CSE555_FOUNDATIONS_THREE_FOUR_TWO_THREE);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
+		"12": "(TAKE_NORMAL_COURSE_CSE512_APPLICATIONS_FOUR_FIVE_THREE_FOUR);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
+		"13": "(COMPLETE_SEMESTER_4);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
+		"14": "(COMPLETE_SEMESTER);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
+		"15": "(TAKE_NORMAL_COURSE_CSE574_APPLICATIONS_FIVE_SIX_ZERO_ONE);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
+		"16": "(TAKE_NORMAL_COURSE_CSE552_FOUNDATIONS_SIX_SEVEN_ONE_TWO);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
+		"17": "(TAKE_NORMAL_COURSE_CSE572_APPLICATIONS_SEVEN_EIGHT_TWO_THREE);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
+		"18": "(SPECIALIZE_BIG_DATA);('DEL>>', 'specialize_big_data-has-add-effect-completed_specialization')\n",
+		"19": "(TAKE_NORMAL_COURSE_CSE565_SYSTEMS_EIGHT_NINE_THREE_FOUR);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
+		"20": "(COMPLETE_SEMESTER_4);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
+		"21": "(COMPLETE_SEMESTER);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
+		"22": "(TAKE_CSE599B_NINE_TEN_ZERO_ONE);('DEL>>', 'take_CSE599b-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_CSE599b-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_CSE599b-has-add-effect-has_taken CSE599b')\n('DEL>>', 'take_CSE599b-has-add-effect-current_num ?n2')\n('DEL>>', 'take_CSE599b-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_CSE599b-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_CSE599b-has-precondition-current_num ?n1')\n('DEL>>', 'take_CSE599b-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_CSE599b-has-precondition-sem_quota ?s1')\n",
+		"23": "(DEFEND);('DEL>>', 'defend-has-add-effect-defended')\n"
+	} 
+
+    inter = Interface()
+    print inter.actionsToUI(plan, True)
+
 if __name__ == "__main__":
     #test()
-    test_invertor()
+    #test_invertor()
+    test_explanations()

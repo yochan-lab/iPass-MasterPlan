@@ -12,10 +12,14 @@ translator = Interface()
 planner.definePlanningProblem()
 
 ''' Helper actions '''
-def pddl_to_ui_actions():
-    # Get the plan to be showed in the planning panel
-    action_seq = planner.get_action_sequence_list()
-    return translator.actionsToUI(action_seq)
+def pddl_to_ui_actions(action_list = None):
+    if not action_list:
+        # Get the plan to be showed in the planning panel
+        action_list = planner.get_action_sequence_list()
+        return translator.actionsToUI(action_list)
+    else:
+        return translator.actionsToUI(action_list, True)
+
 
 def ui_to_pddl_actions(request, is_get_request=False):
     if is_get_request:
@@ -73,7 +77,7 @@ def get_explanations():
     print('[DEBUG] Generating Plan Explanation(s) ...')
     planner.save_plan()
     explanations = planner.get_explanations(ui_to_pddl_actions(request, is_get_request=True))
-    return jsonify(explanations)
+    return jsonify( pddl_to_ui_actions(explanations) )
 
 def main(host='127.0.0.1'):
     app.run(host=host,
