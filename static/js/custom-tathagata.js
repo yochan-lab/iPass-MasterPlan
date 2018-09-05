@@ -160,6 +160,7 @@ $(document).ready(function () {
         if (success) {
 
             feedback = 'LOG\n\n===\n\n' + feedback + '\n\n===\n\n' + num_rearranges + ';' + num_deletes + ';' + num_rearranges_of_suggestions + ';' + num_deletes_of_suggestions + ';'  + num_add + ';' + num_val + ';' + num_suggest + ';' + num_explain + ';' + num_checked; 
+            feedback = feedback + '\n\n===\n\n' + $( "#countdown" ).html();
 
             console.log(feedback);
 
