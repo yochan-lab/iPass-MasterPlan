@@ -49,6 +49,9 @@
 
                         <div class="row">
                             <div class="container">
+                                <div class="alert alert-light alert-block" role="alert" id="refresh">
+                                    Computing <img src="static/images/refresh.gif"/ width="30px">
+                                </div>
                                 <div class="alert alert-danger alert-block" role="alert" id="valFeedback">
                                 </div>
                                 <div class="alert alert-success alert-block" role="alert" id="mrpFeedback">
@@ -82,6 +85,7 @@ $("#valFeedback").hide();
 $("#mrpFeedback").hide();
 $("#undoPlan").hide();
 $("#explainPlan").hide();
+$("#refresh").hide();
 
 $.extend({
     redirectPost: function(location, args)
@@ -127,6 +131,7 @@ $(function () {
         $("#valAlertNegative").hide();
         $("#valAlertPositive").hide();
         $("#submit").hide();
+        $("#refresh").hide();
     }
     
     // method :: check iPOS
@@ -209,6 +214,9 @@ $(function () {
     };
 
     $('#validatePlan').click( function() {
+
+        $( "#refresh" ).show();
+
         res = getGridStackData();
         hide_all_feedback();       
 
@@ -237,6 +245,7 @@ $(function () {
     // Show status bar to indicate the validity of a plan
     function enable_val_feedback( success ) {
 
+        $( "#refresh" ).hide();
         $( "#valFeedback" ).show();
         $( "#valFeedback" ).removeClass( "alert-danger" );
         $( "#valFeedback" ).removeClass( "alert-success" );
@@ -256,6 +265,8 @@ $(function () {
     };
 
     $('#suggestPlan').click( function() {
+
+        $( "#refresh" ).show();
 
         res = getGridStackData();
         hide_all_feedback();
@@ -285,6 +296,7 @@ $(function () {
     // Show status message and explanation button if plan completion occurs.
     function enable_suggest_feedback( plan_found ) {
 
+        $( "#refresh" ).hide();
         $( "#mrpFeedback" ).show();
         $( "#mrpFeedback" ).removeClass( "alert-danger" );
         $( "#mrpFeedback" ).removeClass( "alert-success" );
@@ -403,6 +415,7 @@ $(function () {
     };
     
     grid = $('.grid-stack').data('gridstack');
+    grid.enableResize(false, true);
 
     loadGrid = function () {
 
@@ -436,9 +449,14 @@ $(function () {
             if (node.name.includes(';--')) {
 
                 action_name = '<i class="fas fa-plus-circle"></i>&nbsp;' + node.name.substr(0, node.name.indexOf(';'));
-                reason = node.name.substr(node.name.indexOf(';'), node.name.length);
+                reason = node.name.substr(node.name.indexOf(';--'), node.name.length);
                 elem = $(widgetHTML.replace('[DISPLAY]', action_name).replace('[EXPLAIN]', reason));
-                elem.find('.form-control').addClass('text-success');                
+
+                if ( reason.indexOf('~~~') > -1 ) {
+                    elem.find( '.explain-action' ).remove();
+                }
+
+                elem.find('.form-control').addClass('text-success');
 
             } 
 
