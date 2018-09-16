@@ -74,23 +74,30 @@ class Interface:
             "select_committee_chair": "Selecting committee chair",
             "select_committee_member_2": "Selecting second committee member",
             "select_committee_member_3": "Selecting third committee member",
-            "defend": "Scheduling defense action"
+            "defend": "Scheduling defense action",
+            "specialize_big_data": "Completing Big Data specialization",
+            "specialize_ai": "Completing AI specialization",
+            "specialize_cybersecurity": "Completing Cybersecurity specialization"
         }
 
         self.predicates = {
-            "chair_expertise": "chair has expertiese in the area of specialization",
-            "is_expert": "is an expert in the specialization",
-            "is_concentration": "a course should have correct concentration",
-            "has_committee_chair_done": "chair to the committee",
-            "has_committee_chair": "chair to the committee",
+            "chair_expertise": "chair to be an expert in the area of specialization",
+            "is_expert": "chair to be an expert in the area of specialization",
+            "is_concentration": "the course from each concentration",
+            "has_committee_chair_done": "having a chair in the committee",
+            "has_committee_chair": "having a chair in the committee",
             "selected": "member is selected",
-            "has_taken": "has taken the deficiency courses",
-            "has_committee_member2": "second member is part of the committee",
-            "has_committee_member3": "third member is part of the committee",
-            "completed_concentration": "completed the concentration of foundation, algorithm and systems",
-            "sem_quota": "user has not taken 4 courses in the semester",
-            "current_num": "user has not taken 10 courses",
-            "is_concentration": "course has appropriate concentration for user to complete"
+            "has_taken CSE599a": "completing first thesis courses",
+            "has_taken CSE599b": "taking both the thesis courses",
+            "has_taken": "completing the deficiency courses",
+            "has_committee_member2": "second committee member",
+            "has_committee_member3": "third committee member",
+            "completed_concentration": "completing concentration of foundation, algorithm and systems",
+            "completed_specialization": "completing specialization of AI, Big Data or Cybersecurity",
+            "sem_quota": "student to not take 4 courses in the semester",
+            "current_num": "student to take 10 courses",
+            "is_concentration": "course has appropriate concentration for student to complete",
+            "specialize-has_taken": "student to complete specialization specific courses"
         }
 
     def getData(self, file_name):
@@ -104,7 +111,7 @@ class Interface:
     generated the corresponding dictionary of actions that can be displayed in the UI.
     '''
     def actionsToUI(self, actions, is_explanations=False):
-        print ("[DEBUG] PDDL to UI : ", actions)
+        # print ("[DEBUG] PDDL to UI : ", actions)
         
         # New action dict since some actions in the old list may
         # be omitted.
@@ -112,6 +119,9 @@ class Interface:
 
         if is_explanations:
             for k in actions.keys():
+                if ";" not in actions[k]:
+                    continue
+
                 action, explanation = actions[k].split(";")
                 actionArray = self.__action_to_array(action)
                 if not actionArray:
@@ -137,7 +147,7 @@ class Interface:
             act = None
             a_property = ""
             # Check if action is a validated or suggested action
-            if action.find(";") >= 0:
+            if ";" in action:
                 action, a_property = action.split(";")
                 has_property = True
 
@@ -192,7 +202,7 @@ class Interface:
         # Map the action name to UI action name
         action = action[1: -1]
         # splits the action to convert an array. In case of empty string we go to next action.
-        if action.find("_") >= 0:
+        if "_" in action:
             actionArray = action.split("_")
         elif action:
             actionArray = [action]
@@ -202,7 +212,7 @@ class Interface:
         return actionArray
 
     def __get_action_name(self, action_name):
-        if action_name.find("-"):
+        if "-" in action_name:
             act = action_name.split("-")
             act = [x.strip() for x in act]
         actionType = act[0]
@@ -254,7 +264,7 @@ class Interface:
             self.committee_members = [prof] + self.committee_members
 
         act += self.connector + prof
-        if specialization.find(" ") >= 0:
+        if " " in specialization:
             specialization = specialization.replace(" ", "_")
 
         if action == "Add Chair":
@@ -266,7 +276,7 @@ class Interface:
     ' string is, it is a part of the action and not a parameter to the action
     '''
     def __specialization(self, action, name):
-        name = name if name.find(" ") < 0 else name.replace(" ", "_")
+        name = name if " " not in name else name.replace(" ", "_")
         return [self.mapper[action] + "_" + name.upper()]
 
     def __endSemester(self, action, name):
@@ -292,7 +302,7 @@ class Interface:
                         course.upper() + self.connector
             course_type = course_type.lower()
         else:
-            if name.find("Thesis") > -1:
+            if "Thesis" in name:
                 name = self.__removeType(name)
                 action =    self.mapper[name]
                 course_type = ""
@@ -356,18 +366,20 @@ class Interface:
     def __invertCommittee(self, actionStrings):
         key = "_".join(actionStrings[0:3])
         profName = actionStrings[3].title()
-        if key.find("MEMBER") > 0:
+        if "MEMBER" in key:
             profName = actionStrings[4].title()
         prof = self.committee[profName]
-        prof[1] = prof[1] if prof[1].find("_") < 0 else prof[1].replace("_", " ")
+        prof[1] = prof[1] if "_" not in prof[1] else prof[1].replace("_", " ")
         action = self.invert_mapper[key] + prof[0] + " (Specialization: " + prof[1] + ")"
         return action
 
     def __invertCourse(self, actionStrings):
         key = "_".join(actionStrings[0:2])
-        if actionStrings[1].find("CSE") >= 0:
+        if "CSE" in actionStrings[1]:
+            # find UI name for CSE599A and CSE599B
             action = self.invert_mapper[key]
         else:
+            # UI name for all other courses
             course = self.courses[actionStrings[3]]
             action = self.invert_mapper[key] + course[0] + " (" + course[1] + ")"
 
@@ -509,11 +521,11 @@ class Interface:
             #    continue
             pred = self.__convert_predicate(predicate)
 
-            print predicate, pred
+            #print predicate, pred
             if pred is not None and pred not in ui_explanations:
                 ui_explanations.append(pred)
         
-        return "\n".join(ui_explanations)
+        return "<br/>".join(ui_explanations)
 
     def __convert_predicate(self, model_difference):
         pred = ""
@@ -533,117 +545,38 @@ class Interface:
             s = "-has-delete-effect-"
             kind = "deletes"
 
+        # spliting the string to get the action and predicate
         act, pred = model_difference.split(s)
         pred = pred.strip()
         act = act.strip()
         # removing the predicate parameters
-        if " " in pred:
+        if "has_taken" in pred:
+            # courses of thesis and deficiency type
+            if "CSE599a" in pred:
+                # checking for first thesis course to return that in feedback
+                pred = "has_taken CSE599a"
+            elif "CSE599b" in pred:
+                # checking for second thesis course
+                pred = "has_taken CSE599b"
+            else:
+                # these are usually deficiency course so key for that is has_taken
+                pred = "has_taken"
+        elif " " in pred:
             pred = pred.split(" ")[0]
 
         if "semester" in act:
+            # added to remove extra number at the end of complete_semester action
             act = "complete_semester"
 
+        # specialization has requirement of taking few extra courses.
+        if "specialize" in act and pred == "has_taken":
+            pred = "specialize-has_taken"
+
+        # if either the action or predicate was missing sentences
+        # then return empty action
         if pred not in self.predicates or act not in self.actions:
             return None
+
+        print "[WAS FOUND]", model_difference, act
         return self.actions[act] + " " + kind + " " + self.predicates[pred]
 
-def test_invertor():
-    plan = [
-        "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
-        "(TAKE_DEFICIENCY_COURSE_CSE340_ZERO_ONE_ZERO_ONE)",
-        "(DEFEND);(defend) has an unsatisfied precondition at time 1 : (Follow each of: :     (Set (current_num_ten) to true) :     and (Set (has_taken_cse599b) to true) :     and (Set (has_taken_cse599a) to true) :     and (Set (completed_specialization) to true) :     and (Set (has_committee_member3) to true) :     and (Set (has_committee_member2) to true) :     and (Set (has_committee_done) to true) :     and (Set (has_committee_chair_done) to true) : )"
-    ]
-    """
-    plan = ["(SELECT_COMMITTEE_MEMBER_2_LIU);--",
-        "(SELECT_COMMITTEE_CHAIR_ZHANG_AI)",
-        "(TAKE_DEFICIENCY_COURSE_CSE355_ZERO_ONE_ZERO_ONE);--",
-        "(SELECT_COMMITTEE_MEMBER_3_AMOR);--",
-        "(TAKE_DEFICIENCY_COURSE_CSE310_ZERO_ONE_ONE_TWO);--",
-        "(TAKE_DEFICIENCY_COURSE_CSE360_ZERO_ONE_TWO_THREE);--",
-        "(COMPLETE_SEMESTER_3);--",
-        "(COMPLETE_SEMESTER);--",
-        "(TAKE_CSE599A_ZERO_ONE_ZERO_ONE);--",
-        "(TAKE_NORMAL_COURSE_CSE574_APPLICATIONS_ONE_TWO_ONE_TWO);--",
-        "(TAKE_NORMAL_COURSE_CSE571_APPLICATIONS_TWO_THREE_TWO_THREE);--",
-        "(COMPLETE_SEMESTER_3);--",
-        "(COMPLETE_SEMESTER);--",
-        "(TAKE_NORMAL_COURSE_CSE563_SYSTEMS_THREE_FOUR_ZERO_ONE);--",
-        "(TAKE_NORMAL_COURSE_CSE555_FOUNDATIONS_FOUR_FIVE_ONE_TWO);--",
-        "(TAKE_NORMAL_COURSE_CSE552_FOUNDATIONS_FIVE_SIX_TWO_THREE);--",
-        "(COMPLETE_SEMESTER_3);--",
-        "(COMPLETE_SEMESTER);--",
-        "(TAKE_NORMAL_COURSE_CSE565_SYSTEMS_SIX_SEVEN_ZERO_ONE);--",
-        "(TAKE_NORMAL_COURSE_CSE575_APPLICATIONS_SEVEN_EIGHT_ONE_TWO);--",
-        "(SPECIALIZE_AI);--",
-        "(TAKE_NORMAL_COURSE_CSE509_APPLICATIONS_EIGHT_NINE_TWO_THREE);--",
-        "(COMPLETE_SEMESTER_3);--",
-        "(COMPLETE_SEMESTER);--",
-        "(TAKE_CSE599B_NINE_TEN_ZERO_ONE);--",
-        "(DEFEND);--"
-    ]"""
-    inter = Interface()
-    print(inter.actionsToUI(plan))
-
-def test():
-    plan =  [
-                {"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
-                {"name":"Add Course - Embedded Operating Systems Internals (systems)",
-                        "x": 0, "y": 0, "width": 12, "height": 1},
-                {"name": "Add Course - Software Project, Process and Quality Management (systems)",
-                        "x": 0, "y": 0, "width": 12, "height": 1},
-                {"name": "Add Course - Computer Organization and Assembly Language Programming (deficiency)",
-                        "x": 0, "y": 0, "width": 12, "height": 1},
-                {"name": "Add - End of Semester", "x": 0, "y": 1, "width": 12, "height": 1},
-                {"name": "Add Course - Software Verification, Validation and Testing (systems)",
-                        "x": 0, "y": 2, "width": 12, "height": 1},
-                {"name": "Add Chair - Guoliang Xue (Specialization: big data)",
-                        "x": 0, "y": 3, "width": 12, "height": 1},
-                {"name": "Add Specialization - Cybersecurity", "x": 0, "y": 10, "width": 12, "height": 1},
-                {"name": "Add Chair - Guoliang Xue (Specialization: big data)",
-                        "x": 0, "y": 15, "width": 12, "height": 1},
-                {"name": "Add - End of Semester", "x": 0, "y": 4, "width": 12, "height": 1},
-                {"name": "Add Committee - Arunabha Sen (Specialization: none)",
-                        "x": 0, "y": 5, "width": 12, "height": 1},
-                {"name": "Add Course - Thesis Course A (research)", "x": 0, "y": 4, "width": 12, "height": 1},
-                {"name": "Add - Defense", "x": 0, "y": 6, "width": 12, "height": 1},
-                {"name": "Add Course - Software Verification, Validation and Testing (systems)",
-                        "x": 0, "y": 12, "width": 12, "height": 1},
-            ]
-
-    inter = Interface(" ")
-    print(inter.uiToActions(plan))
-
-def test_explanations():
-    plan = {
-		"0": "(SELECT_COMMITTEE_CHAIR_LIU_BIG_DATA);('ADD>>', 'select_committee_chair-has-precondition-is_expert ?p ?x')\n('ADD>>', 'select_committee_chair-has-add-effect-chair_expertise ?x')\n('ADD>>', 'select_committee_chair-has-add-effect-has_committee_chair_done')\n('ADD>>', 'select_committee_chair-has-precondition-selected ?p')\n('ADD>>', 'select_committee_chair-has-precondition-has_committee_chair_done')\n('ADD>>', 'select_committee_chair-has-add-effect-has_committee_chair ?p')\n('ADD>>', 'select_committee_chair-has-add-effect-selected ?p')\n",
-		"2": "(TAKE_DEFICIENCY_COURSE_CSE330_ZERO_ONE_ZERO_ONE);('DEL>>', 'take_deficiency_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_deficiency_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_deficiency_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-current_num ?n1')\n",
-		"3": "(SELECT_COMMITTEE_MEMBER_3_AMOR);('DEL>>', 'select_committee_member_3-has-add-effect-selected ?p')\n('DEL>>', 'select_committee_member_3-has-precondition-selected ?p')\n('DEL>>', 'select_committee_member_3-has-precondition-has_committee_member2')\n('DEL>>', 'select_committee_member_3-has-add-effect-has_committee_member3')\n('DEL>>', 'select_committee_member_3-has-add-effect-has_committee_done')\n",
-		"4": "(TAKE_DEFICIENCY_COURSE_CSE230_ZERO_ONE_ONE_TWO);('DEL>>', 'take_deficiency_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_deficiency_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_deficiency_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-current_num ?n1')\n",
-		"5": "(TAKE_DEFICIENCY_COURSE_CSE340_ZERO_ONE_TWO_THREE);('DEL>>', 'take_deficiency_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_deficiency_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_deficiency_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_deficiency_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_deficiency_course-has-precondition-current_num ?n1')\n",
-		"6": "(TAKE_NORMAL_COURSE_CSE510_APPLICATIONS_ZERO_ONE_THREE_FOUR);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
-		"7": "(COMPLETE_SEMESTER_4);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
-		"8": "(COMPLETE_SEMESTER);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
-		"9": "(TAKE_CSE599A_ONE_TWO_ZERO_ONE);('DEL>>', 'take_CSE599a-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_CSE599a-has-precondition-current_num ?n1')\n('DEL>>', 'take_CSE599a-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_CSE599a-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_CSE599a-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_CSE599a-has-add-effect-has_taken CSE599a')\n('DEL>>', 'take_CSE599a-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_CSE599a-has-add-effect-current_num ?n2')\n('DEL>>', 'take_CSE599a-has-delete-effect-current_num ?n1')\n",
-		"10": "(TAKE_NORMAL_COURSE_CSE563_SYSTEMS_TWO_THREE_ONE_TWO);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
-		"11": "(TAKE_NORMAL_COURSE_CSE555_FOUNDATIONS_THREE_FOUR_TWO_THREE);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
-		"12": "(TAKE_NORMAL_COURSE_CSE512_APPLICATIONS_FOUR_FIVE_THREE_FOUR);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
-		"13": "(COMPLETE_SEMESTER_4);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
-		"14": "(COMPLETE_SEMESTER);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
-		"15": "(TAKE_NORMAL_COURSE_CSE574_APPLICATIONS_FIVE_SIX_ZERO_ONE);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
-		"16": "(TAKE_NORMAL_COURSE_CSE552_FOUNDATIONS_SIX_SEVEN_ONE_TWO);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
-		"17": "(TAKE_NORMAL_COURSE_CSE572_APPLICATIONS_SEVEN_EIGHT_TWO_THREE);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
-		"18": "(SPECIALIZE_BIG_DATA);('DEL>>', 'specialize_big_data-has-add-effect-completed_specialization')\n",
-		"19": "(TAKE_NORMAL_COURSE_CSE565_SYSTEMS_EIGHT_NINE_THREE_FOUR);('DEL>>', 'take_normal_course-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_normal_course-has-add-effect-has_taken ?c')\n('DEL>>', 'take_normal_course-has-precondition-sem_quota ?s1')\n('DEL>>', 'take_normal_course-has-precondition-current_num ?n1')\n('DEL>>', 'take_normal_course-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_normal_course-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_normal_course-has-add-effect-completed_concentration ?x')\n('DEL>>', 'take_normal_course-has-add-effect-current_num ?n2')\n('DEL>>', 'take_normal_course-has-precondition-is_concentration ?c ?x')\n",
-		"20": "(COMPLETE_SEMESTER_4);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
-		"21": "(COMPLETE_SEMESTER);('DEL>>', 'complete_semester-has-precondition-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-delete-effect-ready_to_complete_semester')\n('DEL>>', 'complete_semester-has-add-effect-sem_quota zero')\n",
-		"22": "(TAKE_CSE599B_NINE_TEN_ZERO_ONE);('DEL>>', 'take_CSE599b-has-delete-effect-sem_quota ?s1')\n('DEL>>', 'take_CSE599b-has-delete-effect-current_num ?n1')\n('DEL>>', 'take_CSE599b-has-add-effect-has_taken CSE599b')\n('DEL>>', 'take_CSE599b-has-add-effect-current_num ?n2')\n('DEL>>', 'take_CSE599b-has-precondition-next_num ?s1 ?s2')\n('DEL>>', 'take_CSE599b-has-precondition-next_num ?n1 ?n2')\n('DEL>>', 'take_CSE599b-has-precondition-current_num ?n1')\n('DEL>>', 'take_CSE599b-has-add-effect-sem_quota ?s2')\n('DEL>>', 'take_CSE599b-has-precondition-sem_quota ?s1')\n",
-		"23": "(DEFEND);('DEL>>', 'defend-has-add-effect-defended')\n"
-	} 
-
-    inter = Interface()
-    print inter.actionsToUI(plan, True)
-
-if __name__ == "__main__":
-    #test()
-    #test_invertor()
-    test_explanations()

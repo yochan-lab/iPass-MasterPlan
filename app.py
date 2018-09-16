@@ -85,13 +85,15 @@ def log_activity():
     planner.write_user_activity(data)
     return 'OK'
 
-def main(host='127.0.0.1'):
+def main(host='127.0.0.1', port=5000):
     app.run(host=host,
-            port=5000,
+            port=port,
             debug=True)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         main(host=sys.argv[1])
+    elif len(sys.argv) == 3:
+        main(host = sys.arg[1], port = sys.argv[2])
     else:
         main()
