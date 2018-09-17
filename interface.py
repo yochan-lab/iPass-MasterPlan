@@ -164,6 +164,7 @@ class Interface:
                 # empty messages for explanations are to be appended with ~~~ for ui purpose
                 act += ";~~~"
 
+            act = str(act)
             # setting ui_actions with appropriate complete message
             if is_explanations:
                 ui_actions[count] = act

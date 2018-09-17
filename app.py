@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 from planner import Planner
 from interface import Interface
 import json
@@ -84,6 +84,11 @@ def log_activity():
     data = request.get_data()
     planner.write_user_activity(data)
     return 'OK'
+
+@app.route("/reset", methods=['GET'])
+def reset():
+    planner.definePlanningProblem()
+    return redirect("/", code=301)
 
 def main(host='127.0.0.1', port=5000):
     app.run(host=host,
