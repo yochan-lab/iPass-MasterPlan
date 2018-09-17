@@ -113,86 +113,92 @@ class Interface:
     Given an output plan (list of actions) with validation or suggesting action markers,
     generated the corresponding dictionary of actions that can be displayed in the UI.
     '''
-    def actionsToUI(self, actions, is_explanations=False):
+    def actions_to_ui(self, actions, is_explanations=False):
         # print ("[DEBUG] PDDL to UI : ", actions)
         
         # New action dict since some actions in the old list may
         # be omitted.
         ui_actions = {}
 
+        # converting action dictionary to an array of actions
         if is_explanations:
+            # converting string keys to numbers
+            keys = [int(x) for x in actions.keys()]
+            # creating a temporary array from the size of the keys
+            temp = [""]*(max(keys)+1)
             for k in actions.keys():
-                if ";" not in actions[k]:
-                    continue
+                # saving the actions to exact counter
+                temp[int(k)] = actions[k]
+            # replacing dictionary for explanations to original array
+            actions = temp
 
-                action, explanation = actions[k].split(";")
-                actionArray = self.__action_to_array(action)
-                if not actionArray:
-                    continue    
-                act = self.__backward_conversion(actionArray)
-                explanation = self.__get_explanation(explanation)
-                if not act:
-                    continue
-                act += ";"
-                if explanation:
-                    ui_actions[k] = act + explanation
-                else:
-                    ui_actions[k] = act + "~~~"
-
-            return ui_actions
-        
-        # code for feedback on validate and 
         idx = 0
         self.global_feedback = []
-        for action in actions:
-            # resetting the parameters for the loop
-            has_property = False
+        for count, action in enumerate(actions):
+            # resetting the values for each iteration
+            # message can be a feedback or an explanation
+            has_message = False
             act = None
-            a_property = ""
-            # Check if action is a validated or suggested action
+            a_message = ""
             if ";" in action:
-                action, a_property = action.split(";")
-                has_property = True
+                # getting the planner action and the message
+                action, a_message = action.split(";")
+                has_message = True
 
-            actionArray = self.__action_to_array(action)
-
-            if not actionArray:
+            # splitting the action on _
+            action_array = self.__action_to_array(action)
+            if not action_array:
                 continue
 
-            act = self.__backward_conversion(actionArray)
-            if act is not None:
-                # action has a ui_action mapping
-                if has_property:
-                    act += ";" + self.__getFeedback(a_property)
-                ui_actions[idx] = str(act)
-                #whenever there is an action increment the index
+            # converting it to ui action
+            act = self.__backward_conversion(action_array)
+            # finding the method for converting message
+            func = self.__get_explanation if is_explanations else self.__get_feedback
+            if not act:
+                continue
+
+            if has_message:
+                # if action has a feedback or explanation then convert it to ui readable message
+                act += ";" + func(a_message)
+            elif is_explanations:
+                # empty messages for explanations are to be appended with ~~~ for ui purpose
+                act += ";~~~"
+
+            # setting ui_actions with appropriate complete message
+            if is_explanations:
+                ui_actions[count] = act
+            else:
+                ui_actions[idx] = act
                 idx += 1
 
-        #print ("[DEBUG] final actions from interface: ", ui_actions)
+        # print "[DEBUG] UI actions returned : ", ui_actions
         return ui_actions
 
     '''
     Takes as input actions from the ui (gridstack action list)
     and returns PDDL grounds actions that can be mapped to pr-domain operators.
     '''
-    def uiToActions(self, ui_actions):
+    def ui_to_actions(self, ui_actions):
         # Initializing global variables everytime request comes from the frontend
         #print ("[DEBUG] UI to PDDL: ", ui_actions)
         ui_actions.sort(key = lambda action: action['y'])
-        self.course_counter = 0
-        self.sem_counter = 0
-        self.committee_counter = 1
-        self.committee_members = []
+        self.course_counter = 0 # counter for courses in the degree
+        self.sem_counter = 0 # counter for couses in the semester
+        self.committee_counter = 1 # counter for members in the committee
 
         actions = {}
         end_sem_count_booster = 0
         for action in ui_actions:
+            # position based on gridstack action list
             action_pos = int(action['y'])
+            # get the list of actions for planner
             action_list = self.__get_action_name(action['name'])
 
             for i in range(len(action_list)):
+                # end semester ui action is converted to 2 planner actions, counting that case
                 if i > 0:
                     end_sem_count_booster += 1
+                # making the dictionary as per the ui action position and end sem booster
                 actions[action_pos+end_sem_count_booster] = "({})".format(action_list[i])
 
         #print ("[DEBUG] ui_actions converted in interface : ", ui_actions)
@@ -214,6 +220,10 @@ class Interface:
 
         return actionArray
 
+    '''
+    ' preprocessing the ui action to split it "-" and convert it to
+    ' actionType and action. sends it to forward conversion switch
+    '''
     def __get_action_name(self, action_name):
         if "-" in action_name:
             act = action_name.split("-")
@@ -233,12 +243,12 @@ class Interface:
     '''
     def __backward_conversion(self, action):
         switch = {
-            "TAKE": self.__invertCourse,
-            "SELECT": self.__invertCommittee,
-            "COMPLETE": self.__invertSemester,
-            "SPECIALIZE": self.__invertSpecialization,
+            "TAKE": self.__b_add_course,
+            "SELECT": self.__b_chair_committee,
+            "COMPLETE": self.__b_end_semester,
+            "SPECIALIZE": self.__b_specialization,
         }
-        func = switch.get(action[0], self.__defaultInvertor)
+        func = switch.get(action[0], self.__b_default)
 
         return func(action)
 
@@ -279,9 +289,6 @@ class Interface:
             if self.committee_counter < 3:
                 self.committee_counter += 1
             act += "_" + str(self.committee_counter)
-            self.committee_members.append(prof)
-        else:
-            self.committee_members = [prof] + self.committee_members
 
         act += self.connector + prof
         # big data has space between the name converting it to _
@@ -327,7 +334,11 @@ class Interface:
         return [self.mapper[action]]
 
     def __f_default(self, action, name):
-        return [self.mapper[action] + self.connector + name.upper()]
+        temp = self.mapper.get(action, None)
+        if temp:
+            return [temp + self.connector + name.upper()]
+        else:
+            return None
 
     '''
     ' returns planner action for deficiency, normal and thesis courses
@@ -401,7 +412,10 @@ class Interface:
     def __remove_type(self, name):
         return name.split("(")[0].strip()
 
-    def __invertSemester(self, actionStrings):
+    '''
+    ' returns UI action for COMPLETE_SEMESTER_X and COMPLETE_SEMESTER
+    '''
+    def __b_end_semester(self, actionStrings):
         key = "_".join(actionStrings[0:2])
         # Look at COMPLETE_SEMEMSTER_x actions for sending the
         # COMPLETE_SEMSTER action back.
@@ -410,46 +424,68 @@ class Interface:
 
         return None
 
-    def __invertSpecialization(self, actionStrings):
+    '''
+    ' returns ui action for SPECIALIZE_<Name>
+    '''
+    def __b_specialization(self, actionStrings):
         length = len(actionStrings)
         if length == 2 and len(actionStrings[1]) == 2:
+            # SPECIALIZE_AI
             specialization = "AI"
         elif length == 2:
+            # SPECIALIZE_CYBERSECURITY
             specialization = "Cybersecurity"
         else:
+            # SPECIALIZE_BIG_DATA
             specialization = "Big Data"
 
         return self.invert_mapper[actionStrings[0]] + specialization
 
-    def __invertCommittee(self, actionStrings):
+    '''
+    ' returns add chair and committee UI actions
+    ' handles SELECT_COMMITTEE_CHAIR_<NAME>_<SPECIALIZATION>
+    ' and SELECT_COMMITTEE_MEMBER_#_<NAME>
+    '''
+    def __b_chair_committee(self, actionStrings):
+        # key for getting the UI conversion
         key = "_".join(actionStrings[0:3])
+        # prof name from the action
         profName = actionStrings[3].title()
         if "MEMBER" in key:
+            # in case of committee member there is a number
             profName = actionStrings[4].title()
-        prof = self.committee[profName]
-        prof[1] = prof[1] if "_" not in prof[1] else prof[1].replace("_", " ")
-        action = self.invert_mapper[key] + prof[0] + " (Specialization: " + prof[1] + ")"
+        # get the professor and his specialization
+        prof, specialization = self.committee[profName]
+        # remove _ from big_data specialization
+        specialization = specialization if "_" not in specialization else specialization.replace("_", " ")
+        # final UI action conversion
+        action = self.invert_mapper[key] + prof + " (Specialization: " + specialization + ")"
         return action
 
-    def __invertCourse(self, actionStrings):
+    '''
+    ' returns add normal, deficiency and thesis courses UI actions
+    '''
+    def __b_add_course(self, actionStrings):
+        # key for getting the UI conversion
         key = "_".join(actionStrings[0:2])
         if "CSE" in actionStrings[1]:
             # find UI name for CSE599A and CSE599B
             action = self.invert_mapper[key]
         else:
             # UI name for all other courses
-            course = self.courses[actionStrings[3]]
-            action = self.invert_mapper[key] + course[0] + " (" + course[1] + ")"
+            # get course and the course_type (deficiency, foundation, system and application)
+            course, course_type = self.courses[actionStrings[3]]
+            action = self.invert_mapper[key] + course + " (" + course_type + ")"
 
         return action
 
-    def __defaultInvertor(self, actions):
-        return self.invert_mapper[actions[0]]
+    def __b_default(self, actions):
+        return self.invert_mapper.get(actions[0], None)
 
     '''
     ' converts val un-met predicates to readable feedback
     '''
-    def __getFeedback(self, soup):
+    def __get_feedback(self, soup):
         if soup == "--":
             return soup
         elif soup == "Invalid Action":
@@ -489,6 +525,9 @@ class Interface:
 
         return ";".join(ui_feedback)
 
+    '''
+    ' returns UI string for the VAL feedback
+    '''
     def __formatFeedback(self, spice):
         # default case like defended, cse599a or cse599b is
         # handled from this key
@@ -635,6 +674,5 @@ class Interface:
         if pred not in self.predicates or act not in self.actions:
             return None
 
-        print "[WAS FOUND]", model_difference, act
         return self.actions[act] + " " + kind + " " + self.predicates[pred]
 

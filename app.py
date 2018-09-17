@@ -16,9 +16,9 @@ def pddl_to_ui_actions(action_list = None):
     if not action_list:
         # Get the plan to be showed in the planning panel
         action_list = planner.get_action_sequence_list()
-        return translator.actionsToUI(action_list)
+        return translator.actions_to_ui(action_list)
     else:
-        return translator.actionsToUI(action_list, True)
+        return translator.actions_to_ui(action_list, True)
 
 
 def ui_to_pddl_actions(request, is_get_request=False):
@@ -26,7 +26,7 @@ def ui_to_pddl_actions(request, is_get_request=False):
         plan = json.loads( request.args.get('plan') )
     else:
         plan = json.loads( dict(request.form)['plan'][0] )
-    return translator.uiToActions(plan)
+    return translator.ui_to_actions(plan)
 
 @app.route("/")
 def index(was_plan_found=False):

@@ -35,7 +35,7 @@ def test_invertor():
         "(DEFEND);--"
     ]"""
     inter = Interface()
-    print(inter.actionsToUI(plan))
+    print(inter.actions_to_ui(plan))
 
 def test():
     plan =  [
@@ -64,7 +64,7 @@ def test():
             ]
 
     inter = Interface(" ")
-    print(inter.uiToActions(plan))
+    print(inter.ui_to_actions(plan))
 
 def test_explanations():
     plan = {
@@ -121,11 +121,11 @@ def test_explanations():
 
     inter = Interface()
     #print inter.actionsToUI({"0": ""}, True)
-    print inter.actionsToUI(plan2, True)
+    print inter.actions_to_ui(plan2, True)
 
 if __name__ == "__main__":
-    #test()
-    #test_invertor()
+    test()
+    test_invertor()
     test_explanations()
 
 
