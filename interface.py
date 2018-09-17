@@ -7,12 +7,14 @@ class Interface:
         self.committee = self.getData(path + "committee.json")
         self.cache = dict()
         self.connector = connector
+        # number for courses
         self.num = [
             "ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN",
             "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN",
             "EIGHTEEN", "NINETEEN", "TWENTY", "TWENTYONE", "TWENTYTWO", "TWENTYTHREE", "TWENTYFOUR",
             "TWENTYFIVE", "TWENTYSIX", "TWENTYSEVEN", "TWENTYEIGHT", "TWENTYNINE", "THIRTY"
         ]
+        # used for mapping UI keys to planner actions
         self.mapper = {
             "deficiency": "TAKE_DEFICIENCY_COURSE",
             "normal": "TAKE_NORMAL_COURSE",
@@ -28,6 +30,7 @@ class Interface:
             "Thesis Course B": "TAKE_CSE599B",
             "Add Specialization": "SPECIALIZE"
         }
+        # used to map planner actions to UI action names
         self.invert_mapper = {
             "TAKE_DEFICIENCY": "Add Course - ",
             "TAKE_NORMAL": "Add Course - ",
@@ -38,8 +41,8 @@ class Interface:
             "SPECIALIZE": "Add Specialization - ",
             "DEFEND": "Add - Defense",
             "COMPLETE_SEMESTER": "Add - End of Semester"
-
         }
+        # used to convert validate preconditions not satisfied to actionable strings
         self.feedback = {
             "current_num": "Completing 10 courses",
             "sem_quota": "Completing preferred number of course(s) in the Semester",
@@ -64,7 +67,7 @@ class Interface:
             "not-has_committee_chair": "Adding more than 1 chair to the committee",
             "not-has_committee_member": "Adding more than 2 members (other than the chair)"
         }
-
+        # converting ppe explanation actions to readable action names
         self.actions = {
             "take_normal_course": "Adding normal course",
             "take_deficiency_course": "Adding deficiency course",
@@ -79,7 +82,7 @@ class Interface:
             "specialize_ai": "Completing AI specialization",
             "specialize_cybersecurity": "Completing Cybersecurity specialization"
         }
-
+        # converting ppe explanation predications to readable information string
         self.predicates = {
             "chair_expertise": "chair to be an expert in the area of specialization",
             "is_expert": "chair to be an expert in the area of specialization",
@@ -126,7 +129,7 @@ class Interface:
                 actionArray = self.__action_to_array(action)
                 if not actionArray:
                     continue    
-                act = self.__invertor(actionArray)
+                act = self.__backward_conversion(actionArray)
                 explanation = self.__get_explanation(explanation)
                 if not act:
                     continue
@@ -156,7 +159,7 @@ class Interface:
             if not actionArray:
                 continue
 
-            act = self.__invertor(actionArray)
+            act = self.__backward_conversion(actionArray)
             if act is not None:
                 # action has a ui_action mapping
                 if has_property:
@@ -222,9 +225,13 @@ class Interface:
             else:
                 actionType = "Defend"
         #print "[DEBUG] __get_action_name parameters: ", actionType, act      
-        return [str(x) for x in self.__converter(actionType, act[1])]
+        return [str(x) for x in self.__forward_conversion(actionType, act[1])]
 
-    def __invertor(self, action):
+    '''
+    ' used to convert planner actions ui actions
+    ' switch case to handle the major cases for each action
+    '''
+    def __backward_conversion(self, action):
         switch = {
             "TAKE": self.__invertCourse,
             "SELECT": self.__invertCommittee,
@@ -235,27 +242,40 @@ class Interface:
 
         return func(action)
 
-    def __converter(self, action, name):
+    '''
+    ' called from converting UI actions to planner actions
+    ' switch case to handle major cases for each UI action
+    '''
+    def __forward_conversion(self, action, name):
         switch = {
-            "Add Course": self.__addCourse,
-            "Add Chair": self.__addChairAndCommittee,
-            "Add Committee": self.__addChairAndCommittee,
-            "Complete Semester": self.__endSemester,
-            "Defend": self.__defend,
-            "Add Specialization": self.__specialization
+            "Add Course": self.__f_add_course,
+            "Add Chair": self.__f_chair_committee,
+            "Add Committee": self.__f_chair_committee,
+            "Complete Semester": self.__f_end_semester,
+            "Defend": self.__f_defend,
+            "Add Specialization": self.__f_specialization
         }
 
-        func = switch.get(action, self.__defaultConvertor)
+        func = switch.get(action, self.__f_default)
         return func(action, name)
 
-    def __addChairAndCommittee(self, action, name):
+    '''
+    ' takes chair and committee members name and converts it to
+    ' planner action name for the each one of them
+    '''
+    def __f_chair_committee(self, action, name):
+        # gets professor and specialization based on the professor name sent from UI
         prof, specialization = self.__find(self.committee, name)
         if prof is None:
             return None
 
+        # Planner actions are in full caps
         prof = prof.upper()
         act = self.mapper[action]
+        # checking for second and third committee members for finding appropriate action
         if action == "Add Committee":
+            # ensures that if student adds more than 2 committee members
+            # then the counter stays at three.
             if self.committee_counter < 3:
                 self.committee_counter += 1
             act += "_" + str(self.committee_counter)
@@ -264,9 +284,11 @@ class Interface:
             self.committee_members = [prof] + self.committee_members
 
         act += self.connector + prof
+        # big data has space between the name converting it to _
         if " " in specialization:
             specialization = specialization.replace(" ", "_")
 
+        # add chair has specialization at the end of the action
         if action == "Add Chair":
             act += self.connector + specialization.upper()
         return [act]
@@ -274,50 +296,77 @@ class Interface:
     '''
     ' where ever _ is used instead of the connector - it is because whatever the next
     ' string is, it is a part of the action and not a parameter to the action
+    ' specialization function which converts adding specialization to
+    ' planner action. Big data is converted to BIG_DATA
     '''
-    def __specialization(self, action, name):
+    def __f_specialization(self, action, name):
         name = name if " " not in name else name.replace(" ", "_")
         return [self.mapper[action] + "_" + name.upper()]
 
-    def __endSemester(self, action, name):
+    '''
+    ' returns two end of semester planner actions
+    ' one with courses in the semeseter appended
+    ' other without the number
+    '''
+    def __f_end_semester(self, action, name):
         actions = []
+        # only add end_semester action if number of courses in the
+        # semester are in range [1, 4]
         if 0 < self.sem_counter < 5:
             actions.append(self.mapper[action] + "_" + str(self.sem_counter))
 
+        # counter for number of courses reset
         self.sem_counter = 0
         actions.append(self.mapper[action])
         return actions
 
-    def __defend(self, action, name):
+    '''
+    ' returns defense action for the planner
+    '''
+    def __f_defend(self, action, name):
         return [self.mapper[action]]
 
-    def __defaultConvertor(self, action, name):
+    def __f_default(self, action, name):
         return [self.mapper[action] + self.connector + name.upper()]
 
-    def __addCourse(self, action, name):
+    '''
+    ' returns planner action for deficiency, normal and thesis courses
+    '''
+    def __f_add_course(self, action, name):
+        # created cache, so that course names can be directly returned
+        # key for the dictionary is name value is the course name and type tupple
         if name in self.cache:
             course, course_type = self.cache[name]
+            # for two different course addition, thesis is never added to cache
             temp = "deficiency" if course_type == "deficiency" else "normal"
             action =    self.mapper[temp] + self.connector +\
                         course.upper() + self.connector
             course_type = course_type.lower()
         else:
             if "Thesis" in name:
-                name = self.__removeType(name)
+                # converting thesis courses
+                name = self.__remove_type(name)
                 action =    self.mapper[name]
                 course_type = ""
                 temp = "normal"
             else:
+                # finding course and course type (deficiency, foundation application, system)
                 course, course_type = self.__find(self.courses, name)
                 if course is None:
                     return None
+                # adding it to cache
                 self.cache[name] = [course, course_type]
+                # for two different adding course actions
+                # thesis was handled in the if condition
                 temp = "deficiency" if course_type == "deficiency" else "normal"
                 action =        self.mapper[temp] + self.connector + course.upper() + self.connector
 
+        # normal courses have course type in the action name
         if temp == "normal":
             action +=   course_type.upper() + self.connector
 
+        # course counter is incremented till 10 and not after that because PR2 plan
+        # throws an error for anything beyond 10, similarly for sem counter
         incremented     = self.course_counter + 1 if self.course_counter < 10 else 10
         sem_incremented = self.sem_counter + 1 if self.sem_counter < 10 else 10
 
@@ -326,13 +375,19 @@ class Interface:
                             self.num[self.sem_counter] + self.connector +\
                             self.num[sem_incremented]
 
+        # incrementing course counter only if the course was not deficiency
         if course_type != "deficiency": self.course_counter += 1
+        # incrementing sem counter
         self.sem_counter += 1
 
         return [action]
 
+    '''
+    ' data is a dictionary with key: [value1, value2] format
+    ' matches name to value1 and returns the corresponding key and value2
+    '''
     def __find(self, data, name):
-        name = self.__removeType(name)
+        name = self.__remove_type(name)
         for key in data.keys():
             if data[key][0] == name:
                 return key, data[key][1]
@@ -340,7 +395,10 @@ class Interface:
         print "No value found for ", name
         return None, None
 
-    def __removeType(self, name):
+    '''
+    ' removes deficiency, foundation, application and system for UI add courses action
+    '''
+    def __remove_type(self, name):
         return name.split("(")[0].strip()
 
     def __invertSemester(self, actionStrings):
