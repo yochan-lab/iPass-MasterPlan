@@ -60,7 +60,7 @@ class Interface:
             "is_ra_ta": "Only an RA/TA can take 4 courses in a semester",
             "is_international": "An international student needs to take atleast 3 courses in a semester",
             "not-has_taken": "Taking the same course {}, twice",
-            "not-sem_quota": "Taking less than 1 course and more than 4 courses,",
+            "not-sem_quota": "Taking less than 1 course and more than 4 courses",
             "not-current_num": "Adding more than 10 courses in the iPOS",
             "not-selected": "Adding the same professor {}, twice in your committee",
             "not-completed_specialization": "Adding the same specialization twice,",
