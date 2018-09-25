@@ -69,11 +69,11 @@ $(document).ready(function () {
         dataType: "json",
         success: function(data) {
 
-            var entry_string = '<a class="dropdown-item" href="#select-[INDEX]">[NAME] ([TYPE])</a>';
+            var entry_string = '<a class="dropdown-item" href="#select-[INDEX]">[[INDEX]] [NAME] ([TYPE])</a>';
 
             $.each( data , function( index, value ) {
 
-                temp = entry_string.replace('[INDEX]', index);
+                temp = entry_string.replace('[INDEX]', index).replace('[INDEX]', index);
                 temp = temp.replace('[NAME]', value[0]);
                 temp = temp.replace('[TYPE]', value[1]);
 
@@ -125,11 +125,8 @@ $(document).ready(function () {
     $( "#submitFinal" ).click( function() { 
 
         var success = true;
-        var feedback = ''
 
         $( "#feedback .form-control" ).each( function( index ) {
-
-            feedback += $(this).val() + "\n\n===\n\n";
 
             if ( !$(this).val().trim() && !$(this).hasClass( "optional" ) ) {
 
@@ -146,31 +143,46 @@ $(document).ready(function () {
 
             if ( $(this).hasClass( "active" ) ) {
 
-                feedback += $(this).html() + "\n\n===\n\n";
                 count++;
 
             }
 
         });
 
-        if ( count < 4 ) {
+        if ( count < 5 ) {
+            success = false;            
+        }
+
+        if ( $( "#youare" ).html().trim() == 'Click to Select' ) {
             success = false;            
         }
 
         if (success) {
 
-            feedback = 'LOG\n\n===\n\n' + feedback + '\n\n===\n\n' + num_rearranges + ';' + num_deletes + ';' + num_rearranges_of_suggestions + ';' + num_deletes_of_suggestions + ';'  + num_add + ';' + num_val + ';' + num_suggest + ';' + num_explain + ';' + num_checked; 
-            feedback = feedback + '\n\n===\n\n' + $( "#countdown" ).html();
+            JSONlog["time"] = $( "#countdown" ).html().trim();
+            JSONlog["which-class"] = $( "#youare" ).html().trim();
+            JSONlog["which-department"] = $( "#which-department" ).val().trim();
 
-            console.log(feedback);
+            JSONlog["yes-feedback"] = $( "#yes-feedback" ).val().trim();
+            JSONlog["no-feedback"] = $( "#no-feedback" ).val().trim();
+            JSONlog["mange-more-feedback"] = $( "#mange-more-feedback" ).val().trim();
+            JSONlog["other-feedback"] = $( "#other-feedback" ).val().trim();
+  
+            var finalIPOS = new Array();
+            $( ".grid-stack-item-content .display-action-name" ).each( function() {
+                finalIPOS.push( $( this ).html().trim() )
+            });
 
-            // enable cors or add to app.py
+            JSONlog["final-IPOS"] = finalIPOS;
+
+            console.log(JSONlog);
 
             $.ajax({
                 type: 'POST',
                 url: 'logs/',
-                data: feedback,
-                dataType: 'text',
+                data: JSON.stringify(JSONlog),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
                 success: function(data) {
                     $( "body" ).html( '<div class="container align-midmiddle end "><i class="fas fa-check-circle fa-10x text-success"></i></div>' );
                 }
@@ -188,8 +200,8 @@ $(document).ready(function () {
 
     // method :: manage time, moeny and diffiuclty
 
-    var course_cost = 3000;
-    var semester_cost = 1000;
+    var course_cost = 3500;
+    var semester_cost = 2000;
 
     var num_courses = 0;
     var num_semesters = 0;
@@ -212,6 +224,10 @@ $(document).ready(function () {
         // Time calculations for days, hours, minutes and seconds
         var minutes = Math.floor((interval % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((interval % (1000 * 60)) / 1000);
+
+        if( $("#feedback").css('display') == 'block') {
+            update_flag = false;
+        }
 
         if (update_flag) {
 
@@ -282,29 +298,28 @@ $(document).ready(function () {
 
     // methods for loggings
 
-    num_rearranges = 0; 
-    num_deletes = 0; 
-
-    num_rearranges_of_suggestions = 0; 
-    num_deletes_of_suggestions = 0; 
-
-    num_add = 0; 
-
-    num_val = 0; 
-    num_suggest = 0; 
-    num_explain = 0; 
-    num_checked = 0; 
+    var JSONlog = {
+        "num_rearranges" : 0,
+        "num_deletes" : 0,
+        "num_rearranges_of_suggestions" : 0,
+        "num_deletes_of_suggestions" : 0,
+        "num_add" : 0,
+        "num_val" : 0,
+        "num_suggest" : 0,
+        "num_explain" : 0,
+        "num_checked" : 0,
+    }
 
     $(document).on('click', '.addButton', function(event) {
-        num_add++; 
+        JSONlog["num_add"]++; 
     });
 
     $(document).on('click', '.delete-action', function(event) {
 
-        num_deletes++; 
+        JSONlog["num_deletes"]++; 
 
         if ( $(this).find('.form-control').hasClass('text-success') ) {
-            num_deletes_of_suggestions++; 
+            JSONlog["num_deletes_of_suggestions"]++; 
         }
 
     });
@@ -323,10 +338,10 @@ $(document).ready(function () {
 
         if( drag_flag ) {
 
-            num_rearranges++; 
+            JSONlog["num_rearranges"]++; 
 
             if ( $(this).find('.form-control').hasClass('text-success') ) {
-                num_rearranges_of_suggestions++; 
+                JSONlog["num_rearranges_of_suggestions"]++; 
             }
 
         }
@@ -334,19 +349,19 @@ $(document).ready(function () {
     });
 
     $('#validatePlan').click( function() {
-        num_val++; 
+        JSONlog["num_val"]++; 
     });
 
     $('#suggestPlan').click( function() {
-        num_suggest++; 
+        JSONlog["num_suggest"]++; 
     });
 
     $('#explainPlan').click( function() {
-        num_explain++; 
+        JSONlog["num_explain"]++; 
     });
 
     $('#check').click( function() {
-        num_checked++; 
+        JSONlog["num_checked"]++; 
     });
 
 });

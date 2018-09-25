@@ -62,8 +62,8 @@
                     
                     <div class='row'>
                         <div class='col'>
+                            <!-- Plans happens here -->
                             <div class='grid-stack'>
-                                <!-- Plans happens here -->
                             </div>
                         </div>
                     </div><!-- row ends -->
@@ -130,13 +130,11 @@ $(function () {
     $('.addButton').click( function() {
 
         var elem = $(this).parent().siblings(' .form-control ').find( 'button' );
-        var ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim();
+        var ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim().split(']')[1].trim();
 
         updateData(ss);
 
     });
-    
-    
     
     // Remove any status bar (and explanation/undo buttons) at the start of some call.
     function hide_all_feedback() {
@@ -153,7 +151,7 @@ $(function () {
     // method :: check iPOS
     $('#check').click( function() {
         
-        res = geiGridStackData();
+        res = getGridStackData();
         hide_all_feedback()
         
         $( "#refresh" ).show();
@@ -463,12 +461,11 @@ $(function () {
 
         //console.log( grid );
         //console.log( this.serializedData );
-        // grid.removeAll();
+        grid.removeAll();
         // instead of removeAll resetting the grid stack html for action removal bug
-        $('.grid-stack').html("");
-        this.grid = $('.grid-stack').data('gridstack');
-        this.grid.enableResize(true, false);
 
+        // $('.grid-stack').html("");
+        // this.grid = $('.grid-stack').data('gridstack');
 
         var widgetHTML =   '<div> \
                                 <div class="grid-stack-item-content" data-gs-no-resize="true"> \

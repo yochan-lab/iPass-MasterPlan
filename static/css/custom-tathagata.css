@@ -64,6 +64,10 @@ Custom styles from Tathagata
     height: 360px;
 }
 
+#feedback .form-control-thin {
+    height: 50px;
+}
+
 /* plan elements */
 
 .disabled-button {

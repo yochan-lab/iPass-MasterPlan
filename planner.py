@@ -5,7 +5,7 @@ import problem_generator.compilePDDL as problem_generator
 from shutil import copy as copyf
 from copy import deepcopy
 import time
-
+import json
 
 class Planner():
 

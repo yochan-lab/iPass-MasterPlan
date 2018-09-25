@@ -83,7 +83,7 @@ def get_explanations():
 def log_activity():
     data = request.get_data()
     planner.write_user_activity(data)
-    return 'OK'
+    return json.dumps({'status' : 'OK'})
 
 @app.route("/reset", methods=['GET'])
 def reset():

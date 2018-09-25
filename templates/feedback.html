@@ -14,16 +14,22 @@
         <div class="input-group-prepend">
             <span class="input-group-text text-left">Describe in detail atleast 5 things you liked about<br>the Plan of Study you came up with.</span>
         </div>
-        <textarea class="form-control mandatory" placeholder="This task is mandatory."></textarea>
+        <textarea id="yes-feedback" class="form-control mandatory" placeholder="This task is mandatory."></textarea>
     </div>
 
     <div class="input-group mb-3">
         <div class="input-group-prepend">
             <span class="input-group-text text-left">Describe in detail atleast 5 things you did NOT like<br>about the Plan of Study you came up with.</span>
         </div>
-        <textarea class="form-control mandatory" placeholder="This task is mandatory."></textarea>
+        <textarea id="no-feedback" class="form-control mandatory" placeholder="This task is mandatory."></textarea>
     </div>
 
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text text-left">Describe in detail what other features of the interface<br>you would like to have.</span>
+        </div>
+        <textarea id="mange-more-feedback" class="form-control mandatory" placeholder="This task is mandatory."></textarea>
+    </div>
 
     <div class="row">
 
@@ -54,7 +60,7 @@
                 <div class="card-body">
 
                     <h5 class="card-title">Q2</h5>
-                    <p class="card-text">The interface improved my planning ability.</p>
+                    <p class="card-text">The feedback from the interface helped the iPOS making process.</p>
 
                     <div class="list-group likert" role="tablist">
                         <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Strongly Disagree</button>
@@ -94,12 +100,31 @@
 
     <div class="row">
 
-        <div class="col col-4">
+        <div class="col">
 
             <div class="card mb-3">
                 <div class="card-body">
 
                     <h5 class="card-title">Q4</h5>
+                    <p class="card-text">I have submitted an iPOS before.</p>
+
+                    <div class="list-group likert" role="tablist">
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">Yes</button>
+                        <button class="list-group-item list-group-item-action" data-toggle="list" role="tab">No</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="col">
+
+            <div class="card mb-3">
+                <div class="card-body">
+
+                    <h5 class="card-title">Q5</h5>
                     <p class="card-text">I am quite familiar with the ASU iPOS.</p>
 
                     <div class="list-group likert" role="tablist">
@@ -115,10 +140,45 @@
 
         </div>
 
-        <div class="col col-8">
-            <textarea class="form-control optional" placeholder="Any other comments (optional)"></textarea>
+
+        <div class="col">
+
+            <div class="card mb-3">
+                <div class="card-body">
+
+                    <h5 class="card-title">Q6</h5>
+                    <p class="card-text">I am a </p>
+
+                    <div class="dropdown">
+                        <button class="btn btn-outline-dark btn-sm dropdown-toggle btn-block" type="button" 
+                        id="youare" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Click to Select
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="youare">
+                            <a class="dropdown-item">Undergrad student</a>
+                            <a class="dropdown-item">Graduate student (non-Thesis)</a>
+                            <a class="dropdown-item">Graduate student (Thesis)</a>
+                            <a class="dropdown-item">Doctoral student</a>
+                        </div>
+                    </div>
+
+                    <br>
+                    <p class="card-text">from</p>
+                    <textarea id="which-department" class="form-control mandatory form-control-thin" 
+                    placeholder="Department name."></textarea>
+
+                </div>
+            </div>
+
         </div>
 
+
+    </div>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col">
+            <textarea id="other-feedback" class="form-control optional" placeholder="Any other comments (optional)"></textarea>
+        </div>
     </div>
 
     <div class="alert alert-secondary alert-block" role="alert" id="completeCheck">
