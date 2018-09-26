@@ -159,7 +159,8 @@ $(document).ready(function () {
 
         if (success) {
 
-            JSONlog["time"] = $( "#countdown" ).html().trim();
+            var now = new Date().getTime();
+            JSONlog["time"] += now - startTime;
             JSONlog["which-class"] = $( "#youare" ).html().trim();
             JSONlog["which-department"] = $( "#which-department" ).val().trim();
 
@@ -167,6 +168,7 @@ $(document).ready(function () {
             JSONlog["no-feedback"] = $( "#no-feedback" ).val().trim();
             JSONlog["mange-more-feedback"] = $( "#mange-more-feedback" ).val().trim();
             JSONlog["other-feedback"] = $( "#other-feedback" ).val().trim();
+            console.log(JSONlog);
   
             var finalIPOS = new Array();
             $( ".grid-stack-item-content .display-action-name" ).each( function() {
@@ -187,12 +189,12 @@ $(document).ready(function () {
                     $( "body" ).html( '<div class="container align-midmiddle end "><i class="fas fa-check-circle fa-10x text-success"></i></div>' );
                 }
             });
+            logStorage.setItem("reset", true);
 
         } else {
 
              $( "#completeCheck" ).removeClass( "alert-secondary" );
              $( "#completeCheck" ).addClass( "alert-danger" );
-
         }
 
 
@@ -208,7 +210,7 @@ $(document).ready(function () {
 
     // start logging time
     var update_flag = true;
-    var time_limit = 1;
+    var time_limit = 1.5;
 
     var startTime = new Date().getTime();
     var endTime   = new Date().getTime() + time_limit * 1000000;
@@ -295,7 +297,6 @@ $(document).ready(function () {
 
     }, 1000);
 
-
     // methods for loggings
 
     var JSONlog = {
@@ -308,7 +309,47 @@ $(document).ready(function () {
         "num_suggest" : 0,
         "num_explain" : 0,
         "num_checked" : 0,
-    }
+        "time": 0
+    };
+
+    // method for saving logs across sessions
+    var logStorage = window.localStorage;
+
+    // initialize values of keys for logStorage
+    var updateStorageCount = function(log){
+        var value = $("#session_id").val();
+        var keys = Object.keys(log);
+        for(var i = 0; i < keys.length; i++){
+            var key = keys[i];
+            logStorage.setItem(key, log[key]);
+        }
+        // setting up the logstorage session for checking the value
+        logStorage.setItem("session", value);
+    };
+
+    // update the value of logs from logStorage
+    var updateLocalCount = function(log){
+        var keys = Object.keys(log);
+        for(var i = 0; i < keys.length; i++){
+            var key = keys[i];
+            log[key] = parseInt(logStorage.getItem(key));
+        }
+
+        return log;
+    };
+
+    // method to decide whether to update or reset the logStorage when the page loads
+    var setupStorage = function(){
+        console.log("before ", JSONlog, logStorage);
+        var session_id = $("#session_id").val();
+        debugger;
+        console.log(logStorage.getItem("session") == session_id)
+        if(logStorage.getItem("session") == session_id)
+            updateLocalCount(JSONlog);
+        else
+            updateStorageCount(JSONlog);
+        console.log("after ", JSONlog, logStorage);
+    };
 
     $(document).on('click', '.addButton', function(event) {
         JSONlog["num_add"]++; 
@@ -363,5 +404,15 @@ $(document).ready(function () {
     $('#check').click( function() {
         JSONlog["num_checked"]++; 
     });
+
+    // storing the json log values to storage before page unloads.
+    window.onbeforeunload = function() {
+        var now = new Date().getTime();
+        JSONlog["time"] += (now - startTime);
+        updateStorageCount(JSONlog);
+    };
+
+    // setup storage called as soon as page loads
+    setupStorage(JSONlog);
 
 });

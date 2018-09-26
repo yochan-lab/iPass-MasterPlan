@@ -130,7 +130,12 @@ $(function () {
     $('.addButton').click( function() {
 
         var elem = $(this).parent().siblings(' .form-control ').find( 'button' );
-        var ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim().split(']')[1].trim();
+        if ( elem.html().trim().indexOf(']') > -1 ) {
+            ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim().split(']')[1].trim();
+        } else {
+            ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim();
+        }
+        //var ss = 'Add ' + elem.attr('id').replace('List', '').charAt(0).toUpperCase() + elem.attr('id').replace('List', '').slice(1) + ' - ' + elem.html().trim().split(']')[1].trim();
 
         updateData(ss);
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from flask import Flask, render_template, request, jsonify, redirect
 from planner import Planner
 from interface import Interface
@@ -28,6 +29,18 @@ def ui_to_pddl_actions(request, is_get_request=False):
         plan = json.loads( dict(request.form)['plan'][0] )
     return translator.ui_to_actions(plan)
 
+@app.after_request
+def add_header(r):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
+
 @app.route("/")
 def index(was_plan_found=False):
     p = pddl_to_ui_actions()
@@ -35,8 +48,8 @@ def index(was_plan_found=False):
     can_ask_for_explanations = 0
     if was_plan_found:
         can_ask_for_explanations = 1
-    
-    return render_template('index.html', canAskForExplanations=can_ask_for_explanations, plan=p)
+
+    return render_template('index.html', canAskForExplanations=can_ask_for_explanations, plan=p, session=planner.session_id)
 
 @app.route("/validate", methods=['GET', 'POST'])
 def validate():

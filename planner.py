@@ -6,6 +6,7 @@ from shutil import copy as copyf
 from copy import deepcopy
 import time
 import json
+import random, string
 
 class Planner():
 
@@ -77,6 +78,16 @@ class Planner():
         # create a log file for the new user, when server starts
         self.log_file = self.log_file.format(time.time())
 
+        # creating a new session id when creating a new planning problem
+        self.session_id = self.generate_random_id()
+        print "in planner ", self.session_id
+
+    '''
+    ' returns a 6 digit random string
+    '''
+    def generate_random_id(self, length = 6):
+        characters = string.ascii_uppercase + string.digits
+        return ''.join(random.choice(characters) for _ in range(length))
     '''
     Saves the plan from the frontend to a file that can restore it.
     '''
