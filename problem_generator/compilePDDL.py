@@ -32,7 +32,7 @@ def generateState():
     # sample state configuration
     with open(CONFIG_FILES_DIR.format('state.json'), 'r') as state_file:
         stateJSON = state_file.read()
-        
+
     state_dict = json.loads(stateJSON)
     no_count   = 0
 
@@ -50,10 +50,10 @@ def generateState():
             state_dict['deficiency'][course] = "yes"
 
         count += 1
-            
+
     if random.randint(0, 1): state_dict['ra/ta'] = "yes"
     else:                    state_dict['ra/ta'] = "no"
-    
+
     if random.randint(0, 1): state_dict['international'] = "yes"
     else:                    state_dict['international'] = "no"
 
@@ -105,26 +105,26 @@ def compile2pddl(stateJSON):
     state_dict = json.loads(stateJSON)
 
     deficiency_block = '\n'.join( ['(has_taken {})'.format(course) if state_dict['deficiency'][course] == 'yes' else ''  for course in state_dict['deficiency']] )
-    
+
     template = template.replace('[DEFICIENCY_BLOCK]', deficiency_block)
 
     if state_dict['ra/ta'] == 'yes':
         template = template.replace('[IS_RA_TA]', '(is_ra_ta)')
     else:
         template = template.replace('[IS_RA_TA]', '')
-        
+
     if state_dict['international'] == 'yes':
         template = template.replace('[IS_INTERNATIONAL]', '(is_international)')
     else:
         template = template.replace('[IS_INTERNATIONAL]', '')
-        
-    # if not required, comment out i/o for speed 
+
+    # if not required, comment out i/o for speed
     with open(PDDL_FILES_DIR.format('problem.pddl'), 'w') as problem_file:
         problem_file.write(template)
-        
+
     return template
 
-        
+
 '''
 method :: main
 '''
