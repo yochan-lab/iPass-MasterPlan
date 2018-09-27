@@ -36,16 +36,20 @@ def generateState():
     state_dict = json.loads(stateJSON)
     no_count   = 0
 
+    deficiencies = random.sample(xrange(5), 3)
+
+    count = 0
     for course in state_dict['deficiency']:
 
-        if bool(random.randint(0, 1)) and no_count < 3: 
+        if count in deficiencies:
 
-            no_count += 1
             state_dict['deficiency'][course] = "no"
 
         else:
 
             state_dict['deficiency'][course] = "yes"
+
+        count += 1
             
     if random.randint(0, 1): state_dict['ra/ta'] = "yes"
     else:                    state_dict['ra/ta'] = "no"

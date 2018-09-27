@@ -54,7 +54,7 @@ class Planner():
         self.problem_state_json = './static/files/state.json'
 
         # Files for writing logs for user activity
-        self.log_file = self.USER_ACTIVITY_DIR.format('logs_{}.txt')
+        self.log_file_name = self.USER_ACTIVITY_DIR.format('logs_{}.txt')
 
     '''
     Creates the problem.pddl file
@@ -76,11 +76,10 @@ class Planner():
         copyf(self.blank_obs, self.obs)
 
         # create a log file for the new user, when server starts
-        self.log_file = self.log_file.format(time.time())
+        self.log_file = self.log_file_name.format(time.time())
 
         # creating a new session id when creating a new planning problem
         self.session_id = self.generate_random_id()
-        print "in planner ", self.session_id
 
     '''
     ' returns a 6 digit random string

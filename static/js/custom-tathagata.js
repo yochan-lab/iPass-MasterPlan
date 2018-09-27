@@ -339,16 +339,12 @@ $(document).ready(function () {
     };
 
     // method to decide whether to update or reset the logStorage when the page loads
-    var setupStorage = function(){
-        console.log("before ", JSONlog, logStorage);
+    var updateCount = function(){
         var session_id = $("#session_id").val();
-        debugger;
-        console.log(logStorage.getItem("session") == session_id)
         if(logStorage.getItem("session") == session_id)
             updateLocalCount(JSONlog);
         else
             updateStorageCount(JSONlog);
-        console.log("after ", JSONlog, logStorage);
     };
 
     $(document).on('click', '.addButton', function(event) {
@@ -380,10 +376,10 @@ $(document).ready(function () {
         if( drag_flag ) {
 
             JSONlog["num_rearranges"]++; 
-
             if ( $(this).find('.form-control').hasClass('text-success') ) {
                 JSONlog["num_rearranges_of_suggestions"]++; 
             }
+            console.log("666", JSONlog["num_rearranges"]);
 
         }
 
@@ -413,6 +409,6 @@ $(document).ready(function () {
     };
 
     // setup storage called as soon as page loads
-    setupStorage(JSONlog);
+    updateCount(JSONlog);
 
 });
