@@ -112,6 +112,6 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         main(host=sys.argv[1])
     elif len(sys.argv) == 3:
-        main(host = sys.arg[1], port = sys.argv[2])
+        main(host = sys.argv[1], port = int(sys.argv[2]))
     else:
         main()

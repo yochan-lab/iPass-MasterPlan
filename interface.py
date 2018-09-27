@@ -71,8 +71,8 @@ class Interface:
         self.actions = {
             "take_normal_course": "Adding normal course",
             "take_deficiency_course": "Adding deficiency course",
-            "take_cse599a": "Adding thesis credit a",
-            "take_cse599b": "Adding thesis credit b",
+            "take_CSE599a": "Adding thesis credit a",
+            "take_CSE599b": "Adding thesis credit b",
             "complete_semester": "End of Semester",
             "select_committee_chair": "Selecting committee chair",
             "select_committee_member_2": "Selecting second committee member",
@@ -157,12 +157,16 @@ class Interface:
             if not act:
                 continue
 
+            print act, has_message
+
             if has_message:
                 # if action has a feedback or explanation then convert it to ui readable message
-                act += ";" + func(a_message)
-            elif is_explanations:
+                message = func(a_message)
                 # empty messages for explanations are to be appended with ~~~ for ui purpose
-                act += ";~~~"
+                if is_explanations and not message:
+                    act += ";~~~"
+                else:
+                    act += ";" + message
 
             act = str(act)
             # setting ui_actions with appropriate complete message
@@ -648,7 +652,7 @@ class Interface:
         pred = pred.strip()
         act = act.strip()
         # removing the predicate parameters
-        if "has_taken" in pred:
+        if "CSE599" in act and "has_taken" in pred:
             # courses of thesis and deficiency type
             if "CSE599a" in pred:
                 # checking for first thesis course to return that in feedback
