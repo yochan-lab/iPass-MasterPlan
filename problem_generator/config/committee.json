@@ -1,4 +1,6 @@
 {
+    "Dummy"    : ["Dummy Chair", "dummy"],
+    "Dummy2"    : ["Dummy Committee", "dummy"],
     "Colbourn" : ["Charlie Colbourn", "cybersecurity"],
     "Sen"      : ["Arunabha Sen", "cybersecurity"],
     "Xue"      : ["Guoliang Xue", "big_data"],
@@ -6,7 +8,7 @@
     "Doupe"    : ["Adam Doupe", "cybersecurity"],
     "Huang"    : ["Dijiang Huang", "cybersecurity"],
     "Sarwat"   : ["Mohammad Sarwat", "big_data"],
-    "Candan"   : ["Selchuk Candan", "big_data"],
+    "Candan"   : ["Selchuk Candan", "cybersecurity"],
     "Rao"      : ["Subbarao Kambhampati", "ai"],
     "Liu"      : ["Huan Liu", "big_data"],
     "Zhang"    : ["Yu Zhang", "ai"],

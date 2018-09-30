@@ -1,4 +1,5 @@
 {
+    "CSE101"  : ["Dummy Course", "Dummy Concentration"],
     "CSE230"  : ["Computer Organization and Assembly Language Programming", "deficiency"],
     "CSE310"  : ["Data Structures and Algorithms", "deficiency"],
     "CSE330"  : ["Operating Systems", "deficiency"],

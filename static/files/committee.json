@@ -1,4 +1,6 @@
 {
+    "Dummy"    : ["Dummy Chair", "dummy"],
+    "Dummy2"    : ["Dummy Committee", "dummy"],
     "Colbourn" : ["Charlie Colbourn", "cybersecurity"],
     "Sen"      : ["Arunabha Sen", "cybersecurity"],
     "Xue"      : ["Guoliang Xue", "big_data"],
