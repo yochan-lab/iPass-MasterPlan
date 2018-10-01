@@ -144,6 +144,7 @@ $(document).ready(function () {
             if ( $(this).hasClass( "active" ) ) {
 
                 count++;
+                JSONlog["Q"+count] = $(this).html().trim();
 
             }
 
