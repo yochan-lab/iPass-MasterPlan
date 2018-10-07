@@ -16,7 +16,7 @@ class Parser:
         times, files = self.__get_files(folderName)
         data = self.__get_data(files, times)
         with open("logs_data.csv", "w+") as f:
-            data.to_csv(f, sep="|", encoding="utf-8", index = False)
+            data.to_csv(f, sep="\t", encoding="utf-8", index = False)
         #for index, row in data.iterrows():
             #parse
 
